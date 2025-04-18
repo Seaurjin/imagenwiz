@@ -89,8 +89,8 @@ def process_matting():
             if server_url:
                 host = server_url
             
-    original_url = f"{host}/uploads/{unique_original}"
-    processed_url = f"{host}/processed/{unique_processed}"
+    original_url = f"{host}/api/uploads/{unique_original}"
+    processed_url = f"{host}/api/processed/{unique_processed}"
     
     # Deduct credit from user
     user.credits -= 1
