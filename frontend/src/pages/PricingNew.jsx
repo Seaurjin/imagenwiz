@@ -310,12 +310,12 @@ const PricingNew = () => {
                       </div>
                       <p className="ml-3 text-sm text-gray-500">
                         {(() => {
-                          // Replace credit text for yearly billing
-                          if (yearlyBilling && index === 0) {
-                            if (plan.id === 'lite' || plan.id === 'lite_yearly') {
-                              return '600 credits per year';
-                            } else if (plan.id === 'pro' || plan.id === 'pro_yearly') {
-                              return '3000 credits per year';
+                          // For yearly billing show yearly credits, and for monthly show monthly credits
+                          if (index === 0) { // First feature is always about credits
+                            if (plan.id === 'lite' || plan.id.startsWith('lite_')) {
+                              return yearlyBilling ? '600 credits per year' : '50 credits per month';
+                            } else if (plan.id === 'pro' || plan.id.startsWith('pro_')) {
+                              return yearlyBilling ? '3000 credits per year' : '250 credits per month';
                             }
                           }
                           return t(`plans.${plan.id.split('_')[0]}.features.${index}`, { defaultValue: feature });
