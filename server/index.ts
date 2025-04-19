@@ -1811,15 +1811,18 @@ app.get(['/privacy', '/terms', '/general-terms', '/cookies', '/refund', '/contac
   return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
 });
 
-// Also add individual route handlers for greater specificity
-app.get('/contact', (req, res) => {
-  console.log('🌟 Serving React contact page (explicit route)');
-  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
-});
-
-app.get('/refund', (req, res) => {
-  console.log('🌟 Serving React refund policy page (explicit route)');
-  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+// Intercept and handle specific routes directly
+app.use(['/contact', '/refund', '/privacy', '/terms', '/general-terms', '/cookies'], (req, res, next) => {
+  console.log(`🔒 Route interceptor: Handling ${req.path} directly on Express server`);
+  
+  // If this is a GET request for the HTML page, serve index.html
+  if (req.method === 'GET') {
+    console.log(`🌟 Serving React page for: ${req.path} (secure method)`);
+    return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+  }
+  
+  // Otherwise let it continue (might be an API call)
+  next();
 });
 
 // Contact form API endpoint
@@ -1861,6 +1864,22 @@ app.post('/api/contact', async (req, res) => {
 // Use payment handler for fallback options when backend is unreachable
 console.log('📝 Registering payment handler middleware for fallback responses');
 app.use(paymentHandler);
+
+// Filter middleware that prevents specific routes from being proxied to Flask
+app.use('/api', (req, res, next) => {
+  // List of endpoints that should NOT be proxied to Flask
+  const expressOnlyEndpoints = ['/api/contact'];
+  
+  // Check if the current path is in the list of Express-only endpoints
+  if (expressOnlyEndpoints.includes(req.originalUrl)) {
+    console.log(`⚡ Express-only endpoint detected: ${req.originalUrl}`);
+    // Continue to Express routes, but skip the Flask proxy middleware
+    return next('route');
+  }
+  
+  // Otherwise, continue to proxy middleware
+  next();
+});
 
 // Proxy API requests (except manually handled ones) to Flask backend
 app.use('/api', createProxyMiddleware({
