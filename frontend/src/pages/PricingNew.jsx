@@ -210,12 +210,12 @@ const PricingNew = () => {
           
           {/* Billing toggle */}
           <div className="mt-12 flex justify-center">
-            <div className="relative bg-white rounded-full p-1 flex shadow-md">
+            <div className="relative bg-gray-100 rounded-full p-1.5 flex shadow-md">
               <button
                 type="button"
                 className={`${
-                  !yearlyBilling ? 'bg-white text-gray-700' : 'bg-gray-100 text-gray-500'
-                } relative py-2 px-6 border-transparent rounded-full text-sm font-medium whitespace-nowrap focus:outline-none focus:z-10 transition-all`}
+                  !yearlyBilling ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-500'
+                } relative py-2.5 px-8 border-transparent rounded-full text-sm font-medium whitespace-nowrap focus:outline-none focus:z-10 transition-all`}
                 onClick={handleBillingToggle}
               >
                 {t('monthly')}
@@ -223,8 +223,8 @@ const PricingNew = () => {
               <button
                 type="button"
                 className={`${
-                  yearlyBilling ? 'bg-gray-100 text-gray-700' : 'bg-white text-gray-500'
-                } ml-0.5 relative py-2 px-6 border-transparent rounded-full text-sm font-medium whitespace-nowrap focus:outline-none focus:z-10 transition-all`}
+                  yearlyBilling ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-500'
+                } ml-0.5 relative py-2.5 px-8 border-transparent rounded-full text-sm font-medium whitespace-nowrap focus:outline-none focus:z-10 transition-all`}
                 onClick={handleBillingToggle}
               >
                 <span className="flex items-center gap-2">
@@ -304,7 +304,7 @@ const PricingNew = () => {
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <div className="flex-shrink-0">
-                        <CheckIcon className="h-5 w-5 text-amber-500" />
+                        <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
                       </div>
                       <p className="ml-3 text-sm text-gray-500">
                         {t(`plans.${plan.id.split('_')[0]}.features.${index}`, { defaultValue: feature })}
@@ -331,7 +331,11 @@ const PricingNew = () => {
                       handlePurchase(effectivePlanId);
                     }}
                     disabled={loading}
-                    className={`w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors ${
+                    className={`w-full ${
+                      plan.mostPopular 
+                        ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-500' 
+                        : 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500'
+                    } text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                       loading ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
                   >
@@ -350,7 +354,7 @@ const PricingNew = () => {
           </p>
           <a
             href="mailto:enterprise@imagenwiz.com"
-            className="mt-4 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-amber-600 bg-white hover:bg-amber-50"
+            className="mt-4 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-teal-600 bg-white hover:bg-teal-50"
           >
             {t('contactSales')}
           </a>
