@@ -83,9 +83,15 @@ app.use(express.static(FRONTEND_DIST_PATH, {
   index: false // Don't automatically serve index.html for / to allow our custom handlers
 }));
 
+// Direct route handler for /contact
+app.get('/contact', (req, res) => {
+  console.log('📞 Contact route handler explicitly invoked');
+  // Serve the React app's index.html
+  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
 // Define a list of routes that should be handled by the frontend React app
 const FRONTEND_ROUTES = [
-  '/contact',
   '/refund',
   '/privacy', 
   '/terms', 
@@ -1909,6 +1915,13 @@ app.use('/api', (req, res, next) => {
     return next('route');
   }
   
+  // Check for contact API endpoints specifically (both with and without trailing slash)
+  if (req.path === '/contact' || req.path === '/contact/') {
+    console.log(`🛑 Blocking Flask proxy for contact API: ${req.originalUrl}`);
+    // Skip the Flask proxy
+    return next('route');
+  }
+  
   // Otherwise, continue to proxy middleware
   next();
 });
@@ -2301,10 +2314,14 @@ app.use('/order-confirmation', (req, res, next) => {
 // STEP 4: CATCH-ALL ROUTE - Must be LAST route defined
 //==========================================================================
 app.get('*', (req, res) => {
-  console.log(`🌐 Serving SPA route: ${req.path}`);
+  console.log(`🌐 Serving SPA route: ${req.path} (Catch-All Route Handler)`);
   console.log(`  Full URL: ${req.url}`);
   console.log(`  Original URL: ${req.originalUrl}`);
   console.log(`  Query params:`, req.query);
+  console.log(`  Headers:`, req.headers);
+  console.log(`  Method:`, req.method);
+  console.log(`  Remote IP:`, req.ip);
+  console.log(`  Is Express Route:`, req.route ? "YES" : "NO");
   
   // Check for root redirects from Stripe with query parameters
   // This handles cases where Stripe erroneously redirects to domain root instead of /order-confirmation
