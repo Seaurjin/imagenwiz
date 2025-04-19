@@ -21,12 +21,11 @@
       "name": "Free",
       "description": "For individuals wanting to try out our service",
       "price": "0",
-      "credits": "5",
+      "credits": "3",
       "features": [
-        "5 free credits",
+        "3 free credits per month",
         "Standard quality processing",
         "Web-based editor",
-        "24-hour support response time",
         "JPG and PNG downloads"
       ]
     },
@@ -41,9 +40,9 @@
         "50 credits per month",
         "High quality processing",
         "Web-based editor",
-        "12-hour support response time",
-        "All common formats support",
-        "Bulk processing up to 10 images"
+        "Support for all common formats",
+        "Bulk processing up to 10 images",
+        "Prioritized processing"
       ]
     },
     "pro": {
@@ -51,17 +50,16 @@
       "description": "For professionals and businesses with high-volume needs",
       "priceMonthly": "24.90",
       "priceYearly": "262.80",
-      "creditsMonthly": "150",
-      "creditsYearly": "1800",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
       "features": [
-        "150 credits per month",
+        "250 credits per month",
         "Premium quality processing",
         "Advanced editing tools",
-        "4-hour support response time",
-        "All formats support including TIFF",
+        "All format support, including TIFF",
         "Bulk processing up to 50 images",
         "API access",
-        "Priority processing"
+        "Top-tier prioritized processing"
       ]
     }
   },
