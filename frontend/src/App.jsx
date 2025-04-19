@@ -168,6 +168,12 @@ const AppContent = () => {
               <Route path="/register" element={<Register />} />
               <Route path="/pricing" element={<PricingNew />} />
               <Route path="/pricing-old" element={<Pricing />} />
+              
+              {/* Legal pages */}
+              <Route path="/terms" element={<React.lazy(() => import('./pages/legal/TermsOfService'))} />} />
+              <Route path="/general-terms" element={<React.lazy(() => import('./pages/legal/GeneralTerms'))} />} />
+              <Route path="/privacy" element={<React.lazy(() => import('./pages/legal/PrivacyPolicy'))} />} />
+              <Route path="/cookies" element={<React.lazy(() => import('./pages/legal/CookiePolicy'))} />} />
               <Route
                 path="/checkout"
                 element={

@@ -15,9 +15,12 @@
     "about": "About Us",
     "contact": "Contact",
     "terms": "Terms of Service",
+    "generalTerms": "General Terms & Conditions",
     "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
     "copyright": "© 2025 iMagenWiz. All rights reserved.",
-    "quickLinks": "Quick Links"
+    "quickLinks": "Quick Links",
+    "legal": "Legal"
   },
   "common": {
     "loading": "Loading...",
