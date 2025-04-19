@@ -54,7 +54,7 @@ const pricingPlans = [
       'Full batch processing',
       'API access',
     ],
-    mostPopular: false,
+    mostPopular: true,
   },
   {
     id: 'pro_monthly',
@@ -77,7 +77,7 @@ const pricingPlans = [
       'Top-tier prioritized processing',
     ],
     notIncluded: [],
-    mostPopular: true,
+    mostPopular: false,
   },
 ];
 
@@ -229,11 +229,9 @@ const PricingNew = () => {
               >
                 {t('yearly')}
               </button>
-              {yearlyBilling && (
-                <div className="absolute -top-3 right-6 rounded-full bg-green-100 px-3 py-0.5 text-xs font-semibold text-green-800">
-                  {t('yearlyDiscount')}
-                </div>
-              )}
+              <div className="absolute -top-3 right-6 rounded-full bg-amber-100 px-3 py-0.5 text-xs font-semibold text-amber-800">
+                {t('yearlyDiscount')}
+              </div>
             </div>
           </div>
         </div>
@@ -256,11 +254,11 @@ const PricingNew = () => {
             <div
               key={plan.id}
               className={`bg-white rounded-lg shadow-lg divide-y divide-gray-200 ${
-                plan.mostPopular ? 'ring-2 ring-teal-500' : ''
+                plan.mostPopular ? 'ring-2 ring-amber-500' : ''
               } transition-all hover:shadow-xl`}
             >
               {plan.mostPopular && (
-                <div className="bg-teal-500 rounded-t-lg py-1.5">
+                <div className="bg-amber-500 rounded-t-lg py-1.5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-white text-center">
                     {t('popular')}
                   </p>
@@ -283,7 +281,7 @@ const PricingNew = () => {
                   </span>
                 </p>
                 {yearlyBilling && plan.id !== 'free' && (
-                  <p className="mt-1 text-sm text-green-700">
+                  <p className="mt-1 text-sm text-amber-700">
                     {t('savingsPercentage', { percent: calculateSavings(plan.monthlyPrice, plan.yearlyPrice) })}
                   </p>
                 )}
@@ -304,7 +302,7 @@ const PricingNew = () => {
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <div className="flex-shrink-0">
-                        <CheckIcon className="h-5 w-5 text-teal-500" />
+                        <CheckIcon className="h-5 w-5 text-amber-500" />
                       </div>
                       <p className="ml-3 text-sm text-gray-500">
                         {t(`plans.${plan.id.split('_')[0]}.features.${index}`, { defaultValue: feature })}
