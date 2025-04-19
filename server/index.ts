@@ -83,11 +83,43 @@ app.use(express.static(FRONTEND_DIST_PATH, {
   index: false // Don't automatically serve index.html for / to allow our custom handlers
 }));
 
-// Add early route handlers for frontend-only routes to prevent them from being proxied to Flask
-// These must come BEFORE any other middleware
-app.get(['/contact', '/refund', '/privacy', '/terms', '/general-terms', '/cookies'], (req, res) => {
-  console.log(`⭐ Early capture of frontend route: ${req.path}`);
-  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+// Define a list of routes that should be handled by the frontend React app
+const FRONTEND_ROUTES = [
+  '/contact',
+  '/refund',
+  '/privacy', 
+  '/terms', 
+  '/general-terms', 
+  '/cookies',
+  '/pricing',
+  '/login',
+  '/register',
+  '/dashboard',
+  '/profile',
+  '/blog',
+  '/about',
+  '/home',
+  '/faq',
+  '/settings',
+  '/account'
+];
+
+// First middleware: check if the request is for a known frontend route
+// If so, serve the React app immediately and prevent further middleware processing
+app.use((req, res, next) => {
+  // Check if the requested path exactly matches a frontend route or is a sub-path
+  const isExactFrontendRoute = FRONTEND_ROUTES.includes(req.path);
+  const isSubpathOfFrontendRoute = FRONTEND_ROUTES.some(route => 
+    req.path.startsWith(`${route}/`) || req.path === route
+  );
+  
+  if (isExactFrontendRoute || isSubpathOfFrontendRoute) {
+    console.log(`🌟 HIGH PRIORITY: Serving frontend route directly: ${req.path}`);
+    return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+  }
+  
+  // Not a frontend route, continue to other middleware
+  next();
 });
 
 // Special URL decoding middleware for handling encoded query parameters
