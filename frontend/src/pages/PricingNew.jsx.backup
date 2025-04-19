@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-// Import from mock module
-import { PRICE_IDS } from '../lib/stripe-mock.js';
+// Import from our error-free version instead of the problematic one
+import { PRICE_IDS } from '../no-error-stripe';
 
-// Simplified plans
+// Plans configuration
 const pricingPlans = [
   {
     id: 'free',
@@ -82,18 +83,48 @@ const pricingPlans = [
 ];
 
 const PricingNew = () => {
-  const { t } = useTranslation('pricing');
+  const { t, i18n } = useTranslation('pricing'); // Use pricing namespace
+  
+  // Debug translations
+  useEffect(() => {
+    console.log('-----------------------------------');
+    console.log('PRICING PAGE TRANSLATION DEBUGGING');
+    console.log('-----------------------------------');
+    console.log('Current language in PricingNew:', i18n.language);
+    console.log('Translation for "title":', t('title'));
+    console.log('Translation for "monthly":', t('monthly'));
+    console.log('Translation for "perYear":', t('perYear'));
+    console.log('All available namespaces:', i18n.options.ns);
+    
+    // Check all available translations
+    const availableLanguages = ['en', 'es', 'fr'];
+    availableLanguages.forEach(lang => {
+      console.log(`Resources for ${lang}:`, i18n.options.resources?.[lang]?.pricing ? 'AVAILABLE' : 'NOT AVAILABLE');
+      if (i18n.options.resources?.[lang]?.pricing) {
+        console.log(`Sample translations for ${lang}:`, {
+          title: i18n.options.resources[lang].pricing.title,
+          monthly: i18n.options.resources[lang].pricing.monthly
+        });
+      }
+    });
+    
+    // Check current language in more detail
+    console.log('CURRENT LANGUAGE RESOURCES:', i18n.options.resources?.[i18n.language]?.pricing);
+    
+    // Check if the namespace is properly loaded
+    console.log('Is "pricing" namespace loaded?', i18n.hasResourceBundle(i18n.language, 'pricing'));
+  }, [i18n.language, t]);
   const [yearlyBilling, setYearlyBilling] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   const handleBillingToggle = () => {
     setYearlyBilling(!yearlyBilling);
   };
 
-  const handlePurchase = (planId) => {
+  const handlePurchase = async (planId) => {
     if (planId === 'free') {
       if (!isAuthenticated) {
         navigate('/register');
@@ -105,15 +136,66 @@ const PricingNew = () => {
     }
 
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/login', { state: { from: '/pricing', plan: planId } });
       return;
     }
 
-    // Simplified success message
-    alert('In this version, payment processing has been simplified. In the production version, you would be redirected to Stripe Checkout.');
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 1500);
+    setLoading(true);
+    setError('');
+
+    try {
+      // Find the selected plan 
+      const selectedPlan = pricingPlans.find((plan) => 
+        yearlyBilling 
+          ? (plan.idYearly || plan.id) === planId 
+          : plan.id === planId
+      );
+      
+      if (!selectedPlan) {
+        throw new Error(`Plan ${planId} not found`);
+      }
+      
+      // Determine price ID based on selection
+      let priceId = '';
+      let packageName = '';
+      
+      // Use the price ID directly from the plan object
+      if (yearlyBilling) {
+        priceId = selectedPlan.yearlyPriceId;
+        packageName = `${selectedPlan.name} Yearly`;
+      } else {
+        priceId = selectedPlan.monthlyPriceId;
+        packageName = `${selectedPlan.name} Monthly`;
+      }
+      
+      // Debug information
+      console.log('Selected plan:', selectedPlan);
+      console.log('Price ID being used:', priceId);
+      console.log('Package name:', packageName);
+      console.log('Is yearly billing:', yearlyBilling);
+      
+      // Navigate to checkout page with the plan data
+      navigate('/checkout', { 
+        state: { 
+          packageDetails: {
+            priceId,
+            packageName,
+            isYearly: yearlyBilling
+          }
+        } 
+      });
+    } catch (err) {
+      console.error('Error processing plan selection:', err.message);
+      setError('Failed to process your selection. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  // Calculate the savings for yearly billing
+  const calculateSavings = (monthly, yearly) => {
+    const monthlyCost = monthly * 12;
+    const savings = ((monthlyCost - yearly) / monthlyCost) * 100;
+    return Math.round(savings);
   };
 
   return (
@@ -188,10 +270,10 @@ const PricingNew = () => {
 
               <div className="p-6">
                 <h2 className="text-xl leading-6 font-bold text-gray-900">
-                  {plan.name}
+                  {t(`plans.${plan.id.split('_')[0]}.name`)}
                 </h2>
                 <p className="mt-2 text-sm text-gray-500">
-                  {plan.description}
+                  {t(`plans.${plan.id.split('_')[0]}.description`)}
                 </p>
                 <p className="mt-4">
                   <span className="text-4xl font-extrabold text-gray-900">
@@ -201,10 +283,22 @@ const PricingNew = () => {
                     {yearlyBilling ? t('perYear') : t('perMonth')}
                   </span>
                 </p>
+                {yearlyBilling && plan.id !== 'free' && (
+                  <p className="mt-1">
+                    <span className="inline-block rounded-full bg-amber-400 px-2 py-0.5 text-xs font-semibold text-gray-800">
+                      {t('yearlyDiscount')}
+                    </span>
+                  </p>
+                )}
                 <p className="mt-4 text-sm text-gray-500">
                   <span className="font-medium text-gray-800">
                     {yearlyBilling ? plan.yearlyCredits : plan.monthlyCredits} 
                   </span> {t('credits')}
+                  {plan.id !== 'free' && yearlyBilling && (
+                    <span className="block text-xs mt-1 text-gray-500">
+                      {t('creditsMonthlySuffix', { credits: Math.round(plan.yearlyCredits / 12) })}
+                    </span>
+                  )}
                 </p>
               </div>
 
@@ -215,7 +309,19 @@ const PricingNew = () => {
                       <div className="flex-shrink-0">
                         <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
                       </div>
-                      <p className="ml-3 text-sm text-gray-500">{feature}</p>
+                      <p className="ml-3 text-sm text-gray-500">
+                        {(() => {
+                          // For yearly billing show yearly credits, and for monthly show monthly credits
+                          if (index === 0) { // First feature is always about credits
+                            if (plan.id === 'lite' || plan.id.startsWith('lite_')) {
+                              return yearlyBilling ? '600 credits per year' : '50 credits per month';
+                            } else if (plan.id === 'pro' || plan.id.startsWith('pro_')) {
+                              return yearlyBilling ? '3000 credits per year' : '250 credits per month';
+                            }
+                          }
+                          return t(`plans.${plan.id.split('_')[0]}.features.${index}`, { defaultValue: feature });
+                        })()}
+                      </p>
                     </li>
                   ))}
                   {plan.notIncluded.map((feature, index) => (
@@ -230,7 +336,13 @@ const PricingNew = () => {
 
                 <div className="mt-8">
                   <button
-                    onClick={() => handlePurchase(plan.id)}
+                    onClick={() => {
+                      // Select the appropriate plan ID based on billing period
+                      const effectivePlanId = yearlyBilling && plan.idYearly 
+                        ? plan.idYearly 
+                        : plan.id;
+                      handlePurchase(effectivePlanId);
+                    }}
                     disabled={loading}
                     className={`w-full ${
                       plan.mostPopular 
@@ -259,6 +371,19 @@ const PricingNew = () => {
           >
             {t('contactSales')}
           </a>
+        </div>
+
+        <div className="max-w-4xl mx-auto mt-16 bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('faq.title')}</h2>
+          
+          <div className="space-y-6">
+            {t('faq.items', { returnObjects: true }).map((item, index) => (
+              <div key={index}>
+                <h3 className="text-lg font-medium text-gray-800 mb-2">{item.question}</h3>
+                <p className="text-gray-600">{item.answer}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
