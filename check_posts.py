@@ -8,7 +8,7 @@ import pymysql
 # Direct connection to database to check blog posts
 DB_HOST = '8.130.113.102'
 DB_USER = 'root'
-DB_PASS = 'mysuperstrongpassword'
+DB_PASS = 'Ir%86241992'
 DB_NAME = 'mat_db'
 
 def check_blog_posts():

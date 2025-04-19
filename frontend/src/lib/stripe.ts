@@ -2,8 +2,11 @@ import { loadStripe } from '@stripe/stripe-js';
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLISHABLE_KEY');
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+
+// Log warning instead of throwing an error
+if (!stripeKey) {
+  console.warn('Stripe key missing: VITE_STRIPE_PUBLISHABLE_KEY. Payment features will be disabled.');
 }
 
 export const PRICE_IDS = {
@@ -13,6 +16,7 @@ export const PRICE_IDS = {
   PRO_YEARLY: 'price_1QIAAnAGgrMJnivhCL2VYPNH',
 };
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+// Only attempt to load Stripe if we have a key
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 export default stripePromise;
