@@ -363,8 +363,8 @@ const BlogHomePage = () => {
                 key={`result-count-${currentLanguage}`}
               >
                 {searchTerm 
-                  ? t('blog:searchResultCount', {count: '{{count}} results', count: postCount}) 
-                  : t('blog:filteredCount', {count: '{{count}} articles', count: postCount})}
+                  ? t('blog:searchResultCount', {count: postCount, interpolation: {escapeValue: false}}) 
+                  : t('blog:filteredCount', {count: postCount, interpolation: {escapeValue: false}})}
               </div>
             )}
           </div>
