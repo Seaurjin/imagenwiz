@@ -83,11 +83,21 @@ app.use(express.static(FRONTEND_DIST_PATH, {
   index: false // Don't automatically serve index.html for / to allow our custom handlers
 }));
 
-// Direct route handler for /contact
-app.get('/contact', (req, res) => {
-  console.log('📞 Contact route handler explicitly invoked');
-  // Serve the React app's index.html
-  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+// CRITICAL FIX: Comprehensive handler for ALL contact-related routes
+// This handler handles both the page route and its API
+app.use('/contact*', (req, res, next) => {
+  // Special debug logging
+  console.log(`📞 Contact route handler: ${req.method} ${req.originalUrl} (${req.path})`);
+  console.log(`  Headers: ${JSON.stringify(req.headers)}`);
+  
+  // If it's a GET request for the contact page, serve the React app
+  if (req.method === 'GET' && (req.path === '/contact' || req.path === '/contact/')) {
+    console.log('📞 Serving Contact page from Express');
+    return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+  }
+  
+  // Otherwise, let the request continue to other handlers
+  next();
 });
 
 // Define a list of routes that should be handled by the frontend React app
@@ -1863,14 +1873,18 @@ app.use(['/contact', '/refund', '/privacy', '/terms', '/general-terms', '/cookie
   next();
 });
 
-// Contact form API endpoint
+// Contact form API endpoint - IMPORTANT: This must be defined before Flask proxy middleware
 app.post('/api/contact', async (req, res) => {
-  console.log('📧 Received contact form submission');
+  console.log('📧 Received contact form submission at /api/contact');
+  console.log(`  Headers: ${JSON.stringify(req.headers)}`);
+  console.log(`  Body: ${JSON.stringify(req.body)}`);
+  
   try {
     const { name, email, subject, message, reason } = req.body;
     
     // Validate required fields
     if (!name || !email || !subject || !message) {
+      console.warn('❌ Missing required fields in contact form submission');
       return res.status(400).json({ 
         success: false, 
         message: 'All fields are required (name, email, subject, message).' 
@@ -1887,11 +1901,11 @@ app.post('/api/contact', async (req, res) => {
     });
     
     // Log the status of the form submission
-    console.log(`Contact form submission ${result.success ? 'successful' : 'failed'}: ${result.message}`);
+    console.log(`✅ Contact form submission ${result.success ? 'successful' : 'failed'}: ${result.message}`);
     
     return res.status(result.success ? 200 : 500).json(result);
   } catch (error) {
-    console.error('Error processing contact form submission:', error);
+    console.error('❌ Error processing contact form submission:', error);
     return res.status(500).json({ 
       success: false, 
       message: 'An unexpected error occurred while processing your request.'
