@@ -38,6 +38,7 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import CookiePolicy from './pages/legal/CookiePolicy';
 import RefundPolicy from './pages/legal/RefundPolicy';
 import Contact from './pages/Contact';
+import ApiComingSoon from './pages/ApiComingSoon';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -252,6 +253,9 @@ const AppContent = () => {
               <Route path="/blog" element={<BlogHomePage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
               <Route path="/blog/tag/:tag" element={<BlogHomePage />} />
+              
+              {/* API Coming Soon page */}
+              <Route path="/api" element={<ApiComingSoon />} />
               
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />
