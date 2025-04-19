@@ -42,8 +42,12 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="text-2xl font-bold text-teal-500">
-                iMagenWiz
+              <Link to="/" className="flex items-center">
+                <img 
+                  src="/images/imagenwiz-logo-transparent.svg" 
+                  alt="iMagenWiz Logo" 
+                  className="h-10 w-auto" 
+                />
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
