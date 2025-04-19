@@ -283,8 +283,10 @@ const PricingNew = () => {
                   </span>
                 </p>
                 {yearlyBilling && plan.id !== 'free' && (
-                  <p className="mt-1 text-sm text-amber-700">
-                    {t('savingsPercentage', { percent: calculateSavings(plan.monthlyPrice, plan.yearlyPrice) })}
+                  <p className="mt-1">
+                    <span className="inline-block rounded-full bg-amber-400 px-2 py-0.5 text-xs font-semibold text-gray-800">
+                      {t('yearlyDiscount')}
+                    </span>
                   </p>
                 )}
                 <p className="mt-4 text-sm text-gray-500">
@@ -307,7 +309,17 @@ const PricingNew = () => {
                         <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
                       </div>
                       <p className="ml-3 text-sm text-gray-500">
-                        {t(`plans.${plan.id.split('_')[0]}.features.${index}`, { defaultValue: feature })}
+                        {(() => {
+                          // Replace credit text for yearly billing
+                          if (yearlyBilling && index === 0) {
+                            if (plan.id === 'lite' || plan.id === 'lite_yearly') {
+                              return '600 credits per year';
+                            } else if (plan.id === 'pro' || plan.id === 'pro_yearly') {
+                              return '3000 credits per year';
+                            }
+                          }
+                          return t(`plans.${plan.id.split('_')[0]}.features.${index}`, { defaultValue: feature });
+                        })()}
                       </p>
                     </li>
                   ))}
