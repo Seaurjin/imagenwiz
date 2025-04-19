@@ -1801,7 +1801,18 @@ app.get('/api/payment/verify-session/:sessionId', async (req, res) => {
 // This ensures React router handles all front-end routes
 app.get(['/privacy', '/terms', '/general-terms', '/cookies', '/refund', '/contact'], (req, res) => {
   console.log(`🌟 Explicitly handling React route: ${req.path}`);
-  res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
+// Also add individual route handlers for greater specificity
+app.get('/contact', (req, res) => {
+  console.log('🌟 Serving React contact page (explicit route)');
+  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
+app.get('/refund', (req, res) => {
+  console.log('🌟 Serving React refund policy page (explicit route)');
+  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
 });
 
 // Contact form API endpoint
