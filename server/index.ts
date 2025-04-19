@@ -10,6 +10,7 @@ import fs from 'fs';
 import http from 'http';
 import multer from 'multer';
 import paymentHandler from './payment-handler-es';
+import { sendContactFormEmail } from './services/emailService';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -1798,9 +1799,45 @@ app.get('/api/payment/verify-session/:sessionId', async (req, res) => {
 
 // IMPORTANT: Add catch-all for SPA routes BEFORE the API proxy
 // This ensures React router handles all front-end routes
-app.get(['/privacy', '/terms', '/general-terms', '/cookies'], (req, res) => {
+app.get(['/privacy', '/terms', '/general-terms', '/cookies', '/refund', '/contact'], (req, res) => {
   console.log(`🌟 Explicitly handling React route: ${req.path}`);
   res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
+// Contact form API endpoint
+app.post('/api/contact', async (req, res) => {
+  console.log('📧 Received contact form submission');
+  try {
+    const { name, email, subject, message, reason } = req.body;
+    
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'All fields are required (name, email, subject, message).' 
+      });
+    }
+    
+    // Send email
+    const result = await sendContactFormEmail({ 
+      name, 
+      email, 
+      subject, 
+      message, 
+      reason: reason || 'general' 
+    });
+    
+    // Log the status of the form submission
+    console.log(`Contact form submission ${result.success ? 'successful' : 'failed'}: ${result.message}`);
+    
+    return res.status(result.success ? 200 : 500).json(result);
+  } catch (error) {
+    console.error('Error processing contact form submission:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'An unexpected error occurred while processing your request.'
+    });
+  }
 });
 
 // Use payment handler for fallback options when backend is unreachable
