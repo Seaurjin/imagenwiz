@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white">
       <div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div>
             <h3 className="text-lg font-bold mb-4">{t('common.companyName')}</h3>
             <p className="text-gray-300">
@@ -36,6 +36,31 @@ const Footer = () => {
               <li>
                 <Link to="/login" className="text-gray-300 hover:text-teal-400">
                   {t('nav.login')}
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-4">{t('footer.legal')}</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/terms" className="text-gray-300 hover:text-teal-400">
+                  {t('footer.terms')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/general-terms" className="text-gray-300 hover:text-teal-400">
+                  {t('footer.generalTerms')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="text-gray-300 hover:text-teal-400">
+                  {t('footer.privacy')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookies" className="text-gray-300 hover:text-teal-400">
+                  {t('footer.cookies')}
                 </Link>
               </li>
             </ul>

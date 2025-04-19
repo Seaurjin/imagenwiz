@@ -31,6 +31,12 @@ import CMSDashboardPage from './pages/cms/CMSDashboardPage';
 import BlogHomePage from './pages/blog/BlogHomePage';
 import BlogPostPage from './pages/blog/BlogPostPage';
 
+// Legal Pages
+import TermsOfService from './pages/legal/TermsOfService';
+import GeneralTerms from './pages/legal/GeneralTerms';
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+import CookiePolicy from './pages/legal/CookiePolicy';
+
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -170,10 +176,10 @@ const AppContent = () => {
               <Route path="/pricing-old" element={<Pricing />} />
               
               {/* Legal pages */}
-              <Route path="/terms" element={<React.lazy(() => import('./pages/legal/TermsOfService'))} />} />
-              <Route path="/general-terms" element={<React.lazy(() => import('./pages/legal/GeneralTerms'))} />} />
-              <Route path="/privacy" element={<React.lazy(() => import('./pages/legal/PrivacyPolicy'))} />} />
-              <Route path="/cookies" element={<React.lazy(() => import('./pages/legal/CookiePolicy'))} />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/general-terms" element={<GeneralTerms />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/cookies" element={<CookiePolicy />} />
               <Route
                 path="/checkout"
                 element={
