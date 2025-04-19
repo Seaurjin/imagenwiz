@@ -1,10 +1,9 @@
 import { loadStripe } from '@stripe/stripe-js';
 
-// Make sure to call `loadStripe` outside of a component's render to avoid
-// recreating the `Stripe` object on every render.
-let stripePromise = null;
+// Safe fallback key in case environment fails
+const FALLBACK_KEY = "pk_test_51Q38qCAGgrMJnivhKhP3M0pG1Z6omOTWZgJcOxHwLql8i7raQ1IuDhTDk4SOHHjjKmijuyO5gTRkT6JhUw3kHDF600BjMLjeRz";
 
-// Default price IDs - these will be the same regardless of Stripe connection
+// Default price IDs
 export const PRICE_IDS = {
   LITE_MONTHLY: 'price_1QIA8yAGgrMJnivhbqEgzPCx',
   LITE_YEARLY: 'price_1QIA8yAGgrMJnivhKTBJHjP9',
@@ -12,18 +11,35 @@ export const PRICE_IDS = {
   PRO_YEARLY: 'price_1QIAAnAGgrMJnivhCL2VYPNH',
 };
 
+let stripePromise = null;
+
 try {
-  // Get stripe key from environment
-  const stripeKey = import.meta.env?.VITE_STRIPE_PUBLISHABLE_KEY;
+  // First try to use environment variable
+  const envKey = typeof import.meta !== 'undefined' && 
+                import.meta.env && 
+                import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
   
-  // Only attempt to load Stripe if we have a key
+  // Use env key or fallback
+  const stripeKey = envKey || FALLBACK_KEY;
+  
   if (stripeKey) {
     stripePromise = loadStripe(stripeKey);
+    console.log('Stripe initialized with key');
   } else {
-    console.warn('Stripe key missing: VITE_STRIPE_PUBLISHABLE_KEY. Payment features will be disabled.');
+    console.warn('No Stripe key available, payment features will be disabled');
   }
 } catch (error) {
   console.warn('Failed to initialize Stripe:', error);
+  
+  // Last resort - try with fallback key
+  try {
+    if (FALLBACK_KEY) {
+      stripePromise = loadStripe(FALLBACK_KEY);
+      console.log('Stripe initialized with fallback key');
+    }
+  } catch (e) {
+    console.error('All Stripe initialization attempts failed');
+  }
 }
 
 export default stripePromise;
