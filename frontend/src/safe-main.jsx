@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import axios from 'axios';
-import NoStripeApp from './no-stripe-app-temp';
+import NoStripeApp from './no-stripe-app';
 import './index.css';
 
 // Force axios to use relative URLs to ensure proxy works correctly
