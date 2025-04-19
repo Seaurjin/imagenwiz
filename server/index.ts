@@ -83,21 +83,11 @@ app.use(express.static(FRONTEND_DIST_PATH, {
   index: false // Don't automatically serve index.html for / to allow our custom handlers
 }));
 
-// CRITICAL FIX: Comprehensive handler for ALL contact-related routes
-// This handler handles both the page route and its API
-app.use('/contact*', (req, res, next) => {
-  // Special debug logging
-  console.log(`📞 Contact route handler: ${req.method} ${req.originalUrl} (${req.path})`);
-  console.log(`  Headers: ${JSON.stringify(req.headers)}`);
-  
-  // If it's a GET request for the contact page, serve the React app
-  if (req.method === 'GET' && (req.path === '/contact' || req.path === '/contact/')) {
-    console.log('📞 Serving Contact page from Express');
-    return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
-  }
-  
-  // Otherwise, let the request continue to other handlers
-  next();
+// CRITICAL FIX: Direct redirect from /contact to /contact.html
+app.get('/contact', (req, res) => {
+  console.log('📞 Contact page requested: Redirecting to contact.html');
+  // Redirect to the static HTML file we just created
+  return res.redirect('/contact.html');
 });
 
 // Define a list of routes that should be handled by the frontend React app
@@ -227,6 +217,69 @@ app.get('/*.html', (req, res, next) => {
     // Continue to other handlers if file not found
     console.log(`❌ HTML file not found: ${htmlFile}`);
     next();
+  }
+});
+
+// Direct file handler for contact.html (special case)
+app.get('/contact.html', (req, res) => {
+  const contactHtmlFile = path.join(FRONTEND_DIST_PATH, 'contact.html');
+  console.log(`📞 Direct handling of contact.html request`);
+  
+  if (fs.existsSync(contactHtmlFile)) {
+    console.log(`✅ Serving contact.html file directly from ${contactHtmlFile}`);
+    return res.sendFile(contactHtmlFile);
+  } else {
+    console.error(`❌ contact.html file not found at ${contactHtmlFile}`);
+    return res.status(404).send('Contact page not found');
+  }
+});
+
+// API endpoint for contact form submissions
+app.post('/api/contact', express.json(), async (req, res) => {
+  console.log('📞 Contact form submission received');
+  
+  try {
+    const { name, email, subject, message, reason } = req.body;
+    
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
+      console.error('❌ Contact form validation failed: Missing required fields');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Please fill out all required fields' 
+      });
+    }
+    
+    // Use our email service to send the message
+    console.log('📞 Sending contact form email from', email);
+    
+    const emailResult = await sendContactFormEmail({
+      name,
+      email,
+      subject: `[${reason || 'Contact Form'}] ${subject}`,
+      message
+    });
+    
+    if (emailResult.success) {
+      console.log('✅ Contact form email sent successfully');
+      return res.status(200).json({ 
+        success: true,
+        message: 'Your message has been sent successfully!' 
+      });
+    } else {
+      console.error('❌ Error sending contact form email:', emailResult.error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'There was an error sending your message. Please try again later.' 
+      });
+    }
+  } catch (error: any) {
+    console.error('❌ Unexpected error processing contact form:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'An unexpected error occurred. Please try again later.',
+      error: error.message
+    });
   }
 });
 
