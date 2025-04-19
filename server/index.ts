@@ -1256,6 +1256,27 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
 });
 
+// Explicitly handle legal pages routes
+app.get('/privacy', (req, res) => {
+  console.log('🌟 Serving React privacy policy page');
+  res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
+app.get('/terms', (req, res) => {
+  console.log('🌟 Serving React terms of service page');
+  res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
+app.get('/general-terms', (req, res) => {
+  console.log('🌟 Serving React general terms page');
+  res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
+app.get('/cookies', (req, res) => {
+  console.log('🌟 Serving React cookie policy page');
+  res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
 // Blog routes have been added above to ensure proper SPA serving
 
 app.get('/checkout', (req, res) => {
@@ -1773,6 +1794,13 @@ app.get('/api/payment/verify-session/:sessionId', async (req, res) => {
       stack: error.stack
     });
   }
+});
+
+// IMPORTANT: Add catch-all for SPA routes BEFORE the API proxy
+// This ensures React router handles all front-end routes
+app.get(['/privacy', '/terms', '/general-terms', '/cookies'], (req, res) => {
+  console.log(`🌟 Explicitly handling React route: ${req.path}`);
+  res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
 });
 
 // Use payment handler for fallback options when backend is unreachable
