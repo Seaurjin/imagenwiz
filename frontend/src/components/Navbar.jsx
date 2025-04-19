@@ -44,7 +44,7 @@ const Navbar = () => {
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center">
                 <img 
-                  src="/images/imagenwiz-logo-transparent.svg" 
+                  src="/images/imagenwiz-logo-navbar.svg" 
                   alt="iMagenWiz Logo" 
                   className="h-10 w-auto" 
                 />
