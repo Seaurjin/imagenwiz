@@ -14,7 +14,7 @@ load_dotenv()
 # Database connection details - using environment variables with defaults matching application
 DB_HOST = os.environ.get('DB_HOST', '8.130.113.102')
 DB_USER = os.environ.get('DB_USER', 'root')
-DB_PASS = os.environ.get('DB_PASSWORD', 'mysuperstrongpassword')  # Using the password from check_posts.py
+DB_PASS = os.environ.get('DB_PASSWORD', 'Ir%86241992')  # Using the password from add_cms_content.py
 DB_NAME = os.environ.get('DB_NAME', 'mat_db')
 DB_PORT = int(os.environ.get('DB_PORT', 3306))
 
