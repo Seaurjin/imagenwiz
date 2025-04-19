@@ -14,7 +14,7 @@ export const PRICE_IDS = {
 
 try {
   // Get stripe key from environment
-  const stripeKey = import.meta.env?.VITE_STRIPE_PUBLISHABLE_KEY;
+  const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
   
   // Only attempt to load Stripe if we have a key
   if (stripeKey) {
