@@ -5,7 +5,8 @@ import axios from 'axios';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { PRICE_IDS } from '../lib/stripe';
+// Import from our error-free version instead of the problematic one
+import { PRICE_IDS } from '../no-error-stripe';
 
 // Plans configuration
 const pricingPlans = [
