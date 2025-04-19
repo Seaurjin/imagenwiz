@@ -63,12 +63,26 @@ const Footer = () => {
                   {t('footer.cookies')}
                 </Link>
               </li>
+              <li>
+                <Link to="/refund" className="text-gray-300 hover:text-teal-400">
+                  {t('footer.refund', 'Refund Policy')}
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4">{t('footer.contact')}</h3>
             <ul className="space-y-2 text-gray-300">
-              <li>support@imagenwiz.com</li>
+              <li>
+                <Link to="/contact" className="text-gray-300 hover:text-teal-400">
+                  {t('nav.contact', 'Contact Us')}
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:support@imagenwiz.com" className="text-gray-300 hover:text-teal-400">
+                  support@imagenwiz.com
+                </a>
+              </li>
               <li>+1 (555) 123-4567</li>
             </ul>
           </div>

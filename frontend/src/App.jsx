@@ -36,6 +36,8 @@ import TermsOfService from './pages/legal/TermsOfService';
 import GeneralTerms from './pages/legal/GeneralTerms';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import CookiePolicy from './pages/legal/CookiePolicy';
+import RefundPolicy from './pages/legal/RefundPolicy';
+import Contact from './pages/Contact';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -180,6 +182,8 @@ const AppContent = () => {
               <Route path="/general-terms" element={<GeneralTerms />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/cookies" element={<CookiePolicy />} />
+              <Route path="/refund" element={<RefundPolicy />} />
+              <Route path="/contact" element={<Contact />} />
               <Route
                 path="/checkout"
                 element={
