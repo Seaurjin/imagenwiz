@@ -83,6 +83,13 @@ app.use(express.static(FRONTEND_DIST_PATH, {
   index: false // Don't automatically serve index.html for / to allow our custom handlers
 }));
 
+// Add early route handlers for frontend-only routes to prevent them from being proxied to Flask
+// These must come BEFORE any other middleware
+app.get(['/contact', '/refund', '/privacy', '/terms', '/general-terms', '/cookies'], (req, res) => {
+  console.log(`⭐ Early capture of frontend route: ${req.path}`);
+  return res.sendFile(path.join(FRONTEND_DIST_PATH, 'index.html'));
+});
+
 // Special URL decoding middleware for handling encoded query parameters
 app.use((req, res, next) => {
   // Enhanced request logging for payment-related paths
