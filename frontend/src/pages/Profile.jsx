@@ -135,6 +135,26 @@ const Profile = () => {
               >
                 Go to Dashboard →
               </Link>
+              
+              {user?.is_admin && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Admin Tools</h3>
+                  <div className="flex space-x-2">
+                    <Link
+                      to="/admin/settings"
+                      className="text-sm px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded"
+                    >
+                      Site Settings
+                    </Link>
+                    <Link
+                      to="/cms"
+                      className="text-sm px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                    >
+                      CMS Dashboard
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
