@@ -30,6 +30,7 @@ import NotFound from './pages/NotFound';
 import CMSDashboardPage from './pages/cms/CMSDashboardPage';
 import BlogHomePage from './pages/blog/BlogHomePage';
 import BlogPostPage from './pages/blog/BlogPostPage';
+import AdminSettings from './pages/AdminSettings';
 
 // Legal Pages
 import TermsOfService from './pages/legal/TermsOfService';
@@ -246,6 +247,13 @@ const AppContent = () => {
               <Route path="/cms/*" element={
                 <ProtectedRoute>
                   <CMSDashboardPage />
+                </ProtectedRoute>
+              } />
+              
+              {/* Admin settings route */}
+              <Route path="/admin/settings" element={
+                <ProtectedRoute>
+                  <AdminSettings />
                 </ProtectedRoute>
               } />
               
