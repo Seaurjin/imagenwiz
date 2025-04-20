@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 
 const Footer = () => {
   const { t } = useTranslation('common');
+  const { logos } = useSiteSettings();
   const year = new Date().getFullYear();
 
   // Links grid section above the main footer

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from './LanguageSelector';
 import MobileLanguageSelector from './MobileLanguageSelector';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
+  const { logos, isLoading: logosLoading } = useSiteSettings();
   const { t, i18n } = useTranslation('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(i18n.language);
@@ -44,7 +46,7 @@ const Navbar = () => {
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center">
                 <img 
-                  src="/images/imagenwiz-logo-navbar-gradient.svg?v=1" 
+                  src={logos.navbar} 
                   alt="iMagenWiz Logo" 
                   className="h-10 w-auto" 
                 />
