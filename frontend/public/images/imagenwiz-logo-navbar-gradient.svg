@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="60" viewBox="0 0 300 60">
+  <!-- Logo Square with Gradient Border and Background -->
+  <defs>
+    <linearGradient id="squareGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00E676;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00BCD4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="checkerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00E676;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00BCD4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00E676;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00BCD4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Logo Square with Gradient Border and Checkerboard Pattern -->
+  <g transform="translate(0, 0)">
+    <rect x="0" y="0" width="60" height="60" fill="#333333" stroke="url(#squareGradient)" stroke-width="3"/>
+    
+    <!-- Checkerboard Pattern - Gradient Squares -->
+    <g fill="url(#checkerGradient)">
+      <rect x="42" y="12" width="6" height="6"/>
+      <rect x="36" y="12" width="6" height="6"/>
+      <rect x="30" y="18" width="6" height="6"/>
+      <rect x="24" y="18" width="6" height="6"/>
+      <rect x="18" y="24" width="6" height="6"/>
+      <rect x="12" y="24" width="6" height="6"/>
+      <rect x="6" y="30" width="6" height="6"/>
+      <rect x="42" y="18" width="6" height="6"/>
+      <rect x="36" y="24" width="6" height="6"/>
+      <rect x="30" y="30" width="6" height="6"/>
+      <rect x="24" y="36" width="6" height="6"/>
+      <rect x="18" y="42" width="6" height="6"/>
+      <rect x="12" y="48" width="6" height="6"/>
+    </g>
+  </g>
+  
+  <!-- Text "iMagenWiz" with Gradient -->
+  <g transform="translate(70, 10)">
+    <text x="0" y="30" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="url(#textGradient)">
+      iMagenWiz
+    </text>
+  </g>
+</svg>
