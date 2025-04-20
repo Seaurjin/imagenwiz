@@ -107,7 +107,8 @@ const FRONTEND_ROUTES = [
   '/home',
   '/faq',
   '/settings',
-  '/account'
+  '/account',
+  '/admin'  // Adding the admin route
 ];
 
 // First middleware: check if the request is for a known frontend route
