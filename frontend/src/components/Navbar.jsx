@@ -50,6 +50,7 @@ const Navbar = () => {
                   alt="iMagenWiz Logo" 
                   className="h-10 w-auto" 
                 />
+                <span className="ml-2 font-bold text-teal-600 text-xl">iMagenWiz</span>
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -222,6 +223,9 @@ const Navbar = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="sm:hidden">
+          <div className="flex items-center px-4 pt-2 pb-2 border-b border-gray-200">
+            <span className="font-bold text-teal-600 text-xl">iMagenWiz</span>
+          </div>
           <div className="pt-2 pb-3 space-y-1">
             <Link
               to="/"
