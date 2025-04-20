@@ -45,11 +45,17 @@ const Navbar = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center">
-                <img 
-                  src={logos.navbar} 
-                  alt="iMagenWiz Logo" 
-                  className="h-10 w-auto" 
-                />
+                {logos.navbar && (
+                  <img 
+                    src={logos.navbar} 
+                    alt="Logo" 
+                    className="h-10 w-auto" 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                )}
                 <span className="ml-2 font-bold text-teal-600 text-xl">iMagenWiz</span>
               </Link>
             </div>
@@ -224,6 +230,17 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="flex items-center px-4 pt-2 pb-2 border-b border-gray-200">
+            {logos.navbar && (
+              <img 
+                src={logos.navbar} 
+                alt="Logo" 
+                className="h-8 w-auto mr-2" 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = 'none';
+                }}
+              />
+            )}
             <span className="font-bold text-teal-600 text-xl">iMagenWiz</span>
           </div>
           <div className="pt-2 pb-3 space-y-1">
