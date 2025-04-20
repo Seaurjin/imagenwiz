@@ -19,6 +19,29 @@ let globalLogoSettings: Record<string, string> = {
   favicon: '/attached_assets/iMagenWiz Logo Icon_1745075613327.jpg'
 };
 
+// Set up storage for logo uploads
+const logoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Store uploads in the frontend's public images directory so they can be served
+    const uploadsDir = path.join(process.cwd(), 'frontend/dist/uploads');
+    
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    // Create a unique filename using original name + timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const extension = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + extension);
+  }
+});
+
+const logoUpload = multer({ storage: logoStorage });
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -343,22 +366,30 @@ app.get('/api/settings/logo', (req, res) => {
 });
 
 // Express fallback for logo upload API to prevent 504 errors
-app.post('/api/settings/logo/upload', (req, res) => {
+app.post('/api/settings/logo/upload', logoUpload.single('logo'), (req, res) => {
   console.log('📸 Express fallback: Handling logo upload directly');
   
-  // Since we're using multipart/form-data, we need to extract the form data
+  // Extract the logo type from the request
   const logoType = req.body.type || req.query.type || 'navbar';
+  console.log('Logo type:', logoType);
+  console.log('Uploaded file:', req.file);
   
-  // Store the updated logo URL in memory - we'll use this for the /api/settings/logo endpoint
-  const logoUrl = req.file?.filename 
-    ? `/uploads/logos/${req.file.filename}` 
-    : `/attached_assets/iMagenWiz Logo ${logoType === 'navbar' ? 'small' : logoType === 'footer' ? 'reverse' : 'Icon'}_1745075588661.jpg`;
+  let logoUrl;
+  
+  // Check if a file was uploaded
+  if (req.file) {
+    // For uploads, use the actual file path relative to the public directory
+    logoUrl = `/uploads/${req.file.filename}`;
+    console.log(`✅ Uploaded logo file stored at: ${logoUrl}`);
+  } else {
+    // Fallback to a predefined image if no file was uploaded
+    logoUrl = `/attached_assets/iMagenWiz Logo ${logoType === 'navbar' ? 'small' : logoType === 'footer' ? 'reverse' : 'Icon'}_1745075588661.jpg`;
+    console.log(`⚠️ No file uploaded, using default: ${logoUrl}`);
+  }
   
   console.log(`📸 Setting ${logoType} logo to ${logoUrl}`);
   
   // Store the logo URL in memory to serve via the settings/logo endpoint
-  // This is a simple in-memory storage since we can't directly update the database
-  globalLogoSettings = globalLogoSettings || {};
   globalLogoSettings[logoType] = logoUrl;
   
   // Return a response that includes the actual logo URL
@@ -939,15 +970,15 @@ app.get('/api/cms/posts/:id/media', async (req, res) => {
   }
 });
 
-// Configure multer for file uploads
-const upload = multer({ 
+// Configure multer for CMS file uploads
+const cmsUpload = multer({ 
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB max file size
   }
 });
 
-app.post('/api/cms/posts/:id/media', upload.single('file'), async (req, res) => {
+app.post('/api/cms/posts/:id/media', cmsUpload.single('file'), async (req, res) => {
   console.log('Manual proxy: Received CMS post media upload request');
   try {
     const { id } = req.params;
