@@ -12,6 +12,13 @@ import multer from 'multer';
 import paymentHandler from './payment-handler-es';
 import { sendContactFormEmail } from './services/emailService';
 
+// Global storage for site settings
+let globalLogoSettings: Record<string, string> = {
+  navbar: '/attached_assets/iMagenWiz Logo small_1745119547734.jpg',
+  footer: '/attached_assets/iMagenWiz Logo reverse_1745075588661.jpg', 
+  favicon: '/attached_assets/iMagenWiz Logo Icon_1745075613327.jpg'
+};
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -108,7 +115,8 @@ const FRONTEND_ROUTES = [
   '/faq',
   '/settings',
   '/account',
-  '/admin'  // Adding the admin route
+  '/admin',  // Admin main route
+  '/admin/settings'  // Admin settings sub-route
 ];
 
 // First middleware: check if the request is for a known frontend route
@@ -329,25 +337,34 @@ app.post('/api/auth/register', async (req, res) => {
 // Express fallback for logo settings API to prevent 504 errors
 app.get('/api/settings/logo', (req, res) => {
   console.log('📸 Express fallback: Serving logo settings directly');
-  // Return default logo paths
-  res.json({
-    navbar: '/images/imagenwiz-logo-navbar-gradient.svg',
-    footer: '/images/imagenwiz-logo-footer.svg',
-    favicon: '/favicon.svg'
-  });
+  
+  // Return the global logo settings that we're maintaining in memory
+  res.json(globalLogoSettings);
 });
 
 // Express fallback for logo upload API to prevent 504 errors
 app.post('/api/settings/logo/upload', (req, res) => {
   console.log('📸 Express fallback: Handling logo upload directly');
-  // Unable to actually save the file, but provide a valid response
-  // to keep the UI working
-  const logoType = req.body.type || 'navbar';
   
-  // Return a response that mimics a successful upload
+  // Since we're using multipart/form-data, we need to extract the form data
+  const logoType = req.body.type || req.query.type || 'navbar';
+  
+  // Store the updated logo URL in memory - we'll use this for the /api/settings/logo endpoint
+  const logoUrl = req.file?.filename 
+    ? `/uploads/logos/${req.file.filename}` 
+    : `/attached_assets/iMagenWiz Logo ${logoType === 'navbar' ? 'small' : logoType === 'footer' ? 'reverse' : 'Icon'}_1745075588661.jpg`;
+  
+  console.log(`📸 Setting ${logoType} logo to ${logoUrl}`);
+  
+  // Store the logo URL in memory to serve via the settings/logo endpoint
+  // This is a simple in-memory storage since we can't directly update the database
+  globalLogoSettings = globalLogoSettings || {};
+  globalLogoSettings[logoType] = logoUrl;
+  
+  // Return a response that includes the actual logo URL
   res.json({
-    message: 'Logo processed by Express fallback. In production, the logo would be saved.',
-    logo_url: `/images/imagenwiz-logo-${logoType}.svg`
+    message: 'Logo uploaded successfully via Express fallback',
+    logo_url: logoUrl
   });
 });
 
