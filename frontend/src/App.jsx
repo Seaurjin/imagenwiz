@@ -43,6 +43,12 @@ import RefundPolicy from './pages/legal/RefundPolicy';
 import Contact from './pages/Contact';
 import ApiComingSoon from './pages/ApiComingSoon';
 
+// Info Pages (Footer Links)
+import MagicBrush from './pages/info/MagicBrush';
+import Individuals from './pages/info/Individuals';
+import Photographers from './pages/info/Photographers';
+import Help from './pages/info/Help';
+
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -268,6 +274,12 @@ const AppContent = () => {
               
               {/* API Coming Soon page */}
               <Route path="/api" element={<ApiComingSoon />} />
+              
+              {/* Footer info pages */}
+              <Route path="/magic-brush" element={<MagicBrush />} />
+              <Route path="/individuals" element={<Individuals />} />
+              <Route path="/photographers" element={<Photographers />} />
+              <Route path="/help" element={<Help />} />
               
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />
