@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 const AdminSettings = () => {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
+  const { reloadSettings } = useSiteSettings();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [logoPreview, setLogoPreview] = useState({
@@ -123,6 +124,9 @@ const AdminSettings = () => {
         ...prev,
         [logoType]: null
       }));
+      
+      // Reload global site settings to update logos across the site
+      reloadSettings();
     } catch (error) {
       console.error('Error uploading logo:', error);
       toast.error(t('errors.uploadFailed', 'Failed to upload logo'));

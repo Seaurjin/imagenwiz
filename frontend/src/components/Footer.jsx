@@ -168,8 +168,16 @@ const Footer = () => {
       <footer className="bg-gray-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6 flex flex-col md:flex-row justify-between items-center">
-            {/* Language selector */}
-            <div className="mb-4 md:mb-0">
+            {/* Language selector and Logo */}
+            <div className="mb-4 md:mb-0 flex items-center">
+              {/* Footer Logo */}
+              {logos.footer && (
+                <img 
+                  src={logos.footer} 
+                  alt="iMagenWiz" 
+                  className="h-8 w-auto mr-4"
+                />
+              )}
               <button className="flex items-center bg-gray-600 hover:bg-gray-500 text-white rounded-full py-1 px-4 text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
