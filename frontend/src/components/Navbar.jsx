@@ -112,20 +112,49 @@ const Navbar = () => {
                 <span className="text-gray-700">
                   {t('common.credits')}: {user?.credits || 0}
                 </span>
-                <Link
-                  to="/profile"
-                  className="bg-white p-1 rounded-full text-gray-600 hover:text-gray-800 focus:outline-none"
-                >
-                  <span>{user?.username}</span>
-                  {user?.is_admin ? <span className="ml-1 text-green-600">(Admin)</span> : null}
-                </Link>
-
-                <button
-                  onClick={logout}
-                  className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  {t('nav.logout')}
-                </button>
+                <div className="relative group">
+                  <button className="bg-white p-1 rounded-full text-gray-600 hover:text-gray-800 focus:outline-none flex items-center">
+                    <span>{user?.username}</span>
+                    {user?.is_admin ? <span className="ml-1 text-green-600">(Admin)</span> : null}
+                    <svg className="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      {t('nav.account')}
+                    </Link>
+                    
+                    {user?.is_admin && (
+                      <>
+                        <Link
+                          to="/admin/settings"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          {t('nav.settings', 'Admin Settings')}
+                        </Link>
+                        <Link
+                          to="/cms"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          {t('nav.editor', 'CMS Dashboard')}
+                        </Link>
+                      </>
+                    )}
+                    
+                    <button
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      {t('nav.logout')}
+                    </button>
+                  </div>
+                </div>
+                
                 <LanguageSelector variant="outline" />
               </div>
             ) : (
