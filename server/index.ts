@@ -1974,10 +1974,15 @@ app.use(paymentHandler);
 // Filter middleware that prevents specific routes from being proxied to Flask
 app.use('/api', (req, res, next) => {
   // List of endpoints that should NOT be proxied to Flask
-  const expressOnlyEndpoints = ['/api/contact'];
+  const expressOnlyEndpoints = [
+    '/api/contact',
+    '/api/settings/logo',
+    '/api/settings/logo/upload'
+  ];
   
   // Check if the current path is in the list of Express-only endpoints
-  if (expressOnlyEndpoints.includes(req.originalUrl)) {
+  if (expressOnlyEndpoints.includes(req.originalUrl) || 
+      req.originalUrl.startsWith('/api/settings/logo')) {
     console.log(`⚡ Express-only endpoint detected: ${req.originalUrl}`);
     // Continue to Express routes, but skip the Flask proxy middleware
     return next('route');

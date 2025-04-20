@@ -42,17 +42,28 @@ const AdminSettings = () => {
   // Fetch existing logos
   const fetchLogos = async () => {
     try {
-      const response = await axios.get('/api/settings/logo');
-      const logos = response.data;
-      
-      setLogoPreview({
-        navbar: logos.navbar || '/images/imagenwiz-logo-navbar-gradient.svg',
-        footer: logos.footer || '/images/imagenwiz-logo-footer.svg',
-        favicon: logos.favicon || '/favicon.svg'
-      });
+      // Try to fetch logos from API
+      try {
+        const response = await axios.get('/api/settings/logo');
+        const logos = response.data;
+        
+        setLogoPreview({
+          navbar: logos.navbar || '/images/imagenwiz-logo-navbar-gradient.svg',
+          footer: logos.footer || '/images/imagenwiz-logo-footer.svg',
+          favicon: logos.favicon || '/favicon.svg'
+        });
+      } catch (apiError) {
+        console.warn('Could not load logos from API, using fallbacks:', apiError);
+        // Use fallback values
+        setLogoPreview({
+          navbar: '/images/imagenwiz-logo-navbar-gradient.svg',
+          footer: '/images/imagenwiz-logo-footer.svg',
+          favicon: '/favicon.svg'
+        });
+      }
     } catch (error) {
-      console.error('Error fetching logos:', error);
-      alert(t('errors.fetchingLogos', 'Error loading logos'));
+      console.error('Error in logo loading process:', error);
+      alert(t('errors.fetchingLogos', 'Error loading logos, using default values'));
     }
   };
 
@@ -104,30 +115,54 @@ const AdminSettings = () => {
     formData.append('type', logoType);
 
     try {
-      const response = await axios.post('/api/settings/logo/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      // Set a timeout for the request to prevent long-running operations
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      
+      try {
+        const response = await axios.post('/api/settings/logo/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        alert(t('success.logoUploaded', 'Logo uploaded successfully'));
+        
+        // Update preview with the new URL from the server
+        setLogoPreview(prev => ({
+          ...prev,
+          [logoType]: response.data.logo_url
+        }));
+        
+        // Clear the file input
+        setLogoFiles(prev => ({
+          ...prev,
+          [logoType]: null
+        }));
+        
+        // Reload global site settings to update logos across the site
+        reloadSettings();
+      } catch (apiError) {
+        clearTimeout(timeoutId);
+        
+        if (apiError.name === 'AbortError' || apiError.code === 'ECONNABORTED') {
+          console.error('Logo upload request timed out', apiError);
+          alert(t('errors.requestTimeout', 'Request timed out. The logo will be visible locally but may not be saved to the server.'));
+          
+          // Keep the logo in the UI for local preview even though upload failed
+          setLogoPreview(prev => ({
+            ...prev
+          }));
+        } else {
+          console.error('Error uploading logo:', apiError);
+          alert(t('errors.uploadFailed', 'Failed to upload logo'));
         }
-      });
-
-      alert(t('success.logoUploaded', 'Logo uploaded successfully'));
-      
-      // Update preview with the new URL from the server
-      setLogoPreview(prev => ({
-        ...prev,
-        [logoType]: response.data.logo_url
-      }));
-      
-      // Clear the file input
-      setLogoFiles(prev => ({
-        ...prev,
-        [logoType]: null
-      }));
-      
-      // Reload global site settings to update logos across the site
-      reloadSettings();
+      }
     } catch (error) {
-      console.error('Error uploading logo:', error);
+      console.error('Error in logo upload process:', error);
       alert(t('errors.uploadFailed', 'Failed to upload logo'));
     } finally {
       setIsLoading(false);
