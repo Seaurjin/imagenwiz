@@ -153,6 +153,10 @@ def create_app():
         from .cms import bp as cms_bp
         app.register_blueprint(cms_bp)
         
+        # Register settings blueprint
+        from .settings import bp as settings_bp
+        app.register_blueprint(settings_bp)
+        
         # Static file routes
         @app.route('/api/uploads/<filename>')
         def serve_upload(filename):
