@@ -1,6 +1,27 @@
 from datetime import datetime
 from app import db, bcrypt
 
+class SiteSettings(db.Model):
+    """
+    Site-wide settings for the application, editable by admins
+    """
+    __tablename__ = 'site_settings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    setting_key = db.Column(db.String(100), unique=True, nullable=False)
+    setting_value = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        """Convert setting to dictionary for API responses"""
+        return {
+            'id': self.id,
+            'key': self.setting_key,
+            'value': self.setting_value,
+            'updated_at': self.updated_at.isoformat()
+        }
+
 class User(db.Model):
     __tablename__ = 'users'
     
