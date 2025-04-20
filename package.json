@@ -91,6 +91,7 @@
     "react-icons": "^5.5.0",
     "react-resizable-panels": "^2.1.4",
     "react-router-dom": "^7.4.1",
+    "react-toastify": "^11.0.5",
     "recharts": "^2.13.0",
     "stripe": "^17.7.0",
     "tailwind-merge": "^2.5.4",

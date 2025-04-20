@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 
 const AdminSettings = () => {
   const { t } = useTranslation();
@@ -32,7 +31,7 @@ const AdminSettings = () => {
 
     if (!user || !user.is_admin) {
       navigate('/');
-      toast.error(t('errors.adminOnly', 'Only admin users can access this page'));
+      alert(t('errors.adminOnly', 'Only admin users can access this page'));
       return;
     }
 
@@ -53,7 +52,7 @@ const AdminSettings = () => {
       });
     } catch (error) {
       console.error('Error fetching logos:', error);
-      toast.error(t('errors.fetchingLogos', 'Error loading logos'));
+      alert(t('errors.fetchingLogos', 'Error loading logos'));
     }
   };
 
@@ -65,13 +64,13 @@ const AdminSettings = () => {
     // Check file type
     const fileType = file.type;
     if (!['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'].includes(fileType)) {
-      toast.error(t('errors.invalidFileType', 'Please upload a PNG, JPEG, or SVG image'));
+      alert(t('errors.invalidFileType', 'Please upload a PNG, JPEG, or SVG image'));
       return;
     }
 
     // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      toast.error(t('errors.fileTooLarge', 'File size exceeds 2MB limit'));
+      alert(t('errors.fileTooLarge', 'File size exceeds 2MB limit'));
       return;
     }
 
@@ -95,7 +94,7 @@ const AdminSettings = () => {
   // Upload logo
   const handleLogoUpload = async (logoType) => {
     if (!logoFiles[logoType]) {
-      toast.error(t('errors.noFile', 'Please select a file first'));
+      alert(t('errors.noFile', 'Please select a file first'));
       return;
     }
 
@@ -111,7 +110,7 @@ const AdminSettings = () => {
         }
       });
 
-      toast.success(t('success.logoUploaded', 'Logo uploaded successfully'));
+      alert(t('success.logoUploaded', 'Logo uploaded successfully'));
       
       // Update preview with the new URL from the server
       setLogoPreview(prev => ({
@@ -129,7 +128,7 @@ const AdminSettings = () => {
       reloadSettings();
     } catch (error) {
       console.error('Error uploading logo:', error);
-      toast.error(t('errors.uploadFailed', 'Failed to upload logo'));
+      alert(t('errors.uploadFailed', 'Failed to upload logo'));
     } finally {
       setIsLoading(false);
     }
