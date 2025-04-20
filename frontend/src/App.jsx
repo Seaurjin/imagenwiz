@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SiteSettingsProvider } from './contexts/SiteSettingsContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import DynamicHead from './components/DynamicHead';
 import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -171,6 +172,8 @@ const AppContent = () => {
       {/* Use the language code as a key to force remount when language changes */}
       <div className="flex flex-col min-h-screen" key={i18n.language}>
         <Suspense fallback={<Loader />}>
+          {/* DynamicHead component to update favicon dynamically */}
+          <DynamicHead />
           <Navbar />
           <main className="flex-grow">
             <Routes>
