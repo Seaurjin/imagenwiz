@@ -187,12 +187,6 @@ const Help = () => {
           >
             Contact Support
           </a>
-          <a 
-            href="mailto:support@imagenwiz.com" 
-            className="inline-flex items-center justify-center px-5 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-          >
-            Email Us
-          </a>
         </div>
       </div>
     </FooterPageTemplate>
