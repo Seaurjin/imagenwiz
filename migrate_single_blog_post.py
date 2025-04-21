@@ -17,10 +17,17 @@ Example:
 import os
 import sys
 import logging
+import traceback
 from datetime import datetime
 import psycopg2
 import pymysql
 from pymysql.cursors import DictCursor
+
+# Set logging to more verbose
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
