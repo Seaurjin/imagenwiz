@@ -55,6 +55,10 @@ import Media from './pages/info/Media';
 import Enterprise from './pages/info/Enterprise';
 import CarDealerships from './pages/info/CarDealerships';
 import SuccessStories from './pages/info/SuccessStories';
+import About from './pages/info/About';
+import Press from './pages/info/Press';
+import AutomaticDesigns from './pages/info/AutomaticDesigns';
+import VideoBackgroundRemoval from './pages/info/VideoBackgroundRemoval';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -294,6 +298,10 @@ const AppContent = () => {
               <Route path="/enterprise" element={<Enterprise />} />
               <Route path="/car-dealerships" element={<CarDealerships />} />
               <Route path="/success-stories" element={<SuccessStories />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/press" element={<Press />} />
+              <Route path="/automatic-designs" element={<AutomaticDesigns />} />
+              <Route path="/video-background-removal" element={<VideoBackgroundRemoval />} />
               
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />
