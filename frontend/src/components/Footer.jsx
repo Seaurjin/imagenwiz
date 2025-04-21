@@ -93,11 +93,7 @@ const Footer = () => {
                     {t('footer.refunds', 'Refunds')}
                   </Link>
                 </li>
-                <li>
-                  <Link to="/platform-status" className="text-gray-500 hover:text-teal-600 text-sm">
-                    {t('footer.platformStatus', 'Platform Status')}
-                  </Link>
-                </li>
+
                 <li>
                   <Link to="/api" className="text-gray-500 hover:text-teal-600 text-sm">
                     {t('footer.api', 'API')}

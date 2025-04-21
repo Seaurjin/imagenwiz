@@ -69,7 +69,8 @@ const Contact = () => {
       </Helmet>
       
       <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-8">{t('nav.contact')}</h1>
+        <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">Contact us</h1>
+        <div className="w-24 h-1 bg-teal-500 mx-auto mb-8"></div>
         
         <div className="bg-white shadow-md rounded-lg p-6 mb-8">
           <p className="text-lg mb-6">
@@ -181,22 +182,6 @@ const Contact = () => {
               </button>
             </div>
           </form>
-        </div>
-        
-        <div className="bg-gray-50 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Alternative Contact Methods</h2>
-          <p className="mb-4">
-            You can also reach us directly via email at:
-          </p>
-          <a 
-            href="mailto:support@imagenwiz.com" 
-            className="text-teal-600 hover:text-teal-800 font-medium"
-          >
-            support@imagenwiz.com
-          </a>
-          <p className="mt-4 text-sm text-gray-500">
-            We typically respond to all inquiries within 1-2 business days.
-          </p>
         </div>
       </div>
     </div>
