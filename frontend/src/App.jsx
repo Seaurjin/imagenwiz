@@ -48,6 +48,12 @@ import MagicBrush from './pages/info/MagicBrush';
 import Individuals from './pages/info/Individuals';
 import Photographers from './pages/info/Photographers';
 import Help from './pages/info/Help';
+import Marketing from './pages/info/Marketing';
+import Developers from './pages/info/Developers';
+import Ecommerce from './pages/info/Ecommerce';
+import Media from './pages/info/Media';
+import Enterprise from './pages/info/Enterprise';
+import CarDealerships from './pages/info/CarDealerships';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -280,6 +286,12 @@ const AppContent = () => {
               <Route path="/individuals" element={<Individuals />} />
               <Route path="/photographers" element={<Photographers />} />
               <Route path="/help" element={<Help />} />
+              <Route path="/marketing" element={<Marketing />} />
+              <Route path="/developers" element={<Developers />} />
+              <Route path="/ecommerce" element={<Ecommerce />} />
+              <Route path="/media" element={<Media />} />
+              <Route path="/enterprise" element={<Enterprise />} />
+              <Route path="/car-dealerships" element={<CarDealerships />} />
               
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />
