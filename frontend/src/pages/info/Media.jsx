@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import FooterPageTemplate from '../../components/FooterPageTemplate';
 
 const Media = () => {
@@ -176,6 +177,68 @@ const Media = () => {
             <p className="text-gray-600 text-sm">
               Use our official plugins for WordPress, Drupal, and other popular content management systems.
             </p>
+          </div>
+        </div>
+      </section>
+      
+      {/* Success Story Section */}
+      <section className="mb-12 bg-gradient-to-r from-teal-50 to-blue-50 rounded-xl overflow-hidden border border-teal-100">
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Success Stories</h2>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div className="flex flex-col md:flex-row items-start">
+              <div className="md:w-2/3 pr-0 md:pr-8 mb-6 md:mb-0">
+                <h3 className="text-xl font-semibold text-teal-800 mb-3">NeoAnime Studios</h3>
+                <p className="text-gray-600 mb-4">
+                  A popular "二次元" (2D animation) studio in Japan used iMagenWiz to accelerate merchandise 
+                  development for their characters, reducing design time from weeks to days.
+                </p>
+                <blockquote className="italic border-l-4 border-teal-500 pl-4 my-4 text-gray-600">
+                  "iMagenWiz has revolutionized how we create merchandise designs for our anime characters. 
+                  What used to take weeks now happens in days, with better quality."
+                </blockquote>
+                <div className="mt-4">
+                  <Link to="/success-stories" className="text-teal-600 hover:text-teal-800 font-medium inline-flex items-center">
+                    Read the full story
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+              <div className="md:w-1/3">
+                <div className="bg-gradient-to-br from-purple-600 to-pink-500 p-6 rounded-lg text-white">
+                  <div className="text-lg font-bold mb-3">Results at a glance</div>
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>47% increase in merchandise revenue</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>68% reduction in design costs</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>3-4 weeks to 3-5 days development time</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <Link to="/success-stories" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+              Explore More Success Stories
+            </Link>
           </div>
         </div>
       </section>
