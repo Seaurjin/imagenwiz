@@ -118,14 +118,36 @@ def create_app():
                 app.logger.warning("Database migration for users table credits column failed, payment verification may fail")
             
             # Run auto-translation fields migration for CMS
-            from .utils.migrate_auto_translation import run_migration as migrate_auto_translation
-            
-            # Execute the migration to add auto-translation fields
-            auto_translation_result = migrate_auto_translation()
-            if auto_translation_result:
-                app.logger.info("Database migration for CMS auto-translation fields completed successfully")
-            else:
-                app.logger.warning("Database migration for CMS auto-translation fields failed, auto-translation may not work properly")
+            try:
+                # Try MySQL migration first (since we're using MySQL)
+                from .utils.migrate_mysql_auto_translation import run_migration as migrate_mysql_auto_translation
+                
+                # Execute the migration to add auto-translation fields
+                auto_translation_result = migrate_mysql_auto_translation()
+                if auto_translation_result:
+                    app.logger.info("Database migration for CMS auto-translation fields completed successfully")
+                else:
+                    app.logger.warning("Database migration for CMS auto-translation fields failed, auto-translation may not work properly")
+                    
+                # Run tags description migration
+                from .utils.migrate_mysql_tags_description import run_migration as migrate_mysql_tags_description
+                
+                # Execute the migration to add description field to tags
+                tags_description_result = migrate_mysql_tags_description()
+                if tags_description_result:
+                    app.logger.info("Database migration for CMS tags description field completed successfully")
+                else:
+                    app.logger.warning("Database migration for CMS tags description field failed, tags may not display correctly")
+            except ImportError:
+                # Fallback to PostgreSQL migration if MySQL migration fails
+                from .utils.migrate_auto_translation import run_migration as migrate_auto_translation
+                
+                # Execute the migration to add auto-translation fields
+                auto_translation_result = migrate_auto_translation()
+                if auto_translation_result:
+                    app.logger.info("Database migration for CMS auto-translation fields completed successfully (PostgreSQL)")
+                else:
+                    app.logger.warning("Database migration for CMS auto-translation fields failed, auto-translation may not work properly")
                 
         except Exception as e:
             app.logger.error(f"Error running database migrations: {e}")
