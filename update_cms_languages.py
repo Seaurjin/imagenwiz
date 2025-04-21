@@ -4,124 +4,138 @@ Script to update CMS languages to match exactly with the website's supported lan
 
 import os
 import sys
-from flask import Flask
+import pymysql
 import json
 
-# Add backend directory to system path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend')))
-
-# Import from backend app now that path is set
-from app import create_app, db
-from app.models.cms import Language
+# Setup direct database connection
+def connect_mysql():
+    """Connect to MySQL database for direct operations"""
+    print("Connecting to MySQL: root@8.130.113.102:3306/mat_db")
+    return pymysql.connect(
+        host='8.130.113.102',
+        user='root',
+        password='Ir%2586241992',
+        database='mat_db',
+        port=3306,
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
 def update_cms_languages():
     """Update languages in the database to match website's supported languages"""
-    # Create Flask app with proper context
-    app = create_app()
+    print("Starting CMS language update process...")
     
-    with app.app_context():
-        print("Starting CMS language update process...")
-        
-        # The supported languages in our application
-        supported_languages = [
-            {"code": "en", "name": "English", "flag": "🇬🇧", "active": True, "rtl": False},
-            {"code": "fr", "name": "French", "flag": "🇫🇷", "active": True, "rtl": False},
-            {"code": "es", "name": "Spanish", "flag": "🇪🇸", "active": True, "rtl": False},
-            {"code": "de", "name": "German", "flag": "🇩🇪", "active": True, "rtl": False},
-            {"code": "ru", "name": "Russian", "flag": "🇷🇺", "active": True, "rtl": False},
-            {"code": "pt", "name": "Portuguese", "flag": "🇵🇹", "active": True, "rtl": False},
-            {"code": "ja", "name": "Japanese", "flag": "🇯🇵", "active": True, "rtl": False},
-            {"code": "ko", "name": "Korean", "flag": "🇰🇷", "active": True, "rtl": False},
-            {"code": "ar", "name": "Arabic", "flag": "🇸🇦", "active": True, "rtl": True},
-            {"code": "vi", "name": "Vietnamese", "flag": "🇻🇳", "active": True, "rtl": False},
-            {"code": "th", "name": "Thai", "flag": "🇹🇭", "active": True, "rtl": False},
-            {"code": "id", "name": "Indonesian", "flag": "🇮🇩", "active": True, "rtl": False},
-            {"code": "ms", "name": "Malaysian", "flag": "🇲🇾", "active": True, "rtl": False},
-            {"code": "nl", "name": "Dutch", "flag": "🇳🇱", "active": True, "rtl": False},
-            {"code": "sv", "name": "Swedish", "flag": "🇸🇪", "active": True, "rtl": False},
-            {"code": "zh-TW", "name": "Traditional Chinese", "flag": "🇹🇼", "active": True, "rtl": False},
-            {"code": "it", "name": "Italian", "flag": "🇮🇹", "active": True, "rtl": False},
-            {"code": "tr", "name": "Turkish", "flag": "🇹🇷", "active": True, "rtl": False},
-            {"code": "hu", "name": "Hungarian", "flag": "🇭🇺", "active": True, "rtl": False},
-            {"code": "pl", "name": "Polish", "flag": "🇵🇱", "active": True, "rtl": False},
-        ]
-        
-        print(f"Processing {len(supported_languages)} supported languages...")
-        
-        # Track changes
-        added = 0
-        updated = 0
-        unchanged = 0
-        
-        # Update or create each supported language
-        for lang_data in supported_languages:
-            code = lang_data["code"]
-            
-            # Check if language exists
-            lang = Language.query.get(code)
-            
-            if lang:
-                # Update existing language
-                changed = False
-                if lang.name != lang_data["name"]:
-                    lang.name = lang_data["name"]
-                    changed = True
-                
-                # Check if is_rtl and flag attributes exist in the model
-                # before trying to update them
-                if hasattr(lang, 'is_rtl') and lang.is_rtl != lang_data["rtl"]:
-                    lang.is_rtl = lang_data["rtl"]
-                    changed = True
-                    
-                if hasattr(lang, 'flag') and lang.flag != lang_data["flag"]:
-                    lang.flag = lang_data["flag"]
-                    changed = True
-                    
-                if lang.is_active != lang_data["active"]:
-                    lang.is_active = lang_data["active"]
-                    changed = True
-                
-                if changed:
-                    print(f"✏️ Updated language: {code} - {lang_data['name']}")
-                    updated += 1
-                else:
-                    print(f"✓ Language already up-to-date: {code} - {lang_data['name']}")
-                    unchanged += 1
-            else:
-                # Create new language
-                # Only include attributes that exist in the Language model
-                new_lang = Language(
-                    code=code,
-                    name=lang_data["name"],
-                    is_active=lang_data["active"]
+    # Connect to MySQL directly
+    conn = connect_mysql()
+    cursor = conn.cursor()
+    
+    # The supported languages in our application
+    supported_languages = [
+        {"code": "en", "name": "English", "flag": "🇬🇧", "active": True, "rtl": False},
+        {"code": "fr", "name": "French", "flag": "🇫🇷", "active": True, "rtl": False},
+        {"code": "es", "name": "Spanish", "flag": "🇪🇸", "active": True, "rtl": False},
+        {"code": "de", "name": "German", "flag": "🇩🇪", "active": True, "rtl": False},
+        {"code": "ru", "name": "Russian", "flag": "🇷🇺", "active": True, "rtl": False},
+        {"code": "pt", "name": "Portuguese", "flag": "🇵🇹", "active": True, "rtl": False},
+        {"code": "ja", "name": "Japanese", "flag": "🇯🇵", "active": True, "rtl": False},
+        {"code": "ko", "name": "Korean", "flag": "🇰🇷", "active": True, "rtl": False},
+        {"code": "ar", "name": "Arabic", "flag": "🇸🇦", "active": True, "rtl": True},
+        {"code": "vi", "name": "Vietnamese", "flag": "🇻🇳", "active": True, "rtl": False},
+        {"code": "th", "name": "Thai", "flag": "🇹🇭", "active": True, "rtl": False},
+        {"code": "id", "name": "Indonesian", "flag": "🇮🇩", "active": True, "rtl": False},
+        {"code": "ms", "name": "Malaysian", "flag": "🇲🇾", "active": True, "rtl": False},
+        {"code": "nl", "name": "Dutch", "flag": "🇳🇱", "active": True, "rtl": False},
+        {"code": "sv", "name": "Swedish", "flag": "🇸🇪", "active": True, "rtl": False},
+        {"code": "zh-TW", "name": "Traditional Chinese", "flag": "🇹🇼", "active": True, "rtl": False},
+        {"code": "it", "name": "Italian", "flag": "🇮🇹", "active": True, "rtl": False},
+        {"code": "tr", "name": "Turkish", "flag": "🇹🇷", "active": True, "rtl": False},
+        {"code": "hu", "name": "Hungarian", "flag": "🇭🇺", "active": True, "rtl": False},
+        {"code": "pl", "name": "Polish", "flag": "🇵🇱", "active": True, "rtl": False},
+    ]
+    
+    print(f"Processing {len(supported_languages)} supported languages...")
+    
+    # First, check if the language table exists in MySQL
+    try:
+        cursor.execute("SHOW TABLES LIKE 'cms_languages'")
+        if cursor.fetchone() is None:
+            print("Creating cms_languages table...")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS cms_languages (
+                    code VARCHAR(10) PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                    is_default BOOLEAN NOT NULL DEFAULT FALSE,
+                    is_rtl BOOLEAN NOT NULL DEFAULT FALSE,
+                    flag VARCHAR(10)
                 )
-                
-                # Add optional attributes if they exist in the model
-                if hasattr(Language, 'is_rtl'):
-                    new_lang.is_rtl = lang_data["rtl"]
-                    
-                if hasattr(Language, 'flag'):
-                    new_lang.flag = lang_data["flag"]
-                
-                db.session.add(new_lang)
-                print(f"➕ Added new language: {code} - {lang_data['name']}")
-                added += 1
+            """)
+            conn.commit()
+    except Exception as e:
+        print(f"Error checking/creating language table: {str(e)}")
+        return False
+    
+    # Track changes
+    added = 0
+    updated = 0
+    unchanged = 0
+    
+    # Update or create each supported language
+    for lang_data in supported_languages:
+        code = lang_data["code"]
         
-        # Commit all changes
-        try:
-            db.session.commit()
-            print("\nLanguage update completed successfully!")
-            print(f"Summary:")
-            print(f"  Added: {added}")
-            print(f"  Updated: {updated}")
-            print(f"  Unchanged: {unchanged}")
-            print(f"  Total: {added + updated + unchanged}")
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error committing changes: {str(e)}")
-            return False
+        # Check if language exists
+        cursor.execute("SELECT * FROM cms_languages WHERE code = %s", (code,))
+        lang = cursor.fetchone()
         
-        return True
+        if lang:
+            # Update existing language
+            changed = False
+            if lang['name'] != lang_data["name"] or lang['is_rtl'] != lang_data["rtl"] or lang['flag'] != lang_data["flag"] or lang['is_active'] != lang_data["active"]:
+                changed = True
+                cursor.execute("""
+                    UPDATE cms_languages 
+                    SET name = %s, is_rtl = %s, flag = %s, is_active = %s
+                    WHERE code = %s
+                """, (lang_data["name"], lang_data["rtl"], lang_data["flag"], lang_data["active"], code))
+            
+            if changed:
+                print(f"✏️ Updated language: {code} - {lang_data['name']}")
+                updated += 1
+            else:
+                print(f"✓ Language already up-to-date: {code} - {lang_data['name']}")
+                unchanged += 1
+        else:
+            # Create new language
+            # Make English the default language
+            is_default = True if code == 'en' else False
+            
+            cursor.execute("""
+                INSERT INTO cms_languages (code, name, is_active, is_default, is_rtl, flag)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (code, lang_data["name"], lang_data["active"], is_default, lang_data["rtl"], lang_data["flag"]))
+            
+            print(f"➕ Added new language: {code} - {lang_data['name']}")
+            added += 1
+    
+    # Commit all changes
+    try:
+        conn.commit()
+        print("\nLanguage update completed successfully!")
+        print(f"Summary:")
+        print(f"  Added: {added}")
+        print(f"  Updated: {updated}")
+        print(f"  Unchanged: {unchanged}")
+        print(f"  Total: {added + updated + unchanged}")
+    except Exception as e:
+        conn.rollback()
+        print(f"Error committing changes: {str(e)}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return True
 
 if __name__ == "__main__":
     update_cms_languages()
