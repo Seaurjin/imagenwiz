@@ -181,6 +181,68 @@ const CarDealerships = () => {
         </div>
       </section>
       
+      {/* Success Story Section */}
+      <section className="mb-12 bg-gradient-to-r from-blue-50 to-teal-50 rounded-xl overflow-hidden border border-blue-100">
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Success</h2>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div className="flex flex-col md:flex-row items-start">
+              <div className="md:w-2/3 pr-0 md:pr-8 mb-6 md:mb-0">
+                <h3 className="text-xl font-semibold text-blue-800 mb-3">Deep Blue Diving Café</h3>
+                <p className="text-gray-600 mb-4">
+                  An independent café in Shanghai with an ocean diving theme used iMagenWiz to create
+                  unique menu items and promotional materials that perfectly capture their brand's aesthetic.
+                </p>
+                <blockquote className="italic border-l-4 border-blue-500 pl-4 my-4 text-gray-600">
+                  "The speed at which we can now visualize new product ideas has completely transformed 
+                  our creative process. What used to take weeks now happens in a single afternoon session."
+                </blockquote>
+                <div className="mt-4">
+                  <Link to="/success-stories" className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center">
+                    Read the full story
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+              <div className="md:w-1/3">
+                <div className="bg-gradient-to-br from-teal-600 to-blue-700 p-6 rounded-lg text-white">
+                  <div className="text-lg font-bold mb-3">Results at a glance</div>
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>35% increase in social media engagement</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>22% increase in sales for new menu items</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>¥50,000 per year saved in design costs</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <Link to="/success-stories" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Explore More Success Stories
+            </Link>
+          </div>
+        </div>
+      </section>
+      
       <section className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Compatible With Your Systems</h2>
         

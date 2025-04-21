@@ -54,6 +54,7 @@ import Ecommerce from './pages/info/Ecommerce';
 import Media from './pages/info/Media';
 import Enterprise from './pages/info/Enterprise';
 import CarDealerships from './pages/info/CarDealerships';
+import SuccessStories from './pages/info/SuccessStories';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -292,6 +293,7 @@ const AppContent = () => {
               <Route path="/media" element={<Media />} />
               <Route path="/enterprise" element={<Enterprise />} />
               <Route path="/car-dealerships" element={<CarDealerships />} />
+              <Route path="/success-stories" element={<SuccessStories />} />
               
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />

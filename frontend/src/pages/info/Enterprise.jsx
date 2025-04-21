@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import FooterPageTemplate from '../../components/FooterPageTemplate';
 
 const Enterprise = () => {
@@ -141,6 +142,70 @@ const Enterprise = () => {
                 <li>AI-driven content optimization recommendations</li>
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Success Story Section */}
+      <section className="mb-12 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl overflow-hidden border border-indigo-100">
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Success Story</h2>
+          
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div className="flex flex-col md:flex-row items-start">
+              <div className="md:w-2/3 pr-0 md:pr-8 mb-6 md:mb-0">
+                <h3 className="text-xl font-semibold text-indigo-800 mb-3">NeoAnime Studios</h3>
+                <p className="text-gray-600 mb-4">
+                  A leading Japanese "二次元" animation studio transformed their IP merchandise development 
+                  using iMagenWiz, reducing design time from weeks to days and dramatically expanding 
+                  their product catalog with a fraction of the resources.
+                </p>
+                <blockquote className="italic border-l-4 border-indigo-500 pl-4 my-4 text-gray-600">
+                  "The speed and quality of designs we can produce with iMagenWiz has completely transformed 
+                  our merchandising strategy. We can now respond to fan demand almost immediately, creating 
+                  products for characters as soon as they become popular."
+                </blockquote>
+                <div className="mt-4">
+                  <Link to="/success-stories" className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
+                    Read the full story
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+              <div className="md:w-1/3">
+                <div className="bg-gradient-to-br from-purple-600 to-indigo-700 p-6 rounded-lg text-white">
+                  <div className="text-lg font-bold mb-3">Results at a glance</div>
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>47% increase in merchandise revenue</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>200+ new product SKUs in 6 months</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Development time cut by 80%</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <Link to="/success-stories" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Explore More Success Stories
+            </Link>
           </div>
         </div>
       </section>
