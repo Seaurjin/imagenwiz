@@ -22,7 +22,7 @@ def create_app():
     app = Flask(__name__, static_folder='static')
     
     # Configure the application
-    # Use MySQL database from environment variables
+    # IMPORTANT: Force MySQL database usage, ignoring SQLite or PostgreSQL URLs
     from urllib.parse import quote_plus
     
     # Get MySQL credentials from environment variables
@@ -34,8 +34,16 @@ def create_app():
     
     print(f"Connecting to MySQL: {mysql_user}@{mysql_host}:{mysql_port}/{mysql_db}")
     
-    # Configure MySQL connection
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_db}'
+    # Clear any other database configuration that might interfere
+    # This ensures we only use MySQL and not SQLite or PostgreSQL
+    if 'DATABASE_URL' in os.environ:
+        print(f"WARNING: Ignoring DATABASE_URL environment variable to ensure MySQL is used")
+        os.environ['DATABASE_URL_DISABLED'] = os.environ.pop('DATABASE_URL')
+    
+    # Configure MySQL connection exclusively
+    mysql_uri = f'mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_db}'
+    print(f"Using database URI: {mysql_uri}")
+    app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
     
     # Add connection pool settings separately
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
