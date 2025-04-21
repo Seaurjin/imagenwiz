@@ -121,11 +121,6 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/affiliate" className="text-gray-500 hover:text-teal-600 text-sm">
-                    {t('footer.affiliateProgram', 'Affiliate Program')}
-                  </Link>
-                </li>
-                <li>
                   <Link to="/automatic-designs" className="text-gray-500 hover:text-teal-600 text-sm">
                     {t('footer.createAutomaticDesigns', 'Create automatic designs')}
                   </Link>
@@ -133,11 +128,9 @@ const Footer = () => {
                 <li>
                   <Link to="/video-background-removal" className="text-gray-500 hover:text-teal-600 text-sm">
                     {t('footer.videoBackgroundRemoval', 'Video Background Removal')}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/careers" className="text-gray-500 hover:text-teal-600 text-sm">
-                    {t('footer.careers', 'Careers')}
+                    <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-teal-100 text-teal-800">
+                      {t('footer.comingSoon', 'Coming Soon')}
+                    </span>
                   </Link>
                 </li>
                 <li>
