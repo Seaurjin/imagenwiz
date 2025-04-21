@@ -143,6 +143,7 @@ const Footer = () => {
                     {t('footer.pressAndPartnerships', 'Press & Partnerships')}
                   </Link>
                 </li>
+                {/* Removed "Affiliate Program" and "Careers" links */}
               </ul>
             </div>
 
