@@ -1036,250 +1036,262 @@ def delete_media(media_id):
 @bp.route('/blog', methods=['GET'])
 def get_blog_posts():
     """Get published blog posts for public consumption"""
-    # Get query parameters
-    language = request.args.get('language')
-    tag = request.args.get('tag')
-    search = request.args.get('search')
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('limit', 10, type=int)  # Use 'limit' for consistency with frontend
-    
-    current_app.logger.info(f"GET /blog - Params: language={language}, tag={tag}, search={search}, page={page}, per_page={per_page}")
-    
-    # Limit per_page to avoid potential performance issues
-    per_page = min(per_page, 50)
-    
-    # Base query - only published posts
-    query = Post.query.filter_by(status='published')
-    
-    # Log the initial query SQL
-    current_app.logger.info(f"Initial query: {str(query)}")
-    current_app.logger.info(f"Total posts in database: {Post.query.count()}")
-    current_app.logger.info(f"Published posts: {Post.query.filter_by(status='published').count()}")
-    
-    # Apply language filter - Only show posts that have a translation in the requested language
-    if language:
-        current_app.logger.info(f"Filtering by language: {language}")
-        # Create a subquery to find posts with the requested language
-        subquery = db.session.query(PostTranslation.post_id).filter(
-            PostTranslation.language_code == language
-        ).subquery()
+    try:
+        # Get query parameters
+        language = request.args.get('language')
+        tag = request.args.get('tag')
+        search = request.args.get('search')
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('limit', 10, type=int)  # Use 'limit' for consistency with frontend
         
-        # Use this subquery to filter the main posts query
-        query = query.filter(Post.id.in_(subquery))
+        current_app.logger.info(f"GET /blog - Params: language={language}, tag={tag}, search={search}, page={page}, per_page={per_page}")
         
-        current_app.logger.info(f"SQL query after language filter: {str(query)}")
+        # Limit per_page to avoid potential performance issues
+        per_page = min(per_page, 50)
         
-    # Apply tag filter
-    if tag:
-        query = query.join(Post.tags).filter(Tag.slug == tag)
-    
-    # Apply search filter
-    if search:
-        search_term = f"%{search}%"
-        # Search in translations
-        if not language:  # Only add this join if we haven't already joined for language filtering
-            query = query.join(PostTranslation)
-        query = query.filter(
-            or_(
-                PostTranslation.title.like(search_term),
-                PostTranslation.content.like(search_term)
+        # Base query - only published posts
+        query = Post.query.filter_by(status='published')
+        
+        # Log the initial query SQL
+        current_app.logger.info(f"Initial query: {str(query)}")
+        current_app.logger.info(f"Total posts in database: {Post.query.count()}")
+        current_app.logger.info(f"Published posts: {Post.query.filter_by(status='published').count()}")
+        
+        # Apply language filter - Only show posts that have a translation in the requested language
+        if language:
+            current_app.logger.info(f"Filtering by language: {language}")
+            # Create a subquery to find posts with the requested language
+            subquery = db.session.query(PostTranslation.post_id).filter(
+                PostTranslation.language_code == language
+            ).subquery()
+            
+            # Use this subquery to filter the main posts query
+            query = query.filter(Post.id.in_(subquery))
+            
+            current_app.logger.info(f"SQL query after language filter: {str(query)}")
+            
+        # Apply tag filter
+        if tag:
+            query = query.join(Post.tags).filter(Tag.slug == tag)
+        
+        # Apply search filter
+        if search:
+            search_term = f"%{search}%"
+            # Search in translations
+            if not language:  # Only add this join if we haven't already joined for language filtering
+                query = query.join(PostTranslation)
+            query = query.filter(
+                or_(
+                    PostTranslation.title.like(search_term),
+                    PostTranslation.content.like(search_term)
+                )
             )
-        )
-    
-    # Order by published date (newest first)
-    query = query.order_by(Post.published_at.desc())
-    
-    # Get total count for pagination
-    total = query.count()
-    current_app.logger.info(f"Total posts matching filters: {total}")
-    
-    # Paginate
-    posts = query.offset((page - 1) * per_page).limit(per_page).all()
-    current_app.logger.info(f"Retrieved posts count: {len(posts)}")
-    
-    # Format results
-    result = []
-    for post in posts:
-        post_dict = post.to_dict(include_translations=True, language=language)
         
-        # The post_dict will always have 'translation' for the requested language
-        # because our query is already filtering for posts with the right language
-        result.append(post_dict)
-    
-    # Calculate total pages
-    total_pages = (total + per_page - 1) // per_page if total > 0 else 1
-    
-    # Return with pagination metadata
-    return jsonify({
-        'posts': result,
-        'total_pages': total_pages,
-        'pagination': {
-            'total': total,
-            'page': page,
-            'per_page': per_page,
-            'pages': total_pages
-        }
-    }), 200
+        # Order by published date (newest first)
+        query = query.order_by(Post.published_at.desc())
+        
+        # Get total count for pagination
+        total = query.count()
+        current_app.logger.info(f"Total posts matching filters: {total}")
+        
+        # Paginate
+        posts = query.offset((page - 1) * per_page).limit(per_page).all()
+        current_app.logger.info(f"Retrieved posts count: {len(posts)}")
+        
+        # Format results
+        result = []
+        for post in posts:
+            post_dict = post.to_dict(include_translations=True, language=language)
+            
+            # The post_dict will always have 'translation' for the requested language
+            # because our query is already filtering for posts with the right language
+            result.append(post_dict)
+        
+        # Calculate total pages
+        total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+        
+        # Return with pagination metadata
+        return jsonify({
+            'posts': result,
+            'total_pages': total_pages,
+            'pagination': {
+                'total': total,
+                'page': page,
+                'per_page': per_page,
+                'pages': total_pages
+            }
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"Error in get_blog_posts: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 @bp.route('/blog/<slug>', methods=['GET'])
 def get_blog_post_by_slug(slug):
     """Get a specific published blog post by slug for public consumption"""
-    # Get query parameters
-    language = request.args.get('language')
+    try:
+        # Get query parameters
+        language = request.args.get('language')
+        
+        current_app.logger.info(f"GET /blog/{slug} - Params: language={language}")
+        
+        # Find the published post with the given slug
+        post = Post.query.filter_by(slug=slug, status='published').first()
+        current_app.logger.info(f"Post found: {post is not None}")
+        
+        if not post:
+            current_app.logger.info(f"No published post found with slug: {slug}")
+            # Try to find any post with this slug regardless of status to debug
+            any_post = Post.query.filter_by(slug=slug).first()
+            if any_post:
+                current_app.logger.info(f"Found post with slug {slug} but status is {any_post.status}")
+            return jsonify({"error": "Blog post not found"}), 404
     
-    current_app.logger.info(f"GET /blog/{slug} - Params: language={language}")
+        # If language is specified, verify that the post has a translation in that language
+        if language:
+            has_translation = False
+            for trans in post.translations:
+                if trans.language_code == language:
+                    has_translation = True
+                    break
+                    
+            if not has_translation:
+                current_app.logger.info(f"No translation found for language: {language}")
+                # Return available languages so the client can offer alternatives
+                available_langs = [t.language_code for t in post.translations]
+                current_app.logger.info(f"Available languages: {available_langs}")
+                
+                # If English is available, suggest it as default
+                if 'en' in available_langs:
+                    suggested_language = 'en'
+                else:
+                    suggested_language = available_langs[0] if available_langs else None
+                    
+                return jsonify({
+                    "error": f"This post is not available in {language}",
+                    "available_languages": available_langs,
+                    "suggested_language": suggested_language
+                }), 404
     
-    # Find the published post with the given slug
-    post = Post.query.filter_by(slug=slug, status='published').first()
-    current_app.logger.info(f"Post found: {post is not None}")
-    
-    if not post:
-        current_app.logger.info(f"No published post found with slug: {slug}")
-        # Try to find any post with this slug regardless of status to debug
-        any_post = Post.query.filter_by(slug=slug).first()
-        if any_post:
-            current_app.logger.info(f"Found post with slug {slug} but status is {any_post.status}")
-        return jsonify({"error": "Blog post not found"}), 404
-    
-    # If language is specified, verify that the post has a translation in that language
-    if language:
-        has_translation = False
+        # Format the post with comprehensive data
+        post_data = post.to_dict(include_translations=True, language=language)
+        
+        # Get author details
+        author = User.query.get(post.author_id)
+        author_data = {
+            "id": author.id,
+            "name": author.username,
+            # Add other author fields as needed
+        }
+        
+        # Find related posts (similar tags, limit to 3)
+        # Also filter related posts to only include those available in the requested language
+        if post.tags:
+            tag_ids = [tag.id for tag in post.tags]
+            related_posts_query = Post.query.filter(
+                Post.id != post.id, 
+                Post.status == 'published'
+            )
+            
+            # Filter by language if specified
+            if language:
+                # Use subquery to find posts with the requested language
+                lang_subquery = db.session.query(PostTranslation.post_id).filter(
+                    PostTranslation.language_code == language
+                ).subquery()
+                
+                related_posts_query = related_posts_query.filter(Post.id.in_(lang_subquery))
+                
+            # Continue building the query
+            related_posts_query = (
+                related_posts_query
+                .join(Post.tags)
+                .filter(Tag.id.in_(tag_ids))
+                .group_by(Post.id)
+                .order_by(Post.published_at.desc())
+                .limit(3)
+            )
+            
+            related_posts = [p.to_dict(include_translations=True, language=language) for p in related_posts_query.all()]
+        else:
+            # If no tags, get the latest 3 published posts that aren't this one
+            related_posts_query = Post.query.filter(
+                Post.id != post.id, 
+                Post.status == 'published'
+            )
+            
+            # Filter by language if specified
+            if language:
+                # Use subquery to find posts with the requested language
+                lang_subquery = db.session.query(PostTranslation.post_id).filter(
+                    PostTranslation.language_code == language
+                ).subquery()
+                
+                related_posts_query = related_posts_query.filter(Post.id.in_(lang_subquery))
+                
+            # Continue building the query
+            related_posts_query = (
+                related_posts_query
+                .order_by(Post.published_at.desc())
+                .limit(3)
+            )
+            
+            related_posts = [p.to_dict(include_translations=True, language=language) for p in related_posts_query.all()]
+        
+        # Get available languages for this post
+        available_languages = []
+        used_languages = set(trans.language_code for trans in post.translations)
+        all_languages = Language.query.all()
+        for lang in all_languages:
+            if lang.code in used_languages:
+                available_languages.append({
+                    "code": lang.code,
+                    "name": lang.name,
+                    "is_default": lang.is_default
+                })
+        
+        # Get the content for the requested language
+        content = None
+        title = None
+        meta_description = None
+        excerpt = None
         for trans in post.translations:
-            if trans.language_code == language:
-                has_translation = True
+            if (language and trans.language_code == language) or (not language and trans.language_code == 'en'):
+                content = trans.content
+                title = trans.title
+                meta_description = trans.meta_description
+                
+                # Generate excerpt from content if not provided
+                if trans.content:
+                    # Strip HTML tags and limit to ~200 characters
+                    import re
+                    plain_text = re.sub(r'<[^>]*>', '', trans.content)
+                    excerpt = plain_text[:200] + ('...' if len(plain_text) > 200 else '')
                 break
-                
-        if not has_translation:
-            current_app.logger.info(f"No translation found for language: {language}")
-            # Return available languages so the client can offer alternatives
-            available_langs = [t.language_code for t in post.translations]
-            current_app.logger.info(f"Available languages: {available_langs}")
-            
-            # If English is available, suggest it as default
-            if 'en' in available_langs:
-                suggested_language = 'en'
-            else:
-                suggested_language = available_langs[0] if available_langs else None
-                
-            return jsonify({
-                "error": f"This post is not available in {language}",
-                "available_languages": available_langs,
-                "suggested_language": suggested_language
-            }), 404
-    
-    # Format the post with comprehensive data
-    post_data = post.to_dict(include_translations=True, language=language)
-    
-    # Get author details
-    author = User.query.get(post.author_id)
-    author_data = {
-        "id": author.id,
-        "name": author.username,
-        # Add other author fields as needed
-    }
-    
-    # Find related posts (similar tags, limit to 3)
-    # Also filter related posts to only include those available in the requested language
-    if post.tags:
-        tag_ids = [tag.id for tag in post.tags]
-        related_posts_query = Post.query.filter(
-            Post.id != post.id, 
-            Post.status == 'published'
-        )
         
-        # Filter by language if specified
-        if language:
-            # Use subquery to find posts with the requested language
-            lang_subquery = db.session.query(PostTranslation.post_id).filter(
-                PostTranslation.language_code == language
-            ).subquery()
-            
-            related_posts_query = related_posts_query.filter(Post.id.in_(lang_subquery))
-            
-        # Continue building the query
-        related_posts_query = (
-            related_posts_query
-            .join(Post.tags)
-            .filter(Tag.id.in_(tag_ids))
-            .group_by(Post.id)
-            .order_by(Post.published_at.desc())
-            .limit(3)
-        )
-        
-        related_posts = [p.to_dict(include_translations=True, language=language) for p in related_posts_query.all()]
-    else:
-        # If no tags, get the latest 3 published posts that aren't this one
-        related_posts_query = Post.query.filter(
-            Post.id != post.id, 
-            Post.status == 'published'
-        )
-        
-        # Filter by language if specified
-        if language:
-            # Use subquery to find posts with the requested language
-            lang_subquery = db.session.query(PostTranslation.post_id).filter(
-                PostTranslation.language_code == language
-            ).subquery()
-            
-            related_posts_query = related_posts_query.filter(Post.id.in_(lang_subquery))
-            
-        # Continue building the query
-        related_posts_query = (
-            related_posts_query
-            .order_by(Post.published_at.desc())
-            .limit(3)
-        )
-        
-        related_posts = [p.to_dict(include_translations=True, language=language) for p in related_posts_query.all()]
-    
-    # Get available languages for this post
-    available_languages = []
-    used_languages = set(trans.language_code for trans in post.translations)
-    all_languages = Language.query.all()
-    for lang in all_languages:
-        if lang.code in used_languages:
-            available_languages.append({
-                "code": lang.code,
-                "name": lang.name,
-                "is_default": lang.is_default
-            })
-    
-    # Get the content for the requested language
-    content = None
-    title = None
-    meta_description = None
-    excerpt = None
-    for trans in post.translations:
-        if (language and trans.language_code == language) or (not language and trans.language_code == 'en'):
-            content = trans.content
-            title = trans.title
-            meta_description = trans.meta_description
-            
-            # Generate excerpt from content if not provided
-            if trans.content:
-                # Strip HTML tags and limit to ~200 characters
-                import re
-                plain_text = re.sub(r'<[^>]*>', '', trans.content)
-                excerpt = plain_text[:200] + ('...' if len(plain_text) > 200 else '')
-            break
-    
-    # Return a more comprehensive response for the blog post page
-    return jsonify({
-        "post": {
-            "id": post.id,
-            "slug": post.slug,
-            "title": title,
-            "content": content,
-            "excerpt": excerpt,
-            "meta_description": meta_description,
-            "featured_image": post.featured_image,
-            "created_at": post.created_at.isoformat(),
-            "updated_at": post.updated_at.isoformat() if post.updated_at else None,
-            "published_at": post.published_at.isoformat() if post.published_at else None,
-            "author": author_data,
-            "tags": [tag.to_dict() for tag in post.tags]
-        },
-        "related_posts": related_posts,
-        "available_languages": available_languages,
-        "current_language": language or "en"
-    }), 200
+        # Return a more comprehensive response for the blog post page
+        return jsonify({
+            "post": {
+                "id": post.id,
+                "slug": post.slug,
+                "title": title,
+                "content": content,
+                "excerpt": excerpt,
+                "meta_description": meta_description,
+                "featured_image": post.featured_image,
+                "created_at": post.created_at.isoformat(),
+                "updated_at": post.updated_at.isoformat() if post.updated_at else None,
+                "published_at": post.published_at.isoformat() if post.published_at else None,
+                "author": author_data,
+                "tags": [tag.to_dict() for tag in post.tags]
+            },
+            "related_posts": related_posts,
+            "available_languages": available_languages,
+            "current_language": language or "en"
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"Error in get_blog_post_by_slug: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
