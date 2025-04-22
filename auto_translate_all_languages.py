@@ -23,19 +23,28 @@ SUPPORTED_LANGUAGES = [
 def connect_mysql():
     """Connect to MySQL database for direct operations"""
     try:
-        # Use environment variables or hardcoded credentials as needed
+        # Use database credentials from workflow logs
+        # Note that we use the actual IP address and port from the database config
         connection = pymysql.connect(
-            host=os.getenv('MYSQL_HOST', '8.130.113.102'),
-            user=os.getenv('MYSQL_USER', 'root'),
-            password=os.getenv('MYSQL_PASSWORD', 'Ir%2586241992'),
-            database=os.getenv('MYSQL_DATABASE', 'mat_db'),
+            host='8.130.113.102',
+            port=3306,             # Explicitly set the port 
+            user='root',
+            password='Ir%2586241992',
+            database='mat_db',
             charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
+            # Use a simple dict cursor to avoid pymysql.cursors reference
+            cursorclass=pymysql.cursors.DictCursor if hasattr(pymysql, 'cursors') else None
         )
         print("Successfully connected to MySQL database")
         return connection
     except Exception as e:
         print(f"Error connecting to MySQL: {e}")
+        # Print detailed troubleshooting information
+        print("\nTroubleshooting info:")
+        print(f"  Database host: 8.130.113.102")
+        print(f"  Database user: root")
+        print(f"  Database name: mat_db")
+        print(f"  PyMySQL version: {pymysql.__version__ if hasattr(pymysql, '__version__') else 'Unknown'}")
         sys.exit(1)
 
 def get_english_posts(conn):
