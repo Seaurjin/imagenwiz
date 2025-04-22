@@ -9,6 +9,7 @@ from app.models.models import User
 from app.models.cms import Post, PostTranslation, PostMedia, Tag, Language
 from sqlalchemy import or_, and_
 from app.services.translation_service import translation_service
+from .ai_content import generate_blog_content
 from . import bp
 
 # Define allowed file extensions
@@ -262,6 +263,34 @@ def delete_tag(tag_id):
     db.session.commit()
     
     return jsonify({"message": "Tag deleted successfully"}), 200
+
+# AI Content Generation
+@bp.route('/posts/generate-content', methods=['POST'])
+@jwt_required()
+def ai_generate_content():
+    """Generate blog content using AI"""
+    # Check admin access
+    user = check_admin_access()
+    if not user:
+        return jsonify({"error": "Admin access required"}), 403
+    
+    data = request.get_json()
+    
+    # Validate required fields
+    if not data or not data.get('title'):
+        return jsonify({"error": "Blog post title is required"}), 400
+    
+    # Get optional parameters
+    language = data.get('language', 'en')
+    length = data.get('length', 'medium')  # short, medium, long
+    
+    # Generate content
+    result = generate_blog_content(data['title'], language, length)
+    
+    if not result.get('success', False):
+        return jsonify({"error": result.get('error', 'Failed to generate content')}), 500
+    
+    return jsonify(result), 200
 
 # Post management
 @bp.route('/posts', methods=['GET'])
