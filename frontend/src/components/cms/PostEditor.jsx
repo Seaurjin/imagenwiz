@@ -291,6 +291,9 @@ const PostEditor = () => {
     setError(null);
     
     try {
+      // Display initial progress message
+      setSuccess(`Translating to ${selectedLanguages.length} languages... This may take a moment.`);
+      
       // Call API with selected languages
       const response = await autoTranslatePost(id, { 
         target_languages: selectedLanguages,
@@ -299,26 +302,75 @@ const PostEditor = () => {
       
       console.log('Translation response:', response);
       
+      // Check for partial success
+      let successCount = 0;
+      let failedCount = 0;
+      let skippedCount = 0;
+      
+      if (response && response.translations) {
+        successCount = response.translations.successful ? response.translations.successful.length : 0;
+        failedCount = response.translations.failed ? response.translations.failed.length : 0;
+        skippedCount = response.translations.skipped ? response.translations.skipped.length : 0;
+      }
+      
       // Refresh post data to get updated translations
       const updatedPostData = await getPost(id, formData.language_code);
       
       // Update translations in state
       if (updatedPostData.translations) {
         setTranslations(updatedPostData.translations);
+        console.log('Updated translations from direct response:', updatedPostData.translations);
       } else if (updatedPostData.post && updatedPostData.post.translations) {
         setTranslations(updatedPostData.post.translations);
+        console.log('Updated translations from post object:', updatedPostData.post.translations);
       }
       
-      // Show success message
-      setSuccess(`Successfully translated to ${selectedLanguages.length} languages`);
+      // Ensure we update the current translation if needed
+      const updatedCurrentTranslation = (updatedPostData.translations || (updatedPostData.post && updatedPostData.post.translations) || [])
+        .find(t => t.language_code === formData.language_code);
+      
+      if (updatedCurrentTranslation) {
+        console.log('Found updated translation for current language:', updatedCurrentTranslation);
+        // Process content to ensure proper display
+        let processedContent = updatedCurrentTranslation.content || '';
+        // If content appears to be HTML-encoded, decode it
+        if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
+          const tempElement = document.createElement('div');
+          tempElement.innerHTML = processedContent;
+          processedContent = tempElement.textContent;
+          console.log('HTML-decoded current content after translation:', processedContent);
+        }
+        
+        // Update form with the new translation data
+        setFormData({
+          ...formData,
+          title: updatedCurrentTranslation.title || formData.title,
+          content: processedContent || formData.content,
+          meta_title: updatedCurrentTranslation.meta_title || formData.meta_title,
+          meta_description: updatedCurrentTranslation.meta_description || formData.meta_description
+        });
+      }
+      
+      // Show appropriate success message based on results
+      if (failedCount > 0) {
+        setSuccess(`Partially completed: Translated ${successCount} languages, failed ${failedCount}, skipped ${skippedCount}.`);
+      } else {
+        setSuccess(`Successfully translated to ${successCount} languages${skippedCount ? `, skipped ${skippedCount}` : ''}.`);
+      }
       
       // Clear message after a few seconds
       setTimeout(() => {
         setSuccess(null);
-      }, 5000);
+      }, 10000); // Longer duration for user to read detailed message
     } catch (err) {
       console.error('Error translating post:', err);
-      setError(`Translation failed: ${err.message || 'Unknown error'}`);
+      
+      // Provide more informative error based on likely causes
+      if (selectedLanguages.length > 10) {
+        setError(`Translation failed: Too many languages selected at once. Try translating 5-10 languages at a time. (${err.message || 'Request timeout'})`);
+      } else {
+        setError(`Translation failed: ${err.message || 'Unknown error'}. Please try again with fewer languages.`);
+      }
     } finally {
       setIsTranslating(false);
       setIsTranslateModalOpen(false);

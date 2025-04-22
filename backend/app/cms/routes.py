@@ -930,6 +930,8 @@ def auto_translate_post(post_id):
             'skipped': []
         }
         
+        # Filter languages to process
+        languages_to_process = []
         for language in all_languages:
             # Skip English as it's the source language
             if language.code == 'en':
@@ -948,41 +950,61 @@ def auto_translate_post(post_id):
                 results['skipped'].append(language.code)
                 continue
                 
-            # Perform the translation
-            current_app.logger.info(f"Auto-translating post {post_id} to {language.code}")
-            translated_data = translation_service.translate_post_fields(
-                english_translation_data, 
-                from_lang_code='en', 
-                to_lang_code=language.code
-            )
-            
-            if translated_data:
-                if existing_translation:
-                    # Update existing translation
-                    existing_translation.title = translated_data.get('title', existing_translation.title)
-                    existing_translation.content = translated_data.get('content', existing_translation.content)
-                    existing_translation.meta_title = translated_data.get('meta_title', existing_translation.meta_title)
-                    existing_translation.meta_description = translated_data.get('meta_description', existing_translation.meta_description)
-                    existing_translation.meta_keywords = translated_data.get('meta_keywords', existing_translation.meta_keywords)
-                    existing_translation.is_auto_translated = True
-                else:
-                    # Create new translation
-                    new_translation = PostTranslation(
-                        post_id=post_id,
-                        language_code=language.code,
-                        title=translated_data.get('title', ''),
-                        content=translated_data.get('content', ''),
-                        meta_title=translated_data.get('meta_title', ''),
-                        meta_description=translated_data.get('meta_description', ''),
-                        meta_keywords=translated_data.get('meta_keywords', ''),
-                        is_auto_translated=True
-                    )
-                    db.session.add(new_translation)
-                    
-                results['successful'].append(language.code)
-            else:
-                results['failed'].append(language.code)
+            # Add to processing list
+            languages_to_process.append((language, existing_translation))
         
+        # Process in smaller batches to prevent timeouts and memory issues
+        BATCH_SIZE = 5
+        for i in range(0, len(languages_to_process), BATCH_SIZE):
+            batch = languages_to_process[i:i+BATCH_SIZE]
+            current_app.logger.info(f"Processing batch {i//BATCH_SIZE + 1}: {[lang.code for lang, _ in batch]}")
+            
+            # Commit after each batch to prevent large transactions
+            for language, existing_translation in batch:
+                try:
+                    # Perform the translation
+                    current_app.logger.info(f"Auto-translating post {post_id} to {language.code}")
+                    translated_data = translation_service.translate_post_fields(
+                        english_translation_data, 
+                        from_lang_code='en', 
+                        to_lang_code=language.code
+                    )
+                    
+                    if translated_data:
+                        if existing_translation:
+                            # Update existing translation
+                            existing_translation.title = translated_data.get('title', existing_translation.title)
+                            existing_translation.content = translated_data.get('content', existing_translation.content)
+                            existing_translation.meta_title = translated_data.get('meta_title', existing_translation.meta_title)
+                            existing_translation.meta_description = translated_data.get('meta_description', existing_translation.meta_description)
+                            existing_translation.meta_keywords = translated_data.get('meta_keywords', existing_translation.meta_keywords)
+                            existing_translation.is_auto_translated = True
+                        else:
+                            # Create new translation
+                            new_translation = PostTranslation(
+                                post_id=post_id,
+                                language_code=language.code,
+                                title=translated_data.get('title', ''),
+                                content=translated_data.get('content', ''),
+                                meta_title=translated_data.get('meta_title', ''),
+                                meta_description=translated_data.get('meta_description', ''),
+                                meta_keywords=translated_data.get('meta_keywords', ''),
+                                is_auto_translated=True
+                            )
+                            db.session.add(new_translation)
+                            
+                        results['successful'].append(language.code)
+                    else:
+                        results['failed'].append(language.code)
+                except Exception as e:
+                    current_app.logger.error(f"Error translating to {language.code}: {str(e)}")
+                    results['failed'].append(language.code)
+            
+            # Commit after each batch
+            db.session.commit()
+            current_app.logger.info(f"Committed batch {i//BATCH_SIZE + 1}")
+            
+        # Final commit to ensure all changes are saved
         db.session.commit()
         
         return jsonify({

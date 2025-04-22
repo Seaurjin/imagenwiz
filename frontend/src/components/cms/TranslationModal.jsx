@@ -85,6 +85,14 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
             Select the languages you want to translate your content to. The translation will be performed automatically based on the English version of your content.
           </p>
           
+          {/* Warning about translation limits */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+            <p className="text-sm text-yellow-800">
+              <strong>💡 Translation Tip:</strong> For best results, translate to 5-10 languages at a time. 
+              Selecting all languages at once may take longer or time out.
+            </p>
+          </div>
+          
           {/* Select/Unselect All Buttons */}
           <div className="flex justify-between mb-4">
             <button 
