@@ -1057,18 +1057,10 @@ def get_blog_posts():
         current_app.logger.info(f"Total posts in database: {Post.query.count()}")
         current_app.logger.info(f"Published posts: {Post.query.filter_by(status='published').count()}")
         
-        # Apply language filter - Only show posts that have a translation in the requested language
+        # We don't filter by language anymore - instead we'll include all posts and handle 
+        # fallback translations in the response formatting
         if language:
-            current_app.logger.info(f"Filtering by language: {language}")
-            # Create a subquery to find posts with the requested language
-            subquery = db.session.query(PostTranslation.post_id).filter(
-                PostTranslation.language_code == language
-            ).subquery()
-            
-            # Use this subquery to filter the main posts query
-            query = query.filter(Post.id.in_(subquery))
-            
-            current_app.logger.info(f"SQL query after language filter: {str(query)}")
+            current_app.logger.info(f"Language requested: {language} - Will provide fallbacks if needed")
             
         # Apply tag filter
         if tag:
