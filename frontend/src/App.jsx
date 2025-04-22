@@ -33,6 +33,7 @@ import CMSDashboardPage from './pages/cms/CMSDashboardPage';
 import BlogHomePage from './pages/blog/BlogHomePage';
 import BlogPostPage from './pages/blog/BlogPostPage';
 import AdminSettings from './pages/AdminSettings';
+import TranslationTool from './pages/admin/TranslationTool';
 
 // Legal Pages
 import TermsOfService from './pages/legal/TermsOfService';
@@ -61,7 +62,6 @@ import AutomaticDesigns from './pages/info/AutomaticDesigns';
 import VideoBackgroundRemoval from './pages/info/VideoBackgroundRemoval';
 
 // Admin Tools
-import TranslationTool from './pages/admin/TranslationTool';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
