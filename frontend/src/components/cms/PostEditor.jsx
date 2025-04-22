@@ -30,6 +30,17 @@ const SimpleHtmlEditor = ({ value, onChange, languageCode }) => {
   // Use expanded RTL check for all RTL languages
   const isRTL = ['ar', 'he', 'ur', 'fa'].includes(languageCode);
   
+  // For debugging purposes to see what we're getting
+  console.log('SimpleHtmlEditor received value:', {
+    type: typeof value,
+    length: value ? value.length : 0,
+    value: value ? value.substring(0, 200) : null // First 200 chars
+  });
+  
+  // We do NOT need to process the HTML content for editing
+  // In an HTML editor, we want to show the raw HTML tags as text
+  // This ensures HTML tags are properly displayed as plain text in the editor
+  
   // Show a warning if content appears to be empty
   const contentIsEmpty = !value || value.trim() === '';
   
@@ -461,11 +472,30 @@ const PostEditor = () => {
               }
               
               if (translationData) {
-                // Process content for debugging and handle any content formatting issues
-                let processedContent = '';
-                if (translationData.content) {
-                  // Ensure we have proper content handling
-                  processedContent = translationData.content;
+                // Create a SimpleHtmlEditor-like processing function to ensure consistency
+                const processContentForEdit = (htmlContent) => {
+                  if (!htmlContent) return '';
+                  
+                  // Handle different content formats
+                  let processedContent = htmlContent;
+                  
+                  // Check if content looks like raw HTML tags and needs decoding
+                  if (processedContent.startsWith('<') && processedContent.includes('</')) {
+                    try {
+                      // If it appears to be XML/HTML text showing as tags, extract just the text content
+                      const tempDiv = document.createElement('div');
+                      tempDiv.innerHTML = processedContent;
+                      
+                      // If the content is something like '<p>text</p>', we want to keep it as is,
+                      // not convert it to just 'text'
+                      if (tempDiv.children.length === 1 && tempDiv.children[0].tagName === 'P') {
+                        // Keep the content as is if it's just a single paragraph
+                        processedContent = tempDiv.innerHTML;
+                      }
+                    } catch (e) {
+                      console.warn('Error processing HTML content:', e);
+                    }
+                  }
                   
                   // If the content appears to be JSON escaped, unescape it
                   if (typeof processedContent === 'string' && processedContent.includes('\\n')) {
@@ -479,7 +509,12 @@ const PostEditor = () => {
                       console.warn('Content normalization failed, using original content', e);
                     }
                   }
-                }
+                  
+                  return processedContent;
+                };
+                
+                // Process the content for proper display
+                const processedContent = processContentForEdit(translationData.content || '');
                 
                 console.log('LANGUAGE CHANGE - CONTENT FIELD:', {
                   raw: translationData.content,
