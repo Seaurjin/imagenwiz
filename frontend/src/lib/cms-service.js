@@ -31,12 +31,48 @@ const handleError = (error) => {
 export const getLanguages = async () => {
   try {
     console.log('Fetching languages from API...');
-    const response = await axios.get(`${API_URL}/languages`); // Removed is_active filter to get all languages
+    const response = await axios.get(`${API_URL}/languages`, {
+      params: {
+        nocache: Date.now() // Add cache-busting parameter
+      }
+    });
     console.log('Languages API response:', response.data);
+    
+    // Ensure we have valid data - if not, try direct SQL approach
+    if (!Array.isArray(response.data) || response.data.length < 3) {
+      console.warn('Languages API returned insufficient data, trying direct fetch');
+      // Try a different approach with explicit is_active parameter
+      const directResponse = await axios.get(`${API_URL}/languages`, {
+        params: {
+          is_active: true,
+          nocache: Date.now() + 1 // Different cache-busting value
+        }
+      });
+      console.log('Direct languages API response:', directResponse.data);
+      return directResponse.data;
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Error fetching languages:', error);
-    return handleError(error);
+    
+    // If there's an error, try a fallback to our website's supported languages
+    try {
+      console.log('Using fallback to website supported languages');
+      // Import the supported languages from the main app
+      const { SUPPORTED_LANGUAGES } = await import('../i18n/i18n');
+      
+      // Convert to CMS format
+      return SUPPORTED_LANGUAGES.map(lang => ({
+        code: lang.code,
+        name: lang.name,
+        is_active: true,
+        is_default: lang.code === 'en'
+      }));
+    } catch (fallbackError) {
+      console.error('Even fallback failed:', fallbackError);
+      return handleError(error);
+    }
   }
 };
 

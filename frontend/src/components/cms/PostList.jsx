@@ -320,18 +320,11 @@ const PostList = () => {
                 onChange={(e) => setFilters({...filters, language: e.target.value})}
               >
                 <option value="">All Languages</option>
-                {languages.map(lang => {
-                  // Find matching language from the website's language list for flags and native names
-                  const websiteLang = SUPPORTED_LANGUAGES.find(l => l.code === lang.code);
-                  return (
-                    <option key={lang.code} value={lang.code}>
-                      {websiteLang ? 
-                        `${websiteLang.flag} ${websiteLang.nativeName || websiteLang.name}` : 
-                        (lang.flag ? `${lang.flag} ${lang.native_name || lang.name}` : lang.name)
-                      }
-                    </option>
-                  );
-                })}
+                {SUPPORTED_LANGUAGES.map(lang => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag} {lang.nativeName || lang.name}
+                  </option>
+                ))}
               </select>
             </div>
             
