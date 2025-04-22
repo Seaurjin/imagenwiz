@@ -64,7 +64,7 @@ const Contact = () => {
   return (
     <div className="bg-white min-h-screen">
       <Helmet>
-        <title>{t('nav.contact')} | iMagenWiz</title>
+        <title>Contact us | iMagenWiz</title>
         <meta name="description" content="Contact iMagenWiz support team" />
       </Helmet>
       
