@@ -540,12 +540,23 @@ const PostEditor = () => {
         
         if (existingTranslation) {
           console.log('Found existing translation, updating form:', existingTranslation);
+          
+          // Process content to ensure proper format for editing
+          let processedContent = existingTranslation.content || '';
+          // If content appears to be HTML-encoded, decode it
+          if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
+            const tempElement = document.createElement('div');
+            tempElement.innerHTML = processedContent;
+            processedContent = tempElement.textContent;
+            console.log('HTML-decoded content for language change:', processedContent);
+          }
+          
           // Update form with the translation data
           setFormData({
             ...formData,
             language_code: value,
             title: existingTranslation.title || '',
-            content: existingTranslation.content || '',
+            content: processedContent,
             meta_title: existingTranslation.meta_title || '',
             meta_description: existingTranslation.meta_description || ''
           });
