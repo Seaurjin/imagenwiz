@@ -10,7 +10,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Trash2,
-  Languages
+  Languages,
+  Sparkles
 } from 'lucide-react';
 import { 
   getPost, 
@@ -21,7 +22,8 @@ import {
   uploadMedia,
   getPostMedia,
   deleteTranslation,
-  autoTranslatePost
+  autoTranslatePost,
+  generateAIContent
 } from '../../lib/cms-service';
 import TranslationModal from './TranslationModal';
 
@@ -227,10 +229,57 @@ const PostEditor = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [isTranslateModalOpen, setIsTranslateModalOpen] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isGeneratingAIContent, setIsGeneratingAIContent] = useState(false);
   
   // Helper function to check if a language is RTL
   const isRTL = (langCode) => ['ar', 'he', 'ur', 'fa'].includes(langCode);
   
+  // Function to handle AI content generation
+  const handleGenerateAIContent = async () => {
+    if (!formData.title || formData.title.trim() === '') {
+      setError("Please provide a title before generating AI content");
+      return;
+    }
+    
+    setIsGeneratingAIContent(true);
+    setError(null);
+    
+    try {
+      console.log(`Generating AI content for title: "${formData.title}" in language: ${formData.language_code}`);
+      // Call the API to generate content
+      const response = await generateAIContent(
+        formData.title, 
+        formData.language_code, 
+        'medium' // Default to medium length content
+      );
+      
+      console.log('AI content generation response:', response);
+      
+      if (response.success && response.content) {
+        // Update form data with the generated content
+        setFormData({
+          ...formData,
+          content: response.content
+        });
+        
+        // Show success message
+        setSuccess("AI content successfully generated!");
+      } else {
+        throw new Error(response.error || "Failed to generate content");
+      }
+      
+      // Clear success message after a few seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
+    } catch (err) {
+      console.error('Error generating AI content:', err);
+      setError(`AI content generation failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setIsGeneratingAIContent(false);
+    }
+  };
+
   // Function to handle translation with specific language selection
   const handleTranslate = async (selectedLanguages) => {
     if (!id) {
@@ -1058,9 +1107,25 @@ const PostEditor = () => {
             </div>
             
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-                Content
-              </label>
+              <div className="flex justify-between items-center mb-1">
+                <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+                  Content
+                </label>
+                <button
+                  type="button"
+                  className={`px-3 py-1 text-sm flex items-center gap-1 ${
+                    isGeneratingAIContent
+                      ? 'bg-indigo-100 text-indigo-500 cursor-not-allowed'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  } rounded-md shadow-sm`}
+                  onClick={handleGenerateAIContent}
+                  disabled={isGeneratingAIContent || !formData.title}
+                  title={!formData.title ? 'Please provide a title first' : 'Generate content with AI'}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {isGeneratingAIContent ? 'Generating...' : 'Generate with AI'}
+                </button>
+              </div>
               <SimpleHtmlEditor
                 value={formData.content}
                 onChange={(value) => setFormData({ ...formData, content: value })}

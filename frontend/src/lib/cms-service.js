@@ -727,3 +727,57 @@ export const getBlogPostBySlug = async (slug, language = null) => {
     return handleError(error);
   }
 };
+
+/**
+ * Generate blog content using AI based on a title
+ * 
+ * @param {string} title - The blog post title
+ * @param {string} language - Language code (e.g., 'en', 'fr')
+ * @param {string} length - Content length: 'short', 'medium', or 'long'
+ * @returns {Promise<Object>} - Generated content or error message
+ */
+export const generateAIContent = async (title, language = 'en', length = 'medium') => {
+  try {
+    // Ensure we're using the correct URL with full /api prefix
+    const fullApiUrl = `/api/cms/posts/generate-content`;
+    
+    // Get the token using our helper
+    const token = getAuthToken();
+    console.log('Generate AI content - Token available:', !!token);
+    
+    if (!token) {
+      throw new Error('Authentication required. Please log in again.');
+    }
+    
+    // Prepare request data
+    const requestData = {
+      title,
+      language,
+      length
+    };
+    
+    console.log('Generating AI content with:', requestData);
+    
+    // Make the API request
+    const response = await axios.post(fullApiUrl, requestData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('AI content generation response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error generating AI content:', error);
+    
+    // Custom error handler for AI content generation
+    if (error.response && error.response.data && error.response.data.error) {
+      // If we have a specific error message from the API
+      throw new Error(`AI generation failed: ${error.response.data.error}`);
+    }
+    
+    return handleError(error);
+  }
+};
