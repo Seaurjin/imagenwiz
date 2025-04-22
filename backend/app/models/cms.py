@@ -53,21 +53,40 @@ class Post(db.Model):
         
         if include_translations:
             if language:
-                # Get specific language
+                # First try to get the requested language
                 logger.info(f"Looking for translation in language: {language}")
                 translation = next((t for t in self.translations if t.language_code == language), None)
+                
                 if translation:
                     logger.info(f"Found translation for language {language}")
                     result['translation'] = translation.to_dict()
                     # Set a flag to indicate this is the requested language
                     result['translation']['is_requested_language'] = True
                 else:
-                    logger.info(f"No translation found for language {language}")
-                    # Don't set any fallback translation when a specific language is requested
-                    # but not found. This will allow the frontend to filter out posts without
-                    # the requested language translation.
-                    result['translation'] = None
-                    result['available_languages'] = [t.language_code for t in self.translations]
+                    # Try to get English as fallback
+                    logger.info(f"No translation found for language {language}, trying English fallback")
+                    en_translation = next((t for t in self.translations if t.language_code == 'en'), None)
+                    
+                    if en_translation:
+                        logger.info(f"Using English translation as fallback")
+                        result['translation'] = en_translation.to_dict()
+                        # Set a flag to indicate this is a fallback language
+                        result['translation']['is_requested_language'] = False
+                        result['translation']['is_fallback'] = True
+                    else:
+                        # If there's no English, use the first available translation
+                        if self.translations:
+                            first_translation = self.translations[0]
+                            logger.info(f"No English translation, using {first_translation.language_code} as fallback")
+                            result['translation'] = first_translation.to_dict()
+                            result['translation']['is_requested_language'] = False
+                            result['translation']['is_fallback'] = True
+                        else:
+                            logger.info(f"No translations available at all")
+                            result['translation'] = None
+                
+                # Always include available languages
+                result['available_languages'] = [t.language_code for t in self.translations]
             else:
                 # Get all translations
                 logger.info(f"Including all {len(self.translations)} translations")
