@@ -31,7 +31,7 @@ const handleError = (error) => {
 export const getLanguages = async () => {
   try {
     console.log('Fetching languages from API...');
-    const response = await axios.get(`${API_URL}/languages?is_active=true`);
+    const response = await axios.get(`${API_URL}/languages`); // Removed is_active filter to get all languages
     console.log('Languages API response:', response.data);
     return response.data;
   } catch (error) {
