@@ -45,12 +45,11 @@ const PostList = () => {
         console.log('CMS languages response:', languagesData);
         console.log('Number of languages returned:', Array.isArray(languagesData) ? languagesData.length : 0);
         
-        // Only use active languages
-        const activeLanguages = Array.isArray(languagesData) ? 
-          languagesData.filter(lang => lang.is_active) : [];
-        console.log('Number of active languages:', activeLanguages.length);
+        // Use all languages without filtering by is_active
+        const allLanguages = Array.isArray(languagesData) ? languagesData : [];
+        console.log('Number of languages available:', allLanguages.length);
         
-        setLanguages(activeLanguages);
+        setLanguages(allLanguages);
       } catch (err) {
         console.error('Error fetching languages:', err);
       }
