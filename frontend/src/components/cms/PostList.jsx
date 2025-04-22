@@ -17,7 +17,8 @@ import {
 import { 
   getPosts, 
   deletePost, 
-  getLanguages
+  getLanguages,
+  autoTranslateAllPosts
 } from '../../lib/cms-service';
 import { SUPPORTED_LANGUAGES } from '../../i18n/i18n';
 
@@ -120,6 +121,40 @@ const PostList = () => {
     } catch (err) {
       console.error('Error deleting post:', err);
       setError('Failed to delete post. Please try again.');
+    }
+  };
+  
+  // Handle bulk translation of all posts to all languages
+  const handleBulkTranslate = async () => {
+    if (isTranslating) return;
+    
+    try {
+      setIsTranslating(true);
+      setError(null);
+      
+      // Configure options for the bulk translation
+      const options = {
+        usePlaceholder: true,  // Use placeholder translations for faster processing
+        batchSize: 0,          // Process all posts at once (0 = no limit)
+        forceTranslate: true,  // Force translate even if translations exist
+      };
+      
+      console.log('Starting bulk translation of all posts with options:', options);
+      
+      // Call the API to translate all posts
+      const result = await autoTranslateAllPosts(options);
+      console.log('Bulk translation completed:', result);
+      
+      // Show success message with translation count
+      setSuccessMessage(`Successfully translated all posts to all 22 languages! ${result.count || ''} translations created.`);
+      
+      // Refresh the posts list to show the new translations
+      fetchPosts();
+    } catch (err) {
+      console.error('Error in bulk translation:', err);
+      setError('Failed to translate posts. Please try again.');
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -261,6 +296,14 @@ const PostList = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Posts</h1>
         <div className="flex space-x-3">
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center"
+            onClick={handleBulkTranslate}
+            disabled={isTranslating}
+          >
+            <Languages className="h-4 w-4 mr-2" />
+            Translate All Posts
+          </button>
           <button
             className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded flex items-center"
             onClick={() => navigate('/cms/posts/new')}
