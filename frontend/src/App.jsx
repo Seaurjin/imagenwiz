@@ -60,6 +60,9 @@ import Press from './pages/info/Press';
 import AutomaticDesigns from './pages/info/AutomaticDesigns';
 import VideoBackgroundRemoval from './pages/info/VideoBackgroundRemoval';
 
+// Admin Tools
+import TranslationTool from './pages/admin/TranslationTool';
+
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -271,10 +274,15 @@ const AppContent = () => {
                 </ProtectedRoute>
               } />
               
-              {/* Admin settings route */}
+              {/* Admin routes */}
               <Route path="/admin/settings" element={
                 <ProtectedRoute>
                   <AdminSettings />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/translations" element={
+                <ProtectedRoute>
+                  <TranslationTool />
                 </ProtectedRoute>
               } />
               

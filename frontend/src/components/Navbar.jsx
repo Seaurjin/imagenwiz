@@ -145,6 +145,12 @@ const Navbar = () => {
                           {t('nav.settings', 'Admin Settings')}
                         </Link>
                         <Link
+                          to="/admin/translations"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <span className="text-teal-600">✓</span> Blog Translations
+                        </Link>
+                        <Link
                           to="/cms"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
@@ -292,6 +298,12 @@ const Navbar = () => {
                   className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
                 >
                   {t('nav.settings', 'Settings')}
+                </Link>
+                <Link
+                  to="/admin/translations"
+                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
+                >
+                  <span className="text-teal-600">✓</span> Blog Translations
                 </Link>
               </>
             )}
