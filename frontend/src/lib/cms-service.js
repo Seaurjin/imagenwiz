@@ -340,16 +340,46 @@ export const getPost = async (id, language = null) => {
     
     // Enhanced debug logging
     console.log('API response for getPost:', response.data);
-    console.log('Full response structure:', JSON.stringify(response.data, null, 2));
     
+    // Handle content field - ensure it's properly provided for editor
     if (response.data) {
+      // Process translation data for consistent content field
       if (response.data.translation) {
         console.log('Direct translation available:', response.data.translation);
-      } else if (response.data.translations) {
+        
+        // Ensure content is never null or undefined for the editor
+        if (!response.data.translation.content) {
+          console.warn('Content is empty in translation, setting to empty string');
+          response.data.translation.content = '';
+        }
+      } else if (response.data.translations && response.data.translations.length > 0) {
         console.log('Multiple translations available:', response.data.translations.length);
+        
+        // Ensure each translation has a content field
+        response.data.translations.forEach(translation => {
+          if (!translation.content) {
+            console.warn(`Content is empty in translation (${translation.language_code}), setting to empty string`);
+            translation.content = '';
+          }
+        });
+      } else if (response.data.post) {
+        // Handle nested post structure with translations
+        if (response.data.post.translation) {
+          console.warn('Nested translation detected, ensuring content field');
+          if (!response.data.post.translation.content) {
+            response.data.post.translation.content = '';
+          }
+        } else if (response.data.post.translations) {
+          response.data.post.translations.forEach(translation => {
+            if (!translation.content) {
+              translation.content = '';
+            }
+          });
+        }
       }
     }
     
+    console.log('Processed response for editor:', response.data);
     return response.data;
   } catch (error) {
     return handleError(error);

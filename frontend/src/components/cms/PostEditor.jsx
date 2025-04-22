@@ -30,11 +30,31 @@ const SimpleHtmlEditor = ({ value, onChange, languageCode }) => {
   // Use expanded RTL check for all RTL languages
   const isRTL = ['ar', 'he', 'ur', 'fa'].includes(languageCode);
   
+  // Process value to ensure it displays correctly
+  let processedValue = value;
+  
+  // If value is null or undefined, use empty string
+  if (processedValue === null || processedValue === undefined) {
+    processedValue = '';
+  }
+  
+  // If value appears to be HTML encoded (like &lt;p&gt;), decode it
+  if (typeof processedValue === 'string' && (processedValue.includes('&lt;') || processedValue.includes('&gt;'))) {
+    try {
+      const tempElement = document.createElement('div');
+      tempElement.innerHTML = processedValue;
+      processedValue = tempElement.textContent;
+    } catch (e) {
+      console.warn('Failed to decode HTML entities, using original content', e);
+    }
+  }
+  
   // For debugging purposes to see what we're getting
   console.log('SimpleHtmlEditor received value:', {
     type: typeof value,
-    length: value ? value.length : 0,
-    value: value ? value.substring(0, 200) : null // First 200 chars
+    original: value ? value.substring(0, 200) : null, // First 200 chars
+    processed: processedValue ? processedValue.substring(0, 200) : null, // First 200 chars
+    empty: !processedValue || processedValue.trim() === ''
   });
   
   // We do NOT need to process the HTML content for editing
@@ -42,7 +62,7 @@ const SimpleHtmlEditor = ({ value, onChange, languageCode }) => {
   // This ensures HTML tags are properly displayed as plain text in the editor
   
   // Show a warning if content appears to be empty
-  const contentIsEmpty = !value || value.trim() === '';
+  const contentIsEmpty = !processedValue || processedValue.trim() === '';
   
   // Only show formatting toolbar if we actually have content
   return (
@@ -163,7 +183,7 @@ const SimpleHtmlEditor = ({ value, onChange, languageCode }) => {
       {/* Simple textarea for editing HTML directly */}
       <textarea
         id="content-textarea"
-        value={value || ''}
+        value={processedValue}
         onChange={(e) => onChange(e.target.value)}
         className="w-full p-4 min-h-[400px] font-mono text-sm"
         dir={isRTL ? 'rtl' : 'ltr'}
@@ -186,7 +206,7 @@ const SimpleHtmlEditor = ({ value, onChange, languageCode }) => {
               direction: isRTL ? 'rtl' : 'ltr',
               textAlign: isRTL ? 'right' : 'left',
             }}
-            dangerouslySetInnerHTML={{ __html: value || '' }}
+            dangerouslySetInnerHTML={{ __html: processedValue }}
           />
         </div>
       )}
@@ -333,6 +353,21 @@ const PostEditor = () => {
             
             console.log('CRITICAL DEBUG - Translation data found:', JSON.stringify(translationData, null, 2));
             console.log('CRITICAL DEBUG - Content length:', translationData.content ? translationData.content.length : 0);
+            console.log('CRITICAL DEBUG - Content value:', translationData.content);
+            
+            // If content seems to be missing but we have translation data, log a more detailed warning
+            if ((!translationData.content || translationData.content.trim() === '') && Object.keys(translationData).length > 0) {
+              console.warn('WARNING: Translation data found but content field is empty!', translationData);
+              
+              // Try to check if we have other translations with content
+              if (postData.translations && postData.translations.length > 0) {
+                const enTranslation = postData.translations.find(t => t.language_code === 'en');
+                if (enTranslation && enTranslation.content) {
+                  console.log('Found English translation with content, using it instead.');
+                  translationData = enTranslation;
+                }
+              }
+            }
             
             // Set form data with the post object and translation data
             // Process the content field to detect empty strings and fix any encoding/escaping issues
@@ -340,6 +375,7 @@ const PostEditor = () => {
             if (translationData.content) {
               // Ensure we have proper content handling
               processedContent = translationData.content;
+              console.log('Raw content from API:', processedContent);
               
               // If the content appears to be JSON escaped, unescape it
               if (typeof processedContent === 'string' && processedContent.includes('\\n')) {
@@ -348,11 +384,24 @@ const PostEditor = () => {
                   const normalizedContent = JSON.parse(`"${processedContent.replace(/"/g, '\\"')}"`);
                   if (normalizedContent && typeof normalizedContent === 'string') {
                     processedContent = normalizedContent;
+                    console.log('Unescaped content:', processedContent);
                   }
                 } catch (e) {
                   console.warn('Content normalization failed, using original content', e);
                 }
               }
+              
+              // If content is a string but looks like it's HTML-encoded, decode it
+              if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
+                const tempElement = document.createElement('div');
+                tempElement.innerHTML = processedContent;
+                processedContent = tempElement.textContent;
+                console.log('HTML-decoded content:', processedContent);
+              }
+            } else {
+              // If content is completely missing, show an explicit message
+              console.warn('Setting default content as content field is completely missing');
+              processedContent = '<p>Content field was empty. Please add content or try selecting a different language.</p>';
             }
             
             console.log('CONTENT FIELD:', {
