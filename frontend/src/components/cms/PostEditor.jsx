@@ -324,8 +324,26 @@ const PostEditor = () => {
             console.log('CRITICAL DEBUG - Content length:', translationData.content ? translationData.content.length : 0);
             
             // Set form data with the post object and translation data
-            // Process the content field to detect empty strings
-            const processedContent = translationData.content || '';
+            // Process the content field to detect empty strings and fix any encoding/escaping issues
+            let processedContent = '';
+            if (translationData.content) {
+              // Ensure we have proper content handling
+              processedContent = translationData.content;
+              
+              // If the content appears to be JSON escaped, unescape it
+              if (typeof processedContent === 'string' && processedContent.includes('\\n')) {
+                try {
+                  // Try to normalize the content by parsing and restringifying if it looks like escaped JSON
+                  const normalizedContent = JSON.parse(`"${processedContent.replace(/"/g, '\\"')}"`);
+                  if (normalizedContent && typeof normalizedContent === 'string') {
+                    processedContent = normalizedContent;
+                  }
+                } catch (e) {
+                  console.warn('Content normalization failed, using original content', e);
+                }
+              }
+            }
+            
             console.log('CONTENT FIELD:', {
               raw: translationData.content,
               processed: processedContent,
@@ -443,8 +461,26 @@ const PostEditor = () => {
               }
               
               if (translationData) {
-                // Process content for debugging
-                const processedContent = translationData.content || '';
+                // Process content for debugging and handle any content formatting issues
+                let processedContent = '';
+                if (translationData.content) {
+                  // Ensure we have proper content handling
+                  processedContent = translationData.content;
+                  
+                  // If the content appears to be JSON escaped, unescape it
+                  if (typeof processedContent === 'string' && processedContent.includes('\\n')) {
+                    try {
+                      // Try to normalize the content by parsing and restringifying if it looks like escaped JSON
+                      const normalizedContent = JSON.parse(`"${processedContent.replace(/"/g, '\\"')}"`);
+                      if (normalizedContent && typeof normalizedContent === 'string') {
+                        processedContent = normalizedContent;
+                      }
+                    } catch (e) {
+                      console.warn('Content normalization failed, using original content', e);
+                    }
+                  }
+                }
+                
                 console.log('LANGUAGE CHANGE - CONTENT FIELD:', {
                   raw: translationData.content,
                   processed: processedContent,
