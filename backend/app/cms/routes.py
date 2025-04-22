@@ -40,10 +40,10 @@ def get_languages():
     # Return a comprehensive list of supported languages directly
     # This ensures language availability without database issues
     
-    # Comprehensive list of languages used by the application
+    # Comprehensive list of 22 languages used by the application
     predefined_languages = [
-        {"code": "en", "name": "English", "is_active": True, "is_default": False},
-        {"code": "fr", "name": "French", "is_active": True, "is_default": True},
+        {"code": "en", "name": "English", "is_active": True, "is_default": True},
+        {"code": "fr", "name": "French", "is_active": True, "is_default": False},
         {"code": "es", "name": "Spanish", "is_active": True, "is_default": False},
         {"code": "de", "name": "German", "is_active": True, "is_default": False},
         {"code": "it", "name": "Italian", "is_active": True, "is_default": False},
@@ -63,18 +63,7 @@ def get_languages():
         {"code": "tr", "name": "Turkish", "is_active": True, "is_default": False},
         {"code": "pl", "name": "Polish", "is_active": True, "is_default": False},
         {"code": "cs", "name": "Czech", "is_active": True, "is_default": False},
-        {"code": "sv", "name": "Swedish", "is_active": True, "is_default": False},
-        {"code": "da", "name": "Danish", "is_active": True, "is_default": False},
-        {"code": "fi", "name": "Finnish", "is_active": True, "is_default": False},
-        {"code": "no", "name": "Norwegian", "is_active": True, "is_default": False},
-        {"code": "he", "name": "Hebrew", "is_active": True, "is_default": False},
-        {"code": "el", "name": "Greek", "is_active": True, "is_default": False},
-        {"code": "ro", "name": "Romanian", "is_active": True, "is_default": False},
-        {"code": "hu", "name": "Hungarian", "is_active": True, "is_default": False},
-        {"code": "sk", "name": "Slovak", "is_active": True, "is_default": False},
-        {"code": "bg", "name": "Bulgarian", "is_active": True, "is_default": False},
-        {"code": "uk", "name": "Ukrainian", "is_active": True, "is_default": False},
-        {"code": "ca", "name": "Catalan", "is_active": True, "is_default": False}
+        {"code": "sv", "name": "Swedish", "is_active": True, "is_default": False}
     ]
     
     print(f"CMS: Returning predefined list of {len(predefined_languages)} languages")
@@ -648,7 +637,7 @@ def auto_translate_all_posts():
         force_translate = data.get('force_translate', False)  # Default to not overwriting manual translations
         placeholder_mode = data.get('placeholder_mode', True)  # Default to placeholder mode
         
-        # Get predefined languages from our hardcoded list
+        # Get predefined languages from our hardcoded list (22 languages)
         SUPPORTED_LANGUAGES = [
             {"code": "en", "name": "English"},
             {"code": "fr", "name": "French"},
@@ -671,18 +660,7 @@ def auto_translate_all_posts():
             {"code": "tr", "name": "Turkish"},
             {"code": "pl", "name": "Polish"},
             {"code": "cs", "name": "Czech"},
-            {"code": "sv", "name": "Swedish"},
-            {"code": "da", "name": "Danish"},
-            {"code": "fi", "name": "Finnish"},
-            {"code": "no", "name": "Norwegian"},
-            {"code": "he", "name": "Hebrew"},
-            {"code": "el", "name": "Greek"},
-            {"code": "ro", "name": "Romanian"},
-            {"code": "hu", "name": "Hungarian"},
-            {"code": "sk", "name": "Slovak"},
-            {"code": "bg", "name": "Bulgarian"},
-            {"code": "uk", "name": "Ukrainian"},
-            {"code": "ca", "name": "Catalan"}
+            {"code": "sv", "name": "Swedish"}
         ]
         
         # Create dict to map codes to names
