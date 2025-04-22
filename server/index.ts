@@ -756,7 +756,13 @@ app.delete('/api/cms/tags/:id', async (req, res) => {
 app.get('/api/cms/languages', async (req, res) => {
   console.log('Manual proxy: Received CMS languages request');
   try {
-    const url = `http://localhost:${FLASK_PORT}/api/cms/languages`;
+    // Get query parameters
+    const queryParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(req.query)) {
+      if (value) queryParams.append(key, value.toString());
+    }
+    
+    const url = `http://localhost:${FLASK_PORT}/api/cms/languages${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
