@@ -1017,28 +1017,75 @@ def auto_translate_post(post_id):
             'skipped': []
         }
         
+        # Get website languages if available (to focus on these first)
+        website_languages = []
+        try:
+            # These are the 22 languages typically supported by the website frontend
+            website_lang_codes = [
+                'en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW',
+                'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
+            ]
+            # Filter active languages to match website languages
+            website_languages = [lang for lang in all_languages if lang.code in website_lang_codes]
+            current_app.logger.info(f"Found {len(website_languages)} website languages")
+        except Exception as e:
+            current_app.logger.error(f"Error getting website languages: {str(e)}")
+            # If this fails, we'll just use all_languages
+        
         # Filter languages to process
         languages_to_process = []
-        for language in all_languages:
-            # Skip English as it's the source language
-            if language.code == 'en':
-                continue
+        
+        # First handle specifically requested languages (if any)
+        if target_languages:
+            # Process target languages in requested order
+            current_app.logger.info(f"Processing specifically requested languages: {target_languages}")
+            for lang_code in target_languages:
+                # Skip English as it's the source language
+                if lang_code == 'en':
+                    continue
                 
-            # Skip if not in target_languages list (when provided)
-            if target_languages and language.code not in target_languages:
-                current_app.logger.info(f"Skipping {language.code} - not in target languages list")
-                continue
+                # Find the language object
+                language = next((lang for lang in all_languages if lang.code == lang_code), None)
+                if not language:
+                    current_app.logger.warning(f"Requested language {lang_code} not found or not active")
+                    results['failed'].append(lang_code)
+                    continue
                 
-            # Check if translation exists
-            existing_translation = next((t for t in post.translations if t.language_code == language.code), None)
+                # Check if translation exists
+                existing_translation = next((t for t in post.translations if t.language_code == lang_code), None)
+                
+                # Add to processing list
+                languages_to_process.append((language, existing_translation))
+        else:
+            # No specific languages requested, process all website languages first, then others
+            # Start with the website languages
+            for language in website_languages:
+                # Skip English as it's the source language
+                if language.code == 'en':
+                    continue
+                
+                # Check if translation exists
+                existing_translation = next((t for t in post.translations if t.language_code == language.code), None)
+                
+                # Add to processing list (website languages take priority)
+                languages_to_process.append((language, existing_translation))
             
-            # Skip if translation exists and is manually edited, unless force_translate is true
-            if existing_translation and not existing_translation.is_auto_translated and not force_translate:
-                results['skipped'].append(language.code)
-                continue
+            # Add any remaining non-website languages
+            for language in all_languages:
+                # Skip if already in processing list (website languages) or if English
+                if language.code == 'en' or language in website_languages:
+                    continue
                 
-            # Add to processing list
-            languages_to_process.append((language, existing_translation))
+                # Check if translation exists
+                existing_translation = next((t for t in post.translations if t.language_code == language.code), None)
+                
+                # Skip if translation exists and is manually edited, unless force_translate is true
+                if existing_translation and not existing_translation.is_auto_translated and not force_translate:
+                    results['skipped'].append(language.code)
+                    continue
+                    
+                # Add to processing list
+                languages_to_process.append((language, existing_translation))
         
         # Process in smaller batches to prevent timeouts and memory issues
         BATCH_SIZE = 5
