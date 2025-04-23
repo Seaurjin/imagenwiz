@@ -587,135 +587,153 @@ const PostEditor = () => {
       if (id) {
         console.log(`Language changed to ${value}, fetching translation`);
         
-        // Find existing translation in our loaded translations
-        const existingTranslation = translations.find(t => t.language_code === value);
-        
-        if (existingTranslation) {
-          console.log('Found existing translation, updating form:', existingTranslation);
-          
-          // Process content to ensure proper format for editing
-          let processedContent = existingTranslation.content || '';
-          // If content appears to be HTML-encoded, decode it
-          if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
-            const tempElement = document.createElement('div');
-            tempElement.innerHTML = processedContent;
-            processedContent = tempElement.textContent;
-            console.log('HTML-decoded content for language change:', processedContent);
-          }
-          
-          // Update form with the translation data
-          setFormData({
-            ...formData,
-            language_code: value,
-            title: existingTranslation.title || '',
-            content: processedContent,
-            meta_title: existingTranslation.meta_title || '',
-            meta_description: existingTranslation.meta_description || ''
-          });
-        } else {
-          console.log('No existing translation found, fetching from API');
-          // If no local translation found, try to fetch it
-          getPost(id, value)
-            .then(postData => {
-              console.log('Fetched translation data for language change:', postData);
-              
-              // Handle different API response formats
-              const postObject = postData.post || postData;
-              let translationData = null;
-              
-              // Check for translation data in various formats
-              if (postData.translation) {
-                console.log('Found direct translation data:', postData.translation);
-                translationData = postData.translation;
-              } else if (postObject.translation) {
-                console.log('Found nested translation data:', postObject.translation);
-                translationData = postObject.translation;
+        // Always fetch fresh translation data from the API to ensure we have the latest content
+        getPost(id, value)
+          .then(postData => {
+            console.log('Fetched translation data for language change:', postData);
+            
+            // Handle different API response formats
+            const postObject = postData.post || postData;
+            let translationData = null;
+            
+            // Check for translation data in various formats
+            if (postData.translation) {
+              console.log('Found direct translation data:', postData.translation);
+              translationData = postData.translation;
+            } else if (postObject.translation) {
+              console.log('Found nested translation data:', postObject.translation);
+              translationData = postObject.translation;
+            } else if (postData.translations && postData.translations.length > 0) {
+              // If we have multiple translations, find the one for the selected language
+              const matchingTranslation = postData.translations.find(t => t.language_code === value);
+              if (matchingTranslation) {
+                console.log('Found matching translation in translations array:', matchingTranslation);
+                translationData = matchingTranslation;
               }
-              
-              if (translationData) {
-                // Create a SimpleHtmlEditor-like processing function to ensure consistency
-                const processContentForEdit = (htmlContent) => {
-                  if (!htmlContent) return '';
-                  
-                  // Handle different content formats
-                  let processedContent = htmlContent;
-                  
-                  // Check if content looks like raw HTML tags and needs decoding
-                  if (processedContent.startsWith('<') && processedContent.includes('</')) {
-                    try {
-                      // If it appears to be XML/HTML text showing as tags, extract just the text content
-                      const tempDiv = document.createElement('div');
-                      tempDiv.innerHTML = processedContent;
-                      
-                      // If the content is something like '<p>text</p>', we want to keep it as is,
-                      // not convert it to just 'text'
-                      if (tempDiv.children.length === 1 && tempDiv.children[0].tagName === 'P') {
-                        // Keep the content as is if it's just a single paragraph
-                        processedContent = tempDiv.innerHTML;
-                      }
-                    } catch (e) {
-                      console.warn('Error processing HTML content:', e);
-                    }
-                  }
-                  
-                  // If the content appears to be JSON escaped, unescape it
-                  if (typeof processedContent === 'string' && processedContent.includes('\\n')) {
-                    try {
-                      // Try to normalize the content by parsing and restringifying if it looks like escaped JSON
-                      const normalizedContent = JSON.parse(`"${processedContent.replace(/"/g, '\\"')}"`);
-                      if (normalizedContent && typeof normalizedContent === 'string') {
-                        processedContent = normalizedContent;
-                      }
-                    } catch (e) {
-                      console.warn('Content normalization failed, using original content', e);
-                    }
-                  }
-                  
-                  return processedContent;
-                };
-                
-                // Process the content for proper display
-                const processedContent = processContentForEdit(translationData.content || '');
-                
-                console.log('LANGUAGE CHANGE - CONTENT FIELD:', {
-                  raw: translationData.content,
-                  processed: processedContent,
-                  length: processedContent.length,
-                  isEmpty: processedContent.trim() === ''
-                });
-                
-                console.log('Using translation data:', translationData);
-                setFormData({
-                  ...formData,
-                  language_code: value,
-                  title: translationData.title || '',
-                  content: processedContent,
-                  meta_title: translationData.meta_title || '',
-                  meta_description: translationData.meta_description || ''
-                });
-              } else {
-                // If no translation exists, just change the language but keep fields empty
-                console.log('No translation found for language', value);
-                setFormData({
-                  ...formData,
-                  language_code: value,
-                  title: '',
-                  content: '',
-                  meta_title: '',
-                  meta_description: ''
-                });
+            } else if (postObject.translations && postObject.translations.length > 0) {
+              // Same as above but for nested response format
+              const matchingTranslation = postObject.translations.find(t => t.language_code === value);
+              if (matchingTranslation) {
+                console.log('Found matching translation in nested translations array:', matchingTranslation);
+                translationData = matchingTranslation;
               }
-            })
-            .catch(err => {
-              console.error('Error fetching translation:', err);
-              // On error, still update the language but show a notification
+            }
+            
+            // Also update our local translations array
+            if (postData.translations) {
+              setTranslations(postData.translations);
+            } else if (postObject.translations) {
+              setTranslations(postObject.translations);
+            }
+            
+            if (translationData) {
+              // Process content for proper display in the editor
+              const processContentForEdit = (htmlContent) => {
+                if (!htmlContent) return '';
+                
+                // Handle different content formats
+                let processedContent = htmlContent;
+                
+                // Check if content looks like raw HTML tags and needs decoding
+                if (processedContent.startsWith('<') && processedContent.includes('</')) {
+                  try {
+                    // If it appears to be XML/HTML text showing as tags, extract just the text content
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = processedContent;
+                    
+                    // If the content is something like '<p>text</p>', we want to keep it as is,
+                    // not convert it to just 'text'
+                    if (tempDiv.children.length === 1 && tempDiv.children[0].tagName === 'P') {
+                      // Keep the content as is if it's just a single paragraph
+                      processedContent = tempDiv.innerHTML;
+                    }
+                  } catch (e) {
+                    console.warn('Error processing HTML content:', e);
+                  }
+                }
+                
+                // If the content appears to be JSON escaped, unescape it
+                if (typeof processedContent === 'string' && processedContent.includes('\\n')) {
+                  try {
+                    // Try to normalize the content by parsing and restringifying if it looks like escaped JSON
+                    const normalizedContent = JSON.parse(`"${processedContent.replace(/"/g, '\\"')}"`);
+                    if (normalizedContent && typeof normalizedContent === 'string') {
+                      processedContent = normalizedContent;
+                    }
+                  } catch (e) {
+                    console.warn('Content normalization failed, using original content', e);
+                  }
+                }
+                
+                // If content appears to be HTML-encoded, decode it
+                if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
+                  const tempElement = document.createElement('div');
+                  tempElement.innerHTML = processedContent;
+                  processedContent = tempElement.textContent || tempElement.innerHTML;
+                  console.log('HTML-decoded content for language change:', processedContent);
+                }
+                
+                return processedContent;
+              };
+              
+              // Process the content for proper display
+              const processedContent = processContentForEdit(translationData.content || '');
+              
+              console.log('LANGUAGE CHANGE - CONTENT FIELD:', {
+                raw: translationData.content,
+                processed: processedContent,
+                length: processedContent.length,
+                isEmpty: processedContent.trim() === ''
+              });
+              
+              console.log('Using translation data:', translationData);
               setFormData({
                 ...formData,
-                language_code: value
+                language_code: value,
+                title: translationData.title || '',
+                content: processedContent,
+                meta_title: translationData.meta_title || '',
+                meta_description: translationData.meta_description || ''
               });
-              setError(`Failed to load ${value} translation. Please try again.`);
+              
+              // Clear any previous errors
+              setError(null);
+              setSuccess(`Loaded ${value} translation successfully`);
+              
+              // Clear success message after 3 seconds
+              setTimeout(() => {
+                setSuccess(null);
+              }, 3000);
+            } else {
+              // If no translation exists, just change the language but keep fields empty
+              console.log('No translation found for language', value);
+              setFormData({
+                ...formData,
+                language_code: value,
+                title: '',
+                content: '',
+                meta_title: '',
+                meta_description: ''
+              });
+              
+              // Show a message that we're creating a new translation
+              setSuccess(`Creating new translation for ${value}`);
+              
+              // Clear success message after 3 seconds
+              setTimeout(() => {
+                setSuccess(null);
+              }, 3000);
+            }
+          })
+          .catch(err => {
+            console.error('Error fetching translation:', err);
+            // On error, still update the language but show a notification
+            setFormData({
+              ...formData,
+              language_code: value
             });
-        }
+            setError(`Failed to load ${value} translation. Please try again.`);
+          });
       } else {
         // For new posts, just change the language code
         setFormData({
