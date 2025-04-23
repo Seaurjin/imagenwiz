@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuthContext } from './AuthContext';
+import { useAuth } from './AuthContext';
 
 const UserContext = createContext();
 
 export const useUserContext = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
-  const { token, user: authUser, isAuthenticated } = useAuthContext();
+  const { token, user: authUser, isAuthenticated } = useAuth();
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [credits, setCredits] = useState(0);
