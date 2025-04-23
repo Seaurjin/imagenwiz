@@ -591,11 +591,16 @@ export const autoTranslatePost = async (postId, options = {}) => {
       throw new Error('Authentication required. Please log in again.');
     }
     
-    // Set target_languages to all website-supported languages except English
-    const websiteLanguages = await getWebsiteLanguages();
-    const targetLanguages = websiteLanguages
-      .filter(lang => lang.code !== 'en' && lang.is_active)
-      .map(lang => lang.code);
+    // If target_languages is provided in options, use it, otherwise get all website languages
+    let targetLanguages = options.target_languages;
+    
+    // If no target languages specified, use all website-supported languages except English
+    if (!targetLanguages || targetLanguages.length === 0) {
+      const websiteLanguages = await getWebsiteLanguages();
+      targetLanguages = websiteLanguages
+        .filter(lang => lang.code !== 'en' && lang.is_active)
+        .map(lang => lang.code);
+    }
     
     console.log('Auto-translating to target languages:', targetLanguages);
     
@@ -638,6 +643,20 @@ export const autoTranslateAllPosts = async (options = {}) => {
     
     if (!token) {
       throw new Error('Authentication required. Please log in again.');
+    }
+    
+    // If languages aren't specified, get all website languages except English
+    if (!options.languages || options.languages.length === 0) {
+      const websiteLanguages = await getWebsiteLanguages();
+      const targetLanguages = websiteLanguages
+        .filter(lang => lang.code !== 'en' && lang.is_active)
+        .map(lang => lang.code);
+      
+      console.log('Auto-translating all posts to website languages:', targetLanguages);
+      options = {
+        ...options,
+        languages: targetLanguages
+      };
     }
     
     const response = await axios.post(fullApiUrl, options, {
