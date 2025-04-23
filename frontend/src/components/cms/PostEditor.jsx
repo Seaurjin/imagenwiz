@@ -398,21 +398,30 @@ const PostEditor = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch languages and tags regardless of edit or create mode
-        const [languagesData, tagsData] = await Promise.all([
+        // Fetch languages, website languages, and tags
+        const [languagesData, websiteLanguagesData, tagsData] = await Promise.all([
           getLanguages(),
+          getWebsiteLanguages(), // Use the website languages
           getTags()
         ]);
         
         console.log('Loaded languages data:', languagesData);
+        console.log('Loaded website languages data:', websiteLanguagesData);
         
-        // Filter to only active languages
-        const activeLanguages = Array.isArray(languagesData) 
-          ? languagesData.filter(lang => lang.is_active)
-          : (languagesData.languages || []).filter(lang => lang.is_active);
+        // Get the website language codes to filter CMS languages
+        const websiteLanguageCodes = websiteLanguagesData
+          .filter(lang => lang.is_active)
+          .map(lang => lang.code);
         
-        console.log('Filtered to active languages:', activeLanguages.length);
-        setLanguages(activeLanguages);
+        console.log('Website language codes:', websiteLanguageCodes);
+        
+        // Filter to only active languages that are also in the website languages list
+        const filteredLanguages = Array.isArray(languagesData) 
+          ? languagesData.filter(lang => lang.is_active && websiteLanguageCodes.includes(lang.code))
+          : (languagesData.languages || []).filter(lang => lang.is_active && websiteLanguageCodes.includes(lang.code));
+        
+        console.log('Filtered to active website languages:', filteredLanguages.length);
+        setLanguages(filteredLanguages);
         setTags(tagsData.tags || []);
         
         // If we're editing an existing post, fetch it

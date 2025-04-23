@@ -519,7 +519,21 @@ export const autoTranslatePost = async (postId, options = {}) => {
       throw new Error('Authentication required. Please log in again.');
     }
     
-    const response = await axios.post(fullApiUrl, options, {
+    // Set target_languages to all website-supported languages except English
+    const websiteLanguages = await getWebsiteLanguages();
+    const targetLanguages = websiteLanguages
+      .filter(lang => lang.code !== 'en' && lang.is_active)
+      .map(lang => lang.code);
+    
+    console.log('Auto-translating to target languages:', targetLanguages);
+    
+    // Add target_languages to options
+    const translationOptions = {
+      ...options,
+      target_languages: targetLanguages
+    };
+    
+    const response = await axios.post(fullApiUrl, translationOptions, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
