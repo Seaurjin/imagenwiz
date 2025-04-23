@@ -983,9 +983,9 @@ const PostEditor = () => {
     }
   };
   
-  const handleAutoTranslate = async (forceTranslate = false) => {
+  const handleAutoTranslate = async (targetLanguages = [], forceTranslate = false) => {
     if (!id) {
-      setError('You must save the post before it can be auto-translated to all languages. Please save first.');
+      setError('You must save the post before it can be auto-translated. Please save first.');
       return;
     }
     
@@ -1004,8 +1004,23 @@ const PostEditor = () => {
         return;
       }
       
-      // Call the auto-translate endpoint
-      const response = await autoTranslatePost(id, { force_translate: forceTranslate });
+      console.log('Starting auto-translation process for post:', id);
+      console.log('Target languages:', targetLanguages.length ? targetLanguages : 'all languages');
+      console.log('Force translate:', forceTranslate);
+      
+      // Prepare options for auto-translate endpoint
+      const options = {
+        force_translate: forceTranslate,
+      };
+      
+      // If specific languages were selected in the modal, use them
+      if (targetLanguages && targetLanguages.length > 0) {
+        options.target_languages = targetLanguages;
+      }
+      
+      // Call the auto-translate endpoint with options
+      const response = await autoTranslatePost(id, options);
+      console.log('Translation response:', response);
       
       // Refresh the post data to get updated translations
       const postData = await getPost(id);
@@ -1018,17 +1033,40 @@ const PostEditor = () => {
       const skippedCount = response.translations?.skipped?.length || 0;
       const failedCount = response.translations?.failed?.length || 0;
       
-      setSuccess(`Auto-translation completed: ${successCount} translated, ${skippedCount} skipped, ${failedCount} failed.`);
+      // Prepare a more detailed success message
+      let message = `Auto-translation completed: ${successCount} translated`;
+      if (skippedCount > 0) {
+        message += `, ${skippedCount} skipped`;
+      }
+      if (failedCount > 0) {
+        message += `, ${failedCount} failed`;
+      }
       
-      // Clear success message after 5 seconds
+      // If nothing was translated, provide a more helpful message
+      if (successCount === 0 && skippedCount > 0 && failedCount === 0) {
+        message = `No new translations created. ${skippedCount} languages were already translated and have not been modified.`;
+        if (forceTranslate) {
+          message += ' You can force re-translation with the "Force Re-translate" option.';
+        }
+      } else if (successCount === 0 && failedCount > 0) {
+        message = `Translation failed for ${failedCount} languages. Please try again or check the server logs for details.`;
+      }
+      
+      setSuccess(message);
+      
+      // Clear success message after 8 seconds
       setTimeout(() => {
         setSuccess(null);
-      }, 5000);
+      }, 8000);
+      
+      // Close the translation modal if it was open
+      setIsTranslateModalOpen(false);
     } catch (err) {
       console.error('Error auto-translating post:', err);
       setError(`Failed to auto-translate: ${err.message || 'Unknown error'}`);
     } finally {
       setIsLoading(false);
+      setIsTranslating(false);
     }
   };
   
@@ -1824,8 +1862,11 @@ const PostEditor = () => {
         isOpen={isTranslateModalOpen}
         onClose={() => setIsTranslateModalOpen(false)}
         languages={languages}
-        onTranslate={handleTranslate}
-        isLoading={isTranslating}
+        onTranslate={(targetLanguages) => {
+          setIsTranslating(true);
+          handleAutoTranslate(targetLanguages, false);
+        }}
+        isLoading={isTranslating || isLoading}
       />
     </div>
   );

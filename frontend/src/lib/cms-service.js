@@ -625,15 +625,16 @@ export const autoTranslatePost = async (postId, options = {}) => {
       throw new Error('Authentication required. Please log in again.');
     }
     
-    // If target_languages is provided in options, use it, otherwise get all website languages
+    // If target_languages is provided in options, use it
     let targetLanguages = options.target_languages;
     
-    // If no target languages specified, use all website-supported languages except English
+    // If no specific languages requested, get website languages
     if (!targetLanguages || targetLanguages.length === 0) {
-      console.log('No target languages specified, fetching website languages');
+      console.log('No target languages specified, will use website languages');
       try {
+        // First try the dedicated website-languages endpoint
         const websiteLanguages = await getWebsiteLanguages();
-        console.log('Got website languages:', websiteLanguages);
+        console.log('Got website languages from API:', websiteLanguages);
         
         // Make sure we have a valid array of languages with expected properties
         if (Array.isArray(websiteLanguages) && websiteLanguages.length > 0) {
@@ -641,40 +642,62 @@ export const autoTranslatePost = async (postId, options = {}) => {
             .filter(lang => lang.code !== 'en' && lang.is_active)
             .map(lang => lang.code);
           console.log('Filtered website languages for translation:', targetLanguages);
+          
+          if (targetLanguages.length === 0) {
+            throw new Error('No active website languages found for translation');
+          }
         } else {
-          console.warn('Website languages response invalid, using fallback languages');
-          // Use a fallback set of common languages if API fails
-          targetLanguages = ['es', 'fr', 'de', 'it', 'pt', 'ru', 'ja'];
+          throw new Error('Invalid website languages response');
         }
       } catch (langError) {
         console.error('Error fetching website languages:', langError);
-        // Use fallback languages if API fails
-        targetLanguages = ['es', 'fr', 'de', 'it', 'pt', 'ru', 'ja'];
+        
+        // Fallback to the website language codes (22 languages without English)
+        const websiteLangCodes = [
+          'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW', 
+          'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
+        ];
+        console.log('Using fallback website language codes:', websiteLangCodes);
+        targetLanguages = websiteLangCodes;
       }
     }
     
-    // Log selected target languages
-    console.log('Auto-translating to target languages:', targetLanguages);
+    // Log selected target languages 
+    console.log(`Auto-translating post ${postId} to ${targetLanguages.length} languages:`, targetLanguages);
     
-    // Add target_languages to options
-    const translationOptions = {
-      ...options,
-      target_languages: targetLanguages
+    // Prepare payload with target languages
+    const payload = {
+      target_languages: targetLanguages,
+      force_translate: options.force_translate || false
     };
     
-    const response = await axios.post(fullApiUrl, translationOptions, {
+    // Make the translation request
+    const response = await axios.post(fullApiUrl, payload, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
     });
+    
+    // Log response summary
+    const successCount = response.data?.translations?.successful?.length || 0;
+    const skippedCount = response.data?.translations?.skipped?.length || 0;
+    const failedCount = response.data?.translations?.failed?.length || 0;
+    
+    console.log(`Translation completed: ${successCount} translated, ${skippedCount} skipped, ${failedCount} failed`);
+    
     return response.data;
   } catch (error) {
     console.error('Error in auto-translate:', error);
     if (error.response) {
       console.error('Response error data:', error.response.data);
       console.error('Response status:', error.response.status);
+      
+      // If we have a specific error message from the server, include it
+      if (error.response.data && (error.response.data.error || error.response.data.message)) {
+        throw new Error(error.response.data.error || error.response.data.message);
+      }
     }
     return handleError(error);
   }
