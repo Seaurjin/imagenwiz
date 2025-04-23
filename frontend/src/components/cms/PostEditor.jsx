@@ -592,158 +592,56 @@ const PostEditor = () => {
           .then(postData => {
             console.log('Fetched translation data for language change:', postData);
             
-            // Handle different API response formats
+            // Get translation data
             const postObject = postData.post || postData;
-            let translationData = null;
+            const translationData = postData.translation || (postObject && postObject.translation);
             
-            // Check for translation data in various formats
-            if (postData.translation) {
-              console.log('Found direct translation data:', postData.translation);
-              translationData = postData.translation;
-            } else if (postObject.translation) {
-              console.log('Found nested translation data:', postObject.translation);
-              translationData = postObject.translation;
-            } else if (postData.translations && postData.translations.length > 0) {
-              // If we have multiple translations, find the one for the selected language
-              const matchingTranslation = postData.translations.find(t => t.language_code === value);
-              if (matchingTranslation) {
-                console.log('Found matching translation in translations array:', matchingTranslation);
-                translationData = matchingTranslation;
-              }
-            } else if (postObject.translations && postObject.translations.length > 0) {
-              // Same as above but for nested response format
-              const matchingTranslation = postObject.translations.find(t => t.language_code === value);
-              if (matchingTranslation) {
-                console.log('Found matching translation in nested translations array:', matchingTranslation);
-                translationData = matchingTranslation;
-              }
-            }
-            
-            // Also update our local translations array
+            // Also update our local translations array if available
             if (postData.translations) {
               setTranslations(postData.translations);
-            } else if (postObject.translations) {
+            } else if (postObject && postObject.translations) {
               setTranslations(postObject.translations);
             }
             
-            if (translationData) {
-              // Check if this is a fallback translation (English content when another language was requested)
-              const isFallbackTranslation = translationData.is_fallback === true || 
-                                           (translationData.language_code !== value && 
-                                            (translationData.is_requested_language === false || 
-                                             translationData.language_code === 'en'));
+            // CRITICAL FALLBACK DETECTION - Detect when backend returns English content instead of requested language
+            // Check three key conditions:
+            // 1. Is this explicitly flagged as a fallback translation (is_fallback=true)?
+            // 2. Is the language code different from what we requested (e.g., got 'en' when requested 'de')?
+            // 3. Does this translation have the is_requested_language=false flag set?
+            // ANY of these conditions means we're getting English content as a fallback!
+            const isFallback = translationData && (
+              translationData.is_fallback === true || 
+              translationData.language_code !== value ||
+              translationData.is_requested_language === false
+            );
+            
+            // Add extra logging to debug translation fallback detection 
+            console.log(`TRANSLATION FALLBACK CHECK FOR ${value}:`, {
+              requestedLanguage: value,
+              receivedLanguage: translationData?.language_code || 'none',
+              isFallback: isFallback,
+              fallbackDetectionDetails: translationData ? {
+                is_fallback_flag: translationData.is_fallback === true,
+                language_mismatch: translationData.language_code !== value,
+                not_requested_language: translationData.is_requested_language === false,
+              } : 'No translation data'
+            });
+            
+            console.log('Translation check:', {
+              requestedLanguage: value,
+              receivedLanguage: translationData?.language_code,
+              isFallback: isFallback,
+              hasFallbackFlag: translationData?.is_fallback,
+              isRequestedLanguage: translationData?.is_requested_language
+            });
+            
+            if (isFallback || !translationData) {
+              // This is either:
+              // - A fallback translation returning English
+              // - The translation doesn't exist yet
+              // In both cases, show empty fields for a new translation
+              console.log('Creating new translation UI for language:', value);
               
-              console.log('Translation fallback check:', {
-                isFallback: isFallbackTranslation,
-                requestedLanguage: value,
-                returnedLanguage: translationData.language_code,
-                flaggedAsFallback: translationData.is_fallback,
-                isRequestedLanguage: translationData.is_requested_language
-              });
-              
-              if (isFallbackTranslation) {
-                console.log('Using empty content for fallback translation');
-                // This is a fallback translation (English when another language was requested)
-                // Instead of showing English content, show empty content
-                setFormData({
-                  ...formData,
-                  language_code: value,
-                  title: '',
-                  content: '',
-                  meta_title: '',
-                  meta_description: ''
-                });
-                
-                // Show a message that we're creating a new translation
-                setError(null);
-                setSuccess(`Creating new translation for ${value}`);
-                
-                // Clear success message after 3 seconds
-                setTimeout(() => {
-                  setSuccess(null);
-                }, 3000);
-              } else {
-                // Process content for proper display in the editor
-                const processContentForEdit = (htmlContent) => {
-                  if (!htmlContent) return '';
-                  
-                  // Handle different content formats
-                  let processedContent = htmlContent;
-                  
-                  // Check if content looks like raw HTML tags and needs decoding
-                  if (processedContent.startsWith('<') && processedContent.includes('</')) {
-                    try {
-                      // If it appears to be XML/HTML text showing as tags, extract just the text content
-                      const tempDiv = document.createElement('div');
-                      tempDiv.innerHTML = processedContent;
-                      
-                      // If the content is something like '<p>text</p>', we want to keep it as is,
-                      // not convert it to just 'text'
-                      if (tempDiv.children.length === 1 && tempDiv.children[0].tagName === 'P') {
-                        // Keep the content as is if it's just a single paragraph
-                        processedContent = tempDiv.innerHTML;
-                      }
-                    } catch (e) {
-                      console.warn('Error processing HTML content:', e);
-                    }
-                  }
-                  
-                  // If the content appears to be JSON escaped, unescape it
-                  if (typeof processedContent === 'string' && processedContent.includes('\\n')) {
-                    try {
-                      // Try to normalize the content by parsing and restringifying if it looks like escaped JSON
-                      const normalizedContent = JSON.parse(`"${processedContent.replace(/"/g, '\\"')}"`);
-                      if (normalizedContent && typeof normalizedContent === 'string') {
-                        processedContent = normalizedContent;
-                      }
-                    } catch (e) {
-                      console.warn('Content normalization failed, using original content', e);
-                    }
-                  }
-                  
-                  // If content appears to be HTML-encoded, decode it
-                  if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
-                    const tempElement = document.createElement('div');
-                    tempElement.innerHTML = processedContent;
-                    processedContent = tempElement.textContent || tempElement.innerHTML;
-                    console.log('HTML-decoded content for language change:', processedContent);
-                  }
-                  
-                  return processedContent;
-                };
-                
-                // Process the content for proper display
-                const processedContent = processContentForEdit(translationData.content || '');
-                
-                console.log('LANGUAGE CHANGE - CONTENT FIELD:', {
-                  raw: translationData.content,
-                  processed: processedContent,
-                  length: processedContent.length,
-                  isEmpty: processedContent.trim() === ''
-                });
-                
-                console.log('Using translation data:', translationData);
-                setFormData({
-                  ...formData,
-                  language_code: value,
-                  title: translationData.title || '',
-                  content: processedContent,
-                  meta_title: translationData.meta_title || '',
-                  meta_description: translationData.meta_description || ''
-                });
-                
-                // Clear any previous errors
-                setError(null);
-                setSuccess(`Loaded ${value} translation successfully`);
-                
-                // Clear success message after 3 seconds
-                setTimeout(() => {
-                  setSuccess(null);
-                }, 3000);
-              }
-            } else {
-              // If no translation exists, just change the language but keep fields empty
-              console.log('No translation found for language', value);
               setFormData({
                 ...formData,
                 language_code: value,
@@ -754,7 +652,38 @@ const PostEditor = () => {
               });
               
               // Show a message that we're creating a new translation
+              setError(null); 
               setSuccess(`Creating new translation for ${value}`);
+              
+              // Clear success message after 3 seconds
+              setTimeout(() => {
+                setSuccess(null);
+              }, 3000);
+            } else {
+              // We have a real translation in the requested language, process it
+              console.log('Using translation data:', translationData);
+              
+              // Process content to handle any HTML encoding issues
+              let processedContent = translationData.content || '';
+              if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
+                const tempElement = document.createElement('div');
+                tempElement.innerHTML = processedContent;
+                processedContent = tempElement.textContent || tempElement.innerHTML;
+              }
+              
+              // Set form data with the translation
+              setFormData({
+                ...formData,
+                language_code: value,
+                title: translationData.title || '',
+                content: processedContent,
+                meta_title: translationData.meta_title || '',
+                meta_description: translationData.meta_description || ''
+              });
+              
+              // Success message
+              setError(null);
+              setSuccess(`Loaded ${value} translation successfully`);
               
               // Clear success message after 3 seconds
               setTimeout(() => {
