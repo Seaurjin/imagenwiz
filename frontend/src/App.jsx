@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SiteSettingsProvider } from './contexts/SiteSettingsContext';
+import { UserProvider } from './contexts/UserContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DynamicHead from './components/DynamicHead';
@@ -322,13 +323,15 @@ const AppContent = () => {
   );
 };
 
-// Wrap the app with auth provider and site settings provider
+// Wrap the app with auth provider, user provider, and site settings provider
 const App = () => {
   return (
     <AuthProvider>
-      <SiteSettingsProvider>
-        <AppContent />
-      </SiteSettingsProvider>
+      <UserProvider>
+        <SiteSettingsProvider>
+          <AppContent />
+        </SiteSettingsProvider>
+      </UserProvider>
     </AuthProvider>
   );
 };
