@@ -79,45 +79,62 @@ export const getLanguages = async () => {
 // Get website languages (only the 22 languages used on the website, not all in database)
 export const getWebsiteLanguages = async () => {
   try {
-    // This is the endpoint used by the website's language selector
-    const response = await axios.get(`/api/website/languages`, {
+    // Use the available languages API endpoint - main CMS languages endpoint
+    const response = await axios.get(`${API_URL}/languages`, {
       params: {
-        nocache: Date.now() // Cache-busting parameter
+        nocache: Date.now(), // Cache-busting parameter
+        is_active: true,     // Only get active languages
+        website_only: true   // This parameter might help if implemented on backend
       }
     });
     console.log('Website languages response:', response.data);
     
-    // If the website endpoint fails, use predefined list matching the website
-    if (!Array.isArray(response.data) || response.data.length < 3) {
-      console.warn('Website languages API returned insufficient data, using predefined list');
-      // These are the 22 languages used by the website
-      return [
-        {"code": "en", "name": "English", "is_active": true, "is_default": true, "flag": "🇬🇧"},
-        {"code": "fr", "name": "French", "is_active": true, "is_default": false, "flag": "🇫🇷"},
-        {"code": "es", "name": "Spanish", "is_active": true, "is_default": false, "flag": "🇪🇸"},
-        {"code": "de", "name": "German", "is_active": true, "is_default": false, "flag": "🇩🇪"},
-        {"code": "it", "name": "Italian", "is_active": true, "is_default": false, "flag": "🇮🇹"},
-        {"code": "pt", "name": "Portuguese", "is_active": true, "is_default": false, "flag": "🇵🇹"},
-        {"code": "ru", "name": "Russian", "is_active": true, "is_default": false, "flag": "🇷🇺"},
-        {"code": "ja", "name": "Japanese", "is_active": true, "is_default": false, "flag": "🇯🇵"},
-        {"code": "ko", "name": "Korean", "is_active": true, "is_default": false, "flag": "🇰🇷"},
-        {"code": "zh-TW", "name": "Traditional Chinese", "is_active": true, "is_default": false, "flag": "🇹🇼"},
-        {"code": "ar", "name": "Arabic", "is_active": true, "is_default": false, "flag": "🇸🇦"},
-        {"code": "nl", "name": "Dutch", "is_active": true, "is_default": false, "flag": "🇳🇱"},
-        {"code": "sv", "name": "Swedish", "is_active": true, "is_default": false, "flag": "🇸🇪"},
-        {"code": "tr", "name": "Turkish", "is_active": true, "is_default": false, "flag": "🇹🇷"},
-        {"code": "pl", "name": "Polish", "is_active": true, "is_default": false, "flag": "🇵🇱"},
-        {"code": "hu", "name": "Hungarian", "is_active": true, "is_default": false, "flag": "🇭🇺"},
-        {"code": "el", "name": "Greek", "is_active": true, "is_default": false, "flag": "🇬🇷"},
-        {"code": "no", "name": "Norwegian", "is_active": true, "is_default": false, "flag": "🇳🇴"},
-        {"code": "vi", "name": "Vietnamese", "is_active": true, "is_default": false, "flag": "🇻🇳"},
-        {"code": "th", "name": "Thai", "is_active": true, "is_default": false, "flag": "🇹🇭"},
-        {"code": "id", "name": "Indonesian", "is_active": true, "is_default": false, "flag": "🇮🇩"},
-        {"code": "ms", "name": "Malaysian", "is_active": true, "is_default": false, "flag": "🇲🇾"}
+    // If the API call succeeds but returns too few languages, filter to website languages
+    if (Array.isArray(response.data) && response.data.length >= 3) {
+      // Filter to just the codes used by the website (our 22 supported languages)
+      const websiteLangCodes = [
+        'en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW', 
+        'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
       ];
+      
+      // Filter API response to just website languages
+      const filteredLangs = response.data.filter(lang => 
+        websiteLangCodes.includes(lang.code) && lang.is_active
+      );
+      
+      console.log(`Filtered API response to ${filteredLangs.length} website languages`);
+      
+      if (filteredLangs.length >= 3) {
+        return filteredLangs;
+      }
     }
     
-    return response.data;
+    // Fallback to hardcoded list if API response is invalid or too few languages
+    console.warn('Website languages API returned insufficient data, using predefined list');
+    return [
+      {"code": "en", "name": "English", "is_active": true, "is_default": true, "flag": "🇬🇧"},
+      {"code": "fr", "name": "French", "is_active": true, "is_default": false, "flag": "🇫🇷"},
+      {"code": "es", "name": "Spanish", "is_active": true, "is_default": false, "flag": "🇪🇸"},
+      {"code": "de", "name": "German", "is_active": true, "is_default": false, "flag": "🇩🇪"},
+      {"code": "it", "name": "Italian", "is_active": true, "is_default": false, "flag": "🇮🇹"},
+      {"code": "pt", "name": "Portuguese", "is_active": true, "is_default": false, "flag": "🇵🇹"},
+      {"code": "ru", "name": "Russian", "is_active": true, "is_default": false, "flag": "🇷🇺"},
+      {"code": "ja", "name": "Japanese", "is_active": true, "is_default": false, "flag": "🇯🇵"},
+      {"code": "ko", "name": "Korean", "is_active": true, "is_default": false, "flag": "🇰🇷"},
+      {"code": "zh-TW", "name": "Traditional Chinese", "is_active": true, "is_default": false, "flag": "🇹🇼"},
+      {"code": "ar", "name": "Arabic", "is_active": true, "is_default": false, "flag": "🇸🇦"},
+      {"code": "nl", "name": "Dutch", "is_active": true, "is_default": false, "flag": "🇳🇱"},
+      {"code": "sv", "name": "Swedish", "is_active": true, "is_default": false, "flag": "🇸🇪"},
+      {"code": "tr", "name": "Turkish", "is_active": true, "is_default": false, "flag": "🇹🇷"},
+      {"code": "pl", "name": "Polish", "is_active": true, "is_default": false, "flag": "🇵🇱"},
+      {"code": "hu", "name": "Hungarian", "is_active": true, "is_default": false, "flag": "🇭🇺"},
+      {"code": "el", "name": "Greek", "is_active": true, "is_default": false, "flag": "🇬🇷"},
+      {"code": "no", "name": "Norwegian", "is_active": true, "is_default": false, "flag": "🇳🇴"},
+      {"code": "vi", "name": "Vietnamese", "is_active": true, "is_default": false, "flag": "🇻🇳"},
+      {"code": "th", "name": "Thai", "is_active": true, "is_default": false, "flag": "🇹🇭"},
+      {"code": "id", "name": "Indonesian", "is_active": true, "is_default": false, "flag": "🇮🇩"},
+      {"code": "ms", "name": "Malaysian", "is_active": true, "is_default": false, "flag": "🇲🇾"}
+    ];
   } catch (error) {
     console.error('Error fetching website languages:', error);
     // Return predefined list as fallback
@@ -596,12 +613,30 @@ export const autoTranslatePost = async (postId, options = {}) => {
     
     // If no target languages specified, use all website-supported languages except English
     if (!targetLanguages || targetLanguages.length === 0) {
-      const websiteLanguages = await getWebsiteLanguages();
-      targetLanguages = websiteLanguages
-        .filter(lang => lang.code !== 'en' && lang.is_active)
-        .map(lang => lang.code);
+      console.log('No target languages specified, fetching website languages');
+      try {
+        const websiteLanguages = await getWebsiteLanguages();
+        console.log('Got website languages:', websiteLanguages);
+        
+        // Make sure we have a valid array of languages with expected properties
+        if (Array.isArray(websiteLanguages) && websiteLanguages.length > 0) {
+          targetLanguages = websiteLanguages
+            .filter(lang => lang.code !== 'en' && lang.is_active)
+            .map(lang => lang.code);
+          console.log('Filtered website languages for translation:', targetLanguages);
+        } else {
+          console.warn('Website languages response invalid, using fallback languages');
+          // Use a fallback set of common languages if API fails
+          targetLanguages = ['es', 'fr', 'de', 'it', 'pt', 'ru', 'ja'];
+        }
+      } catch (langError) {
+        console.error('Error fetching website languages:', langError);
+        // Use fallback languages if API fails
+        targetLanguages = ['es', 'fr', 'de', 'it', 'pt', 'ru', 'ja'];
+      }
     }
     
+    // Log selected target languages
     console.log('Auto-translating to target languages:', targetLanguages);
     
     // Add target_languages to options

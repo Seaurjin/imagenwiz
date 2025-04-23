@@ -292,13 +292,14 @@ const PostEditor = () => {
     setError(null);
     
     try {
+      console.log('Starting translation for languages:', selectedLanguages);
       // Display initial progress message
       setSuccess(`Translating to ${selectedLanguages.length} languages... This may take a moment.`);
       
-      // Call API with selected languages
+      // Call API with selected languages - force_translate ensures we update even existing translations
       const response = await autoTranslatePost(id, { 
         target_languages: selectedLanguages,
-        force_translate: true
+        force_translate: true  // Make sure we translate even if there's existing content
       });
       
       console.log('Translation response:', response);
@@ -307,11 +308,23 @@ const PostEditor = () => {
       let successCount = 0;
       let failedCount = 0;
       let skippedCount = 0;
+      let successfulLanguages = [];
       
       if (response && response.translations) {
-        successCount = response.translations.successful ? response.translations.successful.length : 0;
-        failedCount = response.translations.failed ? response.translations.failed.length : 0;
-        skippedCount = response.translations.skipped ? response.translations.skipped.length : 0;
+        // Get the counts and lists of languages
+        successfulLanguages = response.translations.successful || [];
+        const failedLanguages = response.translations.failed || [];
+        const skippedLanguages = response.translations.skipped || [];
+        
+        successCount = successfulLanguages.length;
+        failedCount = failedLanguages.length;
+        skippedCount = skippedLanguages.length;
+        
+        console.log('Translation results breakdown:', {
+          successful: successfulLanguages,
+          failed: failedLanguages,
+          skipped: skippedLanguages
+        });
       }
       
       // Refresh post data to get updated translations
