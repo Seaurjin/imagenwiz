@@ -23,7 +23,8 @@ import {
   getPostMedia,
   deleteTranslation,
   autoTranslatePost,
-  generateAIContent
+  generateAIContent,
+  getWebsiteLanguages
 } from '../../lib/cms-service';
 import TranslationModal from './TranslationModal';
 

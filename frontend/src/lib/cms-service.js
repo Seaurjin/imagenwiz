@@ -76,6 +76,78 @@ export const getLanguages = async () => {
   }
 };
 
+// Get website languages (only the 22 languages used on the website, not all in database)
+export const getWebsiteLanguages = async () => {
+  try {
+    // This is the endpoint used by the website's language selector
+    const response = await axios.get(`/api/website/languages`, {
+      params: {
+        nocache: Date.now() // Cache-busting parameter
+      }
+    });
+    console.log('Website languages response:', response.data);
+    
+    // If the website endpoint fails, use predefined list matching the website
+    if (!Array.isArray(response.data) || response.data.length < 3) {
+      console.warn('Website languages API returned insufficient data, using predefined list');
+      // These are the 22 languages used by the website
+      return [
+        {"code": "en", "name": "English", "is_active": true, "is_default": true, "flag": "🇬🇧"},
+        {"code": "fr", "name": "French", "is_active": true, "is_default": false, "flag": "🇫🇷"},
+        {"code": "es", "name": "Spanish", "is_active": true, "is_default": false, "flag": "🇪🇸"},
+        {"code": "de", "name": "German", "is_active": true, "is_default": false, "flag": "🇩🇪"},
+        {"code": "it", "name": "Italian", "is_active": true, "is_default": false, "flag": "🇮🇹"},
+        {"code": "pt", "name": "Portuguese", "is_active": true, "is_default": false, "flag": "🇵🇹"},
+        {"code": "ru", "name": "Russian", "is_active": true, "is_default": false, "flag": "🇷🇺"},
+        {"code": "ja", "name": "Japanese", "is_active": true, "is_default": false, "flag": "🇯🇵"},
+        {"code": "ko", "name": "Korean", "is_active": true, "is_default": false, "flag": "🇰🇷"},
+        {"code": "zh-TW", "name": "Traditional Chinese", "is_active": true, "is_default": false, "flag": "🇹🇼"},
+        {"code": "ar", "name": "Arabic", "is_active": true, "is_default": false, "flag": "🇸🇦"},
+        {"code": "nl", "name": "Dutch", "is_active": true, "is_default": false, "flag": "🇳🇱"},
+        {"code": "sv", "name": "Swedish", "is_active": true, "is_default": false, "flag": "🇸🇪"},
+        {"code": "tr", "name": "Turkish", "is_active": true, "is_default": false, "flag": "🇹🇷"},
+        {"code": "pl", "name": "Polish", "is_active": true, "is_default": false, "flag": "🇵🇱"},
+        {"code": "hu", "name": "Hungarian", "is_active": true, "is_default": false, "flag": "🇭🇺"},
+        {"code": "el", "name": "Greek", "is_active": true, "is_default": false, "flag": "🇬🇷"},
+        {"code": "no", "name": "Norwegian", "is_active": true, "is_default": false, "flag": "🇳🇴"},
+        {"code": "vi", "name": "Vietnamese", "is_active": true, "is_default": false, "flag": "🇻🇳"},
+        {"code": "th", "name": "Thai", "is_active": true, "is_default": false, "flag": "🇹🇭"},
+        {"code": "id", "name": "Indonesian", "is_active": true, "is_default": false, "flag": "🇮🇩"},
+        {"code": "ms", "name": "Malaysian", "is_active": true, "is_default": false, "flag": "🇲🇾"}
+      ];
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching website languages:', error);
+    // Return predefined list as fallback
+    return [
+      {"code": "en", "name": "English", "is_active": true, "is_default": true, "flag": "🇬🇧"},
+      {"code": "fr", "name": "French", "is_active": true, "is_default": false, "flag": "🇫🇷"},
+      {"code": "es", "name": "Spanish", "is_active": true, "is_default": false, "flag": "🇪🇸"},
+      {"code": "de", "name": "German", "is_active": true, "is_default": false, "flag": "🇩🇪"},
+      {"code": "it", "name": "Italian", "is_active": true, "is_default": false, "flag": "🇮🇹"},
+      {"code": "pt", "name": "Portuguese", "is_active": true, "is_default": false, "flag": "🇵🇹"},
+      {"code": "ru", "name": "Russian", "is_active": true, "is_default": false, "flag": "🇷🇺"},
+      {"code": "ja", "name": "Japanese", "is_active": true, "is_default": false, "flag": "🇯🇵"},
+      {"code": "ko", "name": "Korean", "is_active": true, "is_default": false, "flag": "🇰🇷"},
+      {"code": "zh-TW", "name": "Traditional Chinese", "is_active": true, "is_default": false, "flag": "🇹🇼"},
+      {"code": "ar", "name": "Arabic", "is_active": true, "is_default": false, "flag": "🇸🇦"},
+      {"code": "nl", "name": "Dutch", "is_active": true, "is_default": false, "flag": "🇳🇱"},
+      {"code": "sv", "name": "Swedish", "is_active": true, "is_default": false, "flag": "🇸🇪"},
+      {"code": "tr", "name": "Turkish", "is_active": true, "is_default": false, "flag": "🇹🇷"},
+      {"code": "pl", "name": "Polish", "is_active": true, "is_default": false, "flag": "🇵🇱"},
+      {"code": "hu", "name": "Hungarian", "is_active": true, "is_default": false, "flag": "🇭🇺"},
+      {"code": "el", "name": "Greek", "is_active": true, "is_default": false, "flag": "🇬🇷"},
+      {"code": "no", "name": "Norwegian", "is_active": true, "is_default": false, "flag": "🇳🇴"},
+      {"code": "vi", "name": "Vietnamese", "is_active": true, "is_default": false, "flag": "🇻🇳"},
+      {"code": "th", "name": "Thai", "is_active": true, "is_default": false, "flag": "🇹🇭"},
+      {"code": "id", "name": "Indonesian", "is_active": true, "is_default": false, "flag": "🇮🇩"},
+      {"code": "ms", "name": "Malaysian", "is_active": true, "is_default": false, "flag": "🇲🇾"}
+    ];
+  }
+};
+
 export const addLanguage = async (languageData) => {
   try {
     const response = await axios.post(`${API_URL}/languages`, languageData, {
