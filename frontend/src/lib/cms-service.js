@@ -79,25 +79,42 @@ export const getLanguages = async () => {
 // Get website languages (only the 22 languages used on the website, not all in database)
 export const getWebsiteLanguages = async () => {
   try {
-    // Use the available languages API endpoint - main CMS languages endpoint
+    // First try the dedicated website languages endpoint
+    try {
+      const response = await axios.get(`${API_URL}/website-languages`, {
+        params: {
+          nocache: Date.now() // Cache-busting parameter
+        }
+      });
+      console.log('Website languages dedicated endpoint response:', response.data);
+      
+      if (Array.isArray(response.data) && response.data.length >= 3) {
+        return response.data;
+      }
+    } catch (specificEndpointError) {
+      console.warn('Dedicated website languages endpoint failed, falling back to filtered main endpoint:', specificEndpointError);
+      // Continue to fallback approach if dedicated endpoint fails
+    }
+    
+    // Fallback: Use the main languages endpoint with website_only filter
     const response = await axios.get(`${API_URL}/languages`, {
       params: {
         nocache: Date.now(), // Cache-busting parameter
         is_active: true,     // Only get active languages
-        website_only: true   // This parameter might help if implemented on backend
+        website_only: true   // Use backend parameter to filter languages
       }
     });
-    console.log('Website languages response:', response.data);
+    console.log('Website languages fallback response:', response.data);
     
-    // If the API call succeeds but returns too few languages, filter to website languages
+    // If the API call succeeds but we need additional filtering
     if (Array.isArray(response.data) && response.data.length >= 3) {
-      // Filter to just the codes used by the website (our 22 supported languages)
+      // These are the codes used by the website (our 22 supported languages)
       const websiteLangCodes = [
         'en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW', 
         'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
       ];
       
-      // Filter API response to just website languages
+      // Filter API response to just website languages (double-check)
       const filteredLangs = response.data.filter(lang => 
         websiteLangCodes.includes(lang.code) && lang.is_active
       );

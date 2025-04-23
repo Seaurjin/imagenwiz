@@ -41,34 +41,121 @@ def get_languages():
     # Return a comprehensive list of supported languages directly
     # This ensures language availability without database issues
     
-    # Comprehensive list of 22 languages used by the application
+    # Optional parameter to filter to only website-supported languages
+    website_only = request.args.get('website_only', 'false').lower() == 'true'
+    is_active_filter = request.args.get('is_active', 'false').lower() == 'true'
+    
+    try:
+        # Try to get languages from database first
+        languages = Language.query.all()
+        
+        if languages:
+            # Convert to list of dictionaries for JSON response
+            language_list = []
+            for lang in languages:
+                language_list.append({
+                    "code": lang.code,
+                    "name": lang.name,
+                    "is_default": lang.is_default,
+                    "is_active": lang.is_active,
+                    "flag": lang.flag if hasattr(lang, 'flag') else None
+                })
+                
+            # Filter to only active languages if requested
+            if is_active_filter:
+                language_list = [lang for lang in language_list if lang.get('is_active', False)]
+                
+            # Filter to only website languages if requested
+            if website_only:
+                # These are the language codes supported by the website
+                website_lang_codes = [
+                    'en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW',
+                    'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
+                ]
+                language_list = [lang for lang in language_list if lang.get('code') in website_lang_codes]
+                
+            current_app.logger.info(f"Returning {len(language_list)} languages from database")
+            return jsonify(language_list), 200
+    except Exception as e:
+        current_app.logger.error(f"Error retrieving languages from database: {e}")
+        # Fall back to predefined languages if database query fails
+    
+    # Comprehensive list of languages used by the application
     predefined_languages = [
-        {"code": "en", "name": "English", "is_active": True, "is_default": True},
-        {"code": "fr", "name": "French", "is_active": True, "is_default": False},
-        {"code": "es", "name": "Spanish", "is_active": True, "is_default": False},
-        {"code": "de", "name": "German", "is_active": True, "is_default": False},
-        {"code": "it", "name": "Italian", "is_active": True, "is_default": False},
-        {"code": "pt", "name": "Portuguese", "is_active": True, "is_default": False},
-        {"code": "nl", "name": "Dutch", "is_active": True, "is_default": False},
-        {"code": "ru", "name": "Russian", "is_active": True, "is_default": False},
-        {"code": "zh-CN", "name": "Simplified Chinese", "is_active": True, "is_default": False},
-        {"code": "zh-TW", "name": "Traditional Chinese", "is_active": True, "is_default": False},
-        {"code": "ja", "name": "Japanese", "is_active": True, "is_default": False},
-        {"code": "ko", "name": "Korean", "is_active": True, "is_default": False},
-        {"code": "ar", "name": "Arabic", "is_active": True, "is_default": False},
-        {"code": "hi", "name": "Hindi", "is_active": True, "is_default": False},
-        {"code": "id", "name": "Indonesian", "is_active": True, "is_default": False},
-        {"code": "ms", "name": "Malaysian", "is_active": True, "is_default": False},
-        {"code": "th", "name": "Thai", "is_active": True, "is_default": False},
-        {"code": "vi", "name": "Vietnamese", "is_active": True, "is_default": False},
-        {"code": "tr", "name": "Turkish", "is_active": True, "is_default": False},
-        {"code": "pl", "name": "Polish", "is_active": True, "is_default": False},
-        {"code": "cs", "name": "Czech", "is_active": True, "is_default": False},
-        {"code": "sv", "name": "Swedish", "is_active": True, "is_default": False}
+        {"code": "en", "name": "English", "is_active": True, "is_default": True, "flag": "🇬🇧"},
+        {"code": "fr", "name": "French", "is_active": True, "is_default": False, "flag": "🇫🇷"},
+        {"code": "es", "name": "Spanish", "is_active": True, "is_default": False, "flag": "🇪🇸"},
+        {"code": "de", "name": "German", "is_active": True, "is_default": False, "flag": "🇩🇪"},
+        {"code": "it", "name": "Italian", "is_active": True, "is_default": False, "flag": "🇮🇹"},
+        {"code": "pt", "name": "Portuguese", "is_active": True, "is_default": False, "flag": "🇵🇹"},
+        {"code": "nl", "name": "Dutch", "is_active": True, "is_default": False, "flag": "🇳🇱"},
+        {"code": "ru", "name": "Russian", "is_active": True, "is_default": False, "flag": "🇷🇺"},
+        {"code": "zh-CN", "name": "Simplified Chinese", "is_active": True, "is_default": False, "flag": "🇨🇳"},
+        {"code": "zh-TW", "name": "Traditional Chinese", "is_active": True, "is_default": False, "flag": "🇹🇼"},
+        {"code": "ja", "name": "Japanese", "is_active": True, "is_default": False, "flag": "🇯🇵"},
+        {"code": "ko", "name": "Korean", "is_active": True, "is_default": False, "flag": "🇰🇷"},
+        {"code": "ar", "name": "Arabic", "is_active": True, "is_default": False, "flag": "🇸🇦"},
+        {"code": "hi", "name": "Hindi", "is_active": True, "is_default": False, "flag": "🇮🇳"},
+        {"code": "id", "name": "Indonesian", "is_active": True, "is_default": False, "flag": "🇮🇩"},
+        {"code": "ms", "name": "Malaysian", "is_active": True, "is_default": False, "flag": "🇲🇾"},
+        {"code": "th", "name": "Thai", "is_active": True, "is_default": False, "flag": "🇹🇭"},
+        {"code": "vi", "name": "Vietnamese", "is_active": True, "is_default": False, "flag": "🇻🇳"},
+        {"code": "tr", "name": "Turkish", "is_active": True, "is_default": False, "flag": "🇹🇷"},
+        {"code": "pl", "name": "Polish", "is_active": True, "is_default": False, "flag": "🇵🇱"},
+        {"code": "cs", "name": "Czech", "is_active": True, "is_default": False, "flag": "🇨🇿"},
+        {"code": "sv", "name": "Swedish", "is_active": True, "is_default": False, "flag": "🇸🇪"},
+        {"code": "hu", "name": "Hungarian", "is_active": True, "is_default": False, "flag": "🇭🇺"},
+        {"code": "el", "name": "Greek", "is_active": True, "is_default": False, "flag": "🇬🇷"},
+        {"code": "no", "name": "Norwegian", "is_active": True, "is_default": False, "flag": "🇳🇴"}
     ]
     
-    print(f"CMS: Returning predefined list of {len(predefined_languages)} languages")
+    # Filter to only website languages if requested
+    if website_only:
+        website_lang_codes = [
+            'en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW',
+            'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
+        ]
+        predefined_languages = [lang for lang in predefined_languages if lang.get('code') in website_lang_codes]
+    
+    # Filter to only active languages if requested
+    if is_active_filter:
+        predefined_languages = [lang for lang in predefined_languages if lang.get('is_active', False)]
+    
+    current_app.logger.info(f"Returning predefined list of {len(predefined_languages)} languages")
     return jsonify(predefined_languages), 200
+
+# Add a dedicated endpoint for website languages
+@bp.route('/website-languages', methods=['GET'])
+def get_website_languages():
+    """Get languages that are specifically supported by the website frontend"""
+    # These are the 22 languages supported by the website frontend
+    website_languages = [
+        {"code": "en", "name": "English", "is_active": True, "is_default": True, "flag": "🇬🇧"},
+        {"code": "fr", "name": "French", "is_active": True, "is_default": False, "flag": "🇫🇷"},
+        {"code": "es", "name": "Spanish", "is_active": True, "is_default": False, "flag": "🇪🇸"},
+        {"code": "de", "name": "German", "is_active": True, "is_default": False, "flag": "🇩🇪"},
+        {"code": "it", "name": "Italian", "is_active": True, "is_default": False, "flag": "🇮🇹"},
+        {"code": "pt", "name": "Portuguese", "is_active": True, "is_default": False, "flag": "🇵🇹"},
+        {"code": "ru", "name": "Russian", "is_active": True, "is_default": False, "flag": "🇷🇺"},
+        {"code": "ja", "name": "Japanese", "is_active": True, "is_default": False, "flag": "🇯🇵"},
+        {"code": "ko", "name": "Korean", "is_active": True, "is_default": False, "flag": "🇰🇷"},
+        {"code": "zh-TW", "name": "Traditional Chinese", "is_active": True, "is_default": False, "flag": "🇹🇼"},
+        {"code": "ar", "name": "Arabic", "is_active": True, "is_default": False, "flag": "🇸🇦"},
+        {"code": "nl", "name": "Dutch", "is_active": True, "is_default": False, "flag": "🇳🇱"},
+        {"code": "sv", "name": "Swedish", "is_active": True, "is_default": False, "flag": "🇸🇪"},
+        {"code": "tr", "name": "Turkish", "is_active": True, "is_default": False, "flag": "🇹🇷"},
+        {"code": "pl", "name": "Polish", "is_active": True, "is_default": False, "flag": "🇵🇱"},
+        {"code": "hu", "name": "Hungarian", "is_active": True, "is_default": False, "flag": "🇭🇺"},
+        {"code": "el", "name": "Greek", "is_active": True, "is_default": False, "flag": "🇬🇷"},
+        {"code": "no", "name": "Norwegian", "is_active": True, "is_default": False, "flag": "🇳🇴"},
+        {"code": "vi", "name": "Vietnamese", "is_active": True, "is_default": False, "flag": "🇻🇳"},
+        {"code": "th", "name": "Thai", "is_active": True, "is_default": False, "flag": "🇹🇭"},
+        {"code": "id", "name": "Indonesian", "is_active": True, "is_default": False, "flag": "🇮🇩"},
+        {"code": "ms", "name": "Malaysian", "is_active": True, "is_default": False, "flag": "🇲🇾"}
+    ]
+    
+    current_app.logger.info(f"Returning {len(website_languages)} website languages")
+    return jsonify(website_languages), 200
 
 @bp.route('/languages', methods=['POST'])
 @jwt_required()
