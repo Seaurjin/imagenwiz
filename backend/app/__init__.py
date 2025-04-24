@@ -146,6 +146,16 @@ def create_app():
                     app.logger.info("Database migration for CMS tags description field completed successfully")
                 else:
                     app.logger.warning("Database migration for CMS tags description field failed, tags may not display correctly")
+                    
+                # Run language flags migration
+                from .utils.migrate_mysql_language_flags import run_migration as migrate_mysql_language_flags
+                
+                # Execute the migration to add flag field to languages
+                language_flags_result = migrate_mysql_language_flags()
+                if language_flags_result:
+                    app.logger.info("Database migration for CMS language flags completed successfully")
+                else:
+                    app.logger.warning("Database migration for CMS language flags failed, language flags may not display correctly")
             except ImportError:
                 # Fallback to PostgreSQL migration if MySQL migration fails
                 from .utils.migrate_auto_translation import run_migration as migrate_auto_translation

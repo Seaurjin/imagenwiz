@@ -58,21 +58,21 @@ def get_languages():
                     "name": lang.name,
                     "is_default": lang.is_default,
                     "is_active": lang.is_active,
-                    "flag": lang.flag if hasattr(lang, 'flag') else None
+                    "flag": lang.flag if hasattr(lang, 'flag') and lang.flag else None
                 })
+                
+            current_app.logger.info(f"Found {len(language_list)} languages in database")
                 
             # Add flag field if missing (for backward compatibility)
             for lang in language_list:
                 if not lang.get('flag'):
-                    # Set default flag based on language code
+                    # Set default flag based on language code - only the 22 website languages
                     flags = {
                         'en': '🇬🇧', 'fr': '🇫🇷', 'es': '🇪🇸', 'de': '🇩🇪', 'it': '🇮🇹', 
                         'pt': '🇵🇹', 'ru': '🇷🇺', 'ja': '🇯🇵', 'ko': '🇰🇷', 'zh-TW': '🇹🇼',
                         'ar': '🇸🇦', 'nl': '🇳🇱', 'sv': '🇸🇪', 'tr': '🇹🇷', 'pl': '🇵🇱',
                         'hu': '🇭🇺', 'el': '🇬🇷', 'no': '🇳🇴', 'vi': '🇻🇳', 'th': '🇹🇭',
-                        'id': '🇮🇩', 'ms': '🇲🇾', 'bg': '🇧🇬', 'ca': '🇪🇸', 'cs': '🇨🇿',
-                        'da': '🇩🇰', 'fi': '🇫🇮', 'he': '🇮🇱', 'hi': '🇮🇳', 'ro': '🇷🇴',
-                        'sk': '🇸🇰', 'uk': '🇺🇦', 'zh-CN': '🇨🇳'
+                        'id': '🇮🇩', 'ms': '🇲🇾'
                     }
                     lang['flag'] = flags.get(lang['code'], '🌐')
                     
@@ -95,7 +95,7 @@ def get_languages():
         current_app.logger.error(f"Error retrieving languages from database: {e}")
         # Fall back to predefined languages if database query fails
     
-    # Comprehensive list of languages used by the application
+    # List of 22 languages supported by the website
     predefined_languages = [
         {"code": "en", "name": "English", "is_active": True, "is_default": True, "flag": "🇬🇧"},
         {"code": "fr", "name": "French", "is_active": True, "is_default": False, "flag": "🇫🇷"},
@@ -105,19 +105,16 @@ def get_languages():
         {"code": "pt", "name": "Portuguese", "is_active": True, "is_default": False, "flag": "🇵🇹"},
         {"code": "nl", "name": "Dutch", "is_active": True, "is_default": False, "flag": "🇳🇱"},
         {"code": "ru", "name": "Russian", "is_active": True, "is_default": False, "flag": "🇷🇺"},
-        {"code": "zh-CN", "name": "Simplified Chinese", "is_active": True, "is_default": False, "flag": "🇨🇳"},
         {"code": "zh-TW", "name": "Traditional Chinese", "is_active": True, "is_default": False, "flag": "🇹🇼"},
         {"code": "ja", "name": "Japanese", "is_active": True, "is_default": False, "flag": "🇯🇵"},
         {"code": "ko", "name": "Korean", "is_active": True, "is_default": False, "flag": "🇰🇷"},
         {"code": "ar", "name": "Arabic", "is_active": True, "is_default": False, "flag": "🇸🇦"},
-        {"code": "hi", "name": "Hindi", "is_active": True, "is_default": False, "flag": "🇮🇳"},
         {"code": "id", "name": "Indonesian", "is_active": True, "is_default": False, "flag": "🇮🇩"},
-        {"code": "ms", "name": "Malaysian", "is_active": True, "is_default": False, "flag": "🇲🇾"},
+        {"code": "ms", "name": "Malay", "is_active": True, "is_default": False, "flag": "🇲🇾"},
         {"code": "th", "name": "Thai", "is_active": True, "is_default": False, "flag": "🇹🇭"},
         {"code": "vi", "name": "Vietnamese", "is_active": True, "is_default": False, "flag": "🇻🇳"},
         {"code": "tr", "name": "Turkish", "is_active": True, "is_default": False, "flag": "🇹🇷"},
         {"code": "pl", "name": "Polish", "is_active": True, "is_default": False, "flag": "🇵🇱"},
-        {"code": "cs", "name": "Czech", "is_active": True, "is_default": False, "flag": "🇨🇿"},
         {"code": "sv", "name": "Swedish", "is_active": True, "is_default": False, "flag": "🇸🇪"},
         {"code": "hu", "name": "Hungarian", "is_active": True, "is_default": False, "flag": "🇭🇺"},
         {"code": "el", "name": "Greek", "is_active": True, "is_default": False, "flag": "🇬🇷"},
@@ -143,6 +140,49 @@ def get_languages():
 @bp.route('/website-languages', methods=['GET'])
 def get_website_languages():
     """Get languages that are specifically supported by the website frontend"""
+    try:
+        # Try to get languages from database first
+        # This approach ensures consistency between all language endpoints
+        languages = Language.query.all()
+        
+        if languages:
+            # Website language codes - ensure consistency with TranslationModal.jsx
+            website_lang_codes = [
+                'en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW',
+                'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
+            ]
+            
+            # Filter to only website languages
+            website_languages = []
+            for lang in languages:
+                if lang.code in website_lang_codes:
+                    website_languages.append({
+                        "code": lang.code,
+                        "name": lang.name,
+                        "is_default": lang.is_default,
+                        "is_active": lang.is_active,
+                        "flag": lang.flag if hasattr(lang, 'flag') and lang.flag else None
+                    })
+            
+            # Add flag field if missing (for backward compatibility)
+            for lang in website_languages:
+                if not lang.get('flag'):
+                    # Set default flag based on language code
+                    flags = {
+                        'en': '🇬🇧', 'fr': '🇫🇷', 'es': '🇪🇸', 'de': '🇩🇪', 'it': '🇮🇹', 
+                        'pt': '🇵🇹', 'ru': '🇷🇺', 'ja': '🇯🇵', 'ko': '🇰🇷', 'zh-TW': '🇹🇼',
+                        'ar': '🇸🇦', 'nl': '🇳🇱', 'sv': '🇸🇪', 'tr': '🇹🇷', 'pl': '🇵🇱',
+                        'hu': '🇭🇺', 'el': '🇬🇷', 'no': '🇳🇴', 'vi': '🇻🇳', 'th': '🇹🇭',
+                        'id': '🇮🇩', 'ms': '🇲🇾'
+                    }
+                    lang['flag'] = flags.get(lang['code'], '🌐')
+                    
+            current_app.logger.info(f"Returning {len(website_languages)} website languages from database")
+            return jsonify(website_languages), 200
+    except Exception as e:
+        current_app.logger.error(f"Error retrieving website languages from database: {e}")
+        # Fall back to predefined languages if database query fails
+    
     # These are the 22 languages supported by the website frontend
     website_languages = [
         {"code": "en", "name": "English", "is_active": True, "is_default": True, "flag": "🇬🇧"},
@@ -166,10 +206,10 @@ def get_website_languages():
         {"code": "vi", "name": "Vietnamese", "is_active": True, "is_default": False, "flag": "🇻🇳"},
         {"code": "th", "name": "Thai", "is_active": True, "is_default": False, "flag": "🇹🇭"},
         {"code": "id", "name": "Indonesian", "is_active": True, "is_default": False, "flag": "🇮🇩"},
-        {"code": "ms", "name": "Malaysian", "is_active": True, "is_default": False, "flag": "🇲🇾"}
+        {"code": "ms", "name": "Malay", "is_active": True, "is_default": False, "flag": "🇲🇾"}
     ]
     
-    current_app.logger.info(f"Returning {len(website_languages)} website languages")
+    current_app.logger.info(f"Returning predefined list of {len(website_languages)} website languages")
     return jsonify(website_languages), 200
 
 @bp.route('/languages', methods=['POST'])

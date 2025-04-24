@@ -196,11 +196,26 @@ class Language(db.Model):
     is_default = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     
+    # Virtual property for flag since it's not in the database yet
+    @property
+    def flag(self):
+        # 22 website languages with appropriate flag emojis
+        flags = {
+            'en': '🇬🇧', 'fr': '🇫🇷', 'es': '🇪🇸', 'de': '🇩🇪', 'it': '🇮🇹', 
+            'pt': '🇵🇹', 'ru': '🇷🇺', 'ja': '🇯🇵', 'ko': '🇰🇷', 'zh-TW': '🇹🇼',
+            'ar': '🇸🇦', 'nl': '🇳🇱', 'sv': '🇸🇪', 'tr': '🇹🇷', 'pl': '🇵🇱',
+            'hu': '🇭🇺', 'el': '🇬🇷', 'no': '🇳🇴', 'vi': '🇻🇳', 'th': '🇹🇭',
+            'id': '🇮🇩', 'ms': '🇲🇾'
+        }
+        return flags.get(self.code, '🌐')
+    
     def to_dict(self):
         """Convert language to dictionary for API responses"""
+        # Use the virtual property flag
         return {
             'code': self.code,
             'name': self.name,
             'is_default': self.is_default,
-            'is_active': self.is_active
+            'is_active': self.is_active,
+            'flag': self.flag
         }
