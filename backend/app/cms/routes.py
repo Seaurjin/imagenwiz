@@ -61,6 +61,21 @@ def get_languages():
                     "flag": lang.flag if hasattr(lang, 'flag') else None
                 })
                 
+            # Add flag field if missing (for backward compatibility)
+            for lang in language_list:
+                if not lang.get('flag'):
+                    # Set default flag based on language code
+                    flags = {
+                        'en': '🇬🇧', 'fr': '🇫🇷', 'es': '🇪🇸', 'de': '🇩🇪', 'it': '🇮🇹', 
+                        'pt': '🇵🇹', 'ru': '🇷🇺', 'ja': '🇯🇵', 'ko': '🇰🇷', 'zh-TW': '🇹🇼',
+                        'ar': '🇸🇦', 'nl': '🇳🇱', 'sv': '🇸🇪', 'tr': '🇹🇷', 'pl': '🇵🇱',
+                        'hu': '🇭🇺', 'el': '🇬🇷', 'no': '🇳🇴', 'vi': '🇻🇳', 'th': '🇹🇭',
+                        'id': '🇮🇩', 'ms': '🇲🇾', 'bg': '🇧🇬', 'ca': '🇪🇸', 'cs': '🇨🇿',
+                        'da': '🇩🇰', 'fi': '🇫🇮', 'he': '🇮🇱', 'hi': '🇮🇳', 'ro': '🇷🇴',
+                        'sk': '🇸🇰', 'uk': '🇺🇦', 'zh-CN': '🇨🇳'
+                    }
+                    lang['flag'] = flags.get(lang['code'], '🌐')
+                    
             # Filter to only active languages if requested
             if is_active_filter:
                 language_list = [lang for lang in language_list if lang.get('is_active', False)]
