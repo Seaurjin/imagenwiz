@@ -44,7 +44,9 @@ const logoUpload = multer({ storage: logoStorage });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+// Use port 3000 but prefer environment variable if set
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+// Flask backend should use port 5000
 const FLASK_PORT: number = 5000;
 
 // Define the frontend dist path - check all potential locations
@@ -2550,4 +2552,11 @@ Check that your success_url and cancel_url parameters in Stripe checkout are cor
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running at http://0.0.0.0:${PORT}`);
   console.log(`Access your app at: ${process.env.REPLIT_DOMAINS || `localhost:${PORT}`}`);
+  
+  // Explicitly log that we're ready for Replit to connect
+  console.log('🚀 Application startup complete - ready to accept connections');
+  
+  // Keep track of startup time for diagnostics
+  const startupTime = process.uptime();
+  console.log(`⏱️ Server startup completed in ${startupTime.toFixed(2)} seconds`);
 });
