@@ -12,6 +12,7 @@ import multer from 'multer';
 import paymentHandler from './payment-handler-es';
 import { sendContactFormEmail } from './services/emailService';
 import { Stripe } from 'stripe';
+import axios from 'axios';
 
 // Global storage for site settings
 let globalLogoSettings: Record<string, string> = {
@@ -102,6 +103,34 @@ if (!foundValidPath) {
     console.error(`Error listing files in ${FRONTEND_DIST_PATH}:`, err);
   }
 }
+
+// Function to check if the Flask backend is running
+async function checkFlaskBackend() {
+  console.log('🔍 Checking if Flask backend is running...');
+  
+  try {
+    // Check if Flask is already running
+    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 2000 });
+    if (response.status === 200) {
+      console.log('✅ Flask backend is running and responding to health checks');
+      console.log('✅ Full stack application is running with all components!');
+      return true;
+    }
+  } catch (error: any) {
+    console.log('⚠️ Flask backend not detected or not responding to health checks');
+    console.log('⚠️ WARNING: Running in Express-only mode with limited functionality');
+    console.log('⚠️ Some advanced features will not be available');
+    console.log('⚠️ To run the full application, use the "Start Full Stack" workflow');
+  }
+  
+  console.log('⚠️ WARNING: Running WITHOUT Flask backend');
+  console.log('Express will provide fallbacks for critical API endpoints');
+  console.log('Some advanced features may be limited, but basic functionality will work');
+  return false;
+}
+
+// Check if Flask backend is running (but don't try to start it)
+checkFlaskBackend();
 
 // Enable CORS
 app.use(cors());
@@ -1410,9 +1439,11 @@ app.post('/api/payment/create-payment-intent', async (req, res) => {
 
 // STEP 1: SET UP FLASK BACKEND FALLBACKS
 //==========================================================================
-console.log('⚠️ WARNING: Running WITHOUT Flask backend');
-console.log('Express will provide fallbacks for critical API endpoints');
-console.log('Some advanced features may be limited, but basic functionality will work');
+// The checkFlaskBackend function is defined earlier in the file, so we just call it here
+
+// Call the function to check Flask, but don't wait for it - continue initializing Express
+// This will detect if Flask is running and log the appropriate messages
+checkFlaskBackend();
 
 // Payment packages for fallback use
 const paymentPackages = [

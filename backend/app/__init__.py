@@ -267,12 +267,14 @@ def create_app():
             
         # Health check routes
         @app.route('/api/health')
+        @app.route('/api/health-check')  # Add alternative path for Express server's health check
         def health_check():
             """Return a simple health check response"""
             return jsonify({"status": "ok", "message": "iMagenWiz API is running"})
             
         # Additional health check route without /api prefix - for proxy compatibility
         @app.route('/health')
+        @app.route('/health-check')  # Add alternative path without /api prefix
         def health_check_no_prefix():
             """Return the same health check response for a non-prefixed route"""
             app.logger.info("Health check called without /api prefix")
