@@ -1,216 +1,271 @@
-// Coordinated startup script for iMagenWiz application
-// This script manages both the Express frontend and Flask backend
+// Coordinated startup script for iMagenWiz
+// This script ensures both Flask and Express start correctly
+// and handles Replit's requirement for port 5000 to be available quickly
 
 import { spawn } from 'child_process';
+import http from 'http';
 import fs from 'fs';
 import path from 'path';
-import http from 'http';
 import { fileURLToPath } from 'url';
 
 // Get current directory
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Environment variables for both components
-const ENV_VARS = {
-  DB_HOST: '8.130.113.102',
-  DB_PORT: '3306',
-  DB_NAME: 'mat_db',
-  DB_USER: 'root',
-  DB_PASSWORD: 'Ir%86241992',
-  SKIP_MIGRATIONS: 'true', // Skip migrations for faster startup
-  FLASK_ENV: 'development',
-  FLASK_DEBUG: '1',
-  PORT: '3000', // Express port
-  FLASK_PORT: '5000', // Flask port
+// Configuration
+const config = {
+  flaskPort: 5001,
+  expressPort: 3000,
+  placeholderPort: 5000,
+  flaskStartTimeout: 10000, // 10 seconds
+  maxRetries: 5,
+  // Use Replit domain if available
+  backendUrl: process.env.REPLIT_DOMAIN ? 
+    `https://${process.env.REPLIT_DOMAIN}` : 
+    'http://localhost:5001'
 };
 
-// Make sure logs directory exists
-if (!fs.existsSync('logs')) {
-  fs.mkdirSync('logs');
+// Create logs directory if it doesn't exist
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
 }
 
-// Function to log messages with timestamps
-function log(message) {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${message}`);
+// Create log streams
+const flaskLogStream = fs.createWriteStream(path.join(logsDir, 'flask.log'), { flags: 'a' });
+const expressLogStream = fs.createWriteStream(path.join(logsDir, 'express.log'), { flags: 'a' });
+
+// Add timestamp to log entries
+function timestamp() {
+  return `[${new Date().toISOString()}] `;
 }
 
-// Function to start the Flask backend
+// Log to console and file
+function log(message, stream = null) {
+  const logMessage = timestamp() + message;
+  console.log(logMessage);
+  if (stream) {
+    stream.write(logMessage + '\n');
+  }
+}
+
+// 1. Start a simple placeholder server on port 5000 immediately
+// This satisfies Replit's requirement for a fast startup
+function startPlaceholderServer() {
+  return new Promise((resolve) => {
+    const server = http.createServer((req, res) => {
+      res.writeHead(200, {'Content-Type': 'text/plain'});
+      res.end('iMagenWiz is starting, please wait...');
+    });
+    
+    server.listen(config.placeholderPort, '0.0.0.0', () => {
+      log(`✅ Placeholder server started on port ${config.placeholderPort}`);
+      resolve(server);
+    });
+  });
+}
+
+// 2. Start the Flask backend on port 5001
 function startFlaskBackend() {
-  log('Starting Flask backend...');
+  log('🐍 Starting Flask backend...', flaskLogStream);
   
-  // Create a log file for Flask output
-  const flaskLogStream = fs.createWriteStream(path.join('logs', 'flask.log'), { flags: 'a' });
+  // Check if backend directory exists - this is optional now
+  const backendDir = path.join(__dirname, 'backend');
+  if (fs.existsSync(backendDir)) {
+    log(`✅ Found backend directory: ${backendDir}`, flaskLogStream);
+  } else {
+    log(`⚠️ WARNING: backend directory not found at ${backendDir}, will try alternative locations`, flaskLogStream);
+  }
   
-  // Spawn the Flask process
-  const flaskProcess = spawn('python', ['backend/run.py'], {
-    env: { ...process.env, ...ENV_VARS },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  // Check for multiple possible Python entry points
+  let flaskEntrypoint = '';
+  const possibleEntrypoints = [
+    path.join(__dirname, 'backend', 'run.py'),
+    path.join(__dirname, 'run.py'),
+    path.join(__dirname, 'backend', 'app.py')
+  ];
   
-  // Handle Flask process stdout
-  flaskProcess.stdout.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`[Flask] ${message}`);
-    flaskLogStream.write(`${message}\n`);
-  });
-  
-  // Handle Flask process stderr
-  flaskProcess.stderr.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`[Flask ERROR] ${message}`);
-    flaskLogStream.write(`ERROR: ${message}\n`);
-  });
-  
-  // Handle Flask process exit
-  flaskProcess.on('close', (code) => {
-    log(`Flask process exited with code ${code}`);
-    flaskLogStream.end();
-  });
-  
-  return flaskProcess;
-}
-
-// Function to start the Express frontend
-function startExpressFrontend() {
-  log('Starting Express frontend...');
-  
-  // Create a log file for Express output
-  const expressLogStream = fs.createWriteStream(path.join('logs', 'express.log'), { flags: 'a' });
-  
-  // Spawn the Express process
-  const expressProcess = spawn('node', ['server/index.js'], {
-    env: { ...process.env, ...ENV_VARS },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  
-  // Handle Express process stdout
-  expressProcess.stdout.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`[Express] ${message}`);
-    expressLogStream.write(`${message}\n`);
-  });
-  
-  // Handle Express process stderr
-  expressProcess.stderr.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`[Express ERROR] ${message}`);
-    expressLogStream.write(`ERROR: ${message}\n`);
-  });
-  
-  // Handle Express process exit
-  expressProcess.on('close', (code) => {
-    log(`Express process exited with code ${code}`);
-    expressLogStream.end();
-  });
-  
-  return expressProcess;
-}
-
-// Function to check if Flask is running
-function checkFlaskHealth(retries = 10, delay = 2000) {
-  return new Promise((resolve, reject) => {
-    let retryCount = 0;
-    
-    function tryConnect() {
-      log(`Checking Flask health (attempt ${retryCount + 1}/${retries})...`);
-      
-      const req = http.request({
-        hostname: 'localhost',
-        port: ENV_VARS.FLASK_PORT,
-        path: '/api/health',
-        method: 'GET',
-        timeout: 1000
-      }, (res) => {
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          if (res.statusCode === 200) {
-            log('✅ Flask backend is healthy and responding');
-            resolve(true);
-          } else {
-            retryCount++;
-            if (retryCount < retries) {
-              setTimeout(tryConnect, delay);
-            } else {
-              log('❌ Flask backend health check failed after maximum retries');
-              resolve(false); // Resolve with false rather than rejecting
-            }
-          }
-        });
-      });
-      
-      req.on('error', (error) => {
-        log(`❌ Flask health check error: ${error.message}`);
-        retryCount++;
-        if (retryCount < retries) {
-          setTimeout(tryConnect, delay);
-        } else {
-          log('❌ Flask backend health check failed after maximum retries');
-          resolve(false);
-        }
-      });
-      
-      req.on('timeout', () => {
-        log('❌ Flask health check timed out');
-        req.abort();
-      });
-      
-      req.end();
+  for (const entrypoint of possibleEntrypoints) {
+    log(`Checking for Flask entrypoint: ${entrypoint}`, flaskLogStream);
+    if (fs.existsSync(entrypoint)) {
+      flaskEntrypoint = entrypoint;
+      log(`✅ Found Flask entrypoint: ${flaskEntrypoint}`, flaskLogStream);
+      break;
     }
-    
-    tryConnect();
+  }
+  
+  if (!flaskEntrypoint) {
+    log(`❌ ERROR: No Flask entrypoint found! Checked: ${possibleEntrypoints.join(', ')}`, flaskLogStream);
+    process.exit(1);
+  }
+  
+  // Set environment variables for Flask
+  const flaskEnv = {
+    ...process.env,
+    FLASK_ENV: 'development',
+    FLASK_DEBUG: '1',
+    PORT: config.flaskPort.toString()
+  };
+  
+  // Start Flask process
+  const flask = spawn('python3', [flaskEntrypoint], {
+    env: flaskEnv,
+    stdio: ['ignore', 'pipe', 'pipe']
   });
+  
+  // Log Flask output
+  flask.stdout.on('data', (data) => {
+    const message = data.toString().trim();
+    log(`🐍 [Flask] ${message}`, flaskLogStream);
+  });
+  
+  flask.stderr.on('data', (data) => {
+    const message = data.toString().trim();
+    log(`🐍 [Flask Error] ${message}`, flaskLogStream);
+  });
+  
+  // Handle Flask exit
+  flask.on('exit', (code) => {
+    log(`❌ Flask backend exited with code ${code}`, flaskLogStream);
+  });
+  
+  return flask;
 }
 
-// Main function to start everything
-async function startup() {
-  log('='.repeat(70));
-  log('Starting iMagenWiz Application');
-  log('='.repeat(70));
-  log(`Environment: Development`);
-  log(`MySQL Database: ${ENV_VARS.DB_HOST}:${ENV_VARS.DB_PORT}/${ENV_VARS.DB_NAME}`);
-  log(`Migrations: ${ENV_VARS.SKIP_MIGRATIONS === 'true' ? 'DISABLED' : 'ENABLED'}`);
-  log('='.repeat(70));
+// 3. Check if Flask is responding to health checks
+async function checkFlaskHealth(retries = 0, pathIndex = 0) {
+  if (retries >= config.maxRetries) {
+    log('⚠️ Maximum retries reached waiting for Flask to start');
+    log('⚠️ Continuing anyway, as Express can run in fallback mode');
+    return false;
+  }
   
-  // Start the Flask backend
-  const flaskProcess = startFlaskBackend();
+  // List of endpoints to try in order
+  const healthCheckPaths = ['/api/health-check', '/api/health', '/health-check', '/health'];
   
-  // Wait a bit for Flask to initialize
-  log('Waiting for Flask backend to initialize...');
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  // If we've tried all paths, increment the retry counter and start over with the first path
+  if (pathIndex >= healthCheckPaths.length) {
+    // Wait between full cycles of paths
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    return checkFlaskHealth(retries + 1, 0);
+  }
   
-  // Check if Flask is healthy
-  const flaskHealthy = await checkFlaskHealth();
+  try {
+    log(`🔍 Checking Flask health (attempt ${retries + 1}/${config.maxRetries}, path ${pathIndex + 1}/${healthCheckPaths.length})...`);
+    
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    
+    // If running locally, use localhost; otherwise use the Replit domain
+    const baseUrl = process.env.REPLIT_DOMAIN 
+      ? `https://${process.env.REPLIT_DOMAIN}`
+      : `http://localhost:${config.flaskPort}`;
+    
+    const currentPath = healthCheckPaths[pathIndex];
+    const healthCheckUrl = `${baseUrl}${currentPath}`;
+      
+    log(`Checking health at: ${healthCheckUrl}`);
+    
+    const response = await fetch(healthCheckUrl, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeout);
+    
+    if (response.ok) {
+      log(`✅ Flask backend is healthy and responding at ${currentPath}`);
+      return true;
+    } else {
+      log(`⚠️ Health check failed at ${currentPath} with status ${response.status}`);
+      // Try the next path in the list
+      return checkFlaskHealth(retries, pathIndex + 1);
+    }
+  } catch (error) {
+    log(`⚠️ Flask not responding at ${healthCheckPaths[pathIndex]}: ${error.message}`);
+    
+    // Try the next path in the list
+    return checkFlaskHealth(retries, pathIndex + 1);
+  }
+}
+
+// 4. Start Express frontend on port 3000
+function startExpressFrontend() {
+  log('🚀 Starting Express frontend...', expressLogStream);
   
-  // Start Express frontend even if Flask isn't healthy (fallback mode)
-  log(`Starting Express frontend ${flaskHealthy ? 'with' : 'without'} Flask backend...`);
-  const expressProcess = startExpressFrontend();
+  // Set environment variables for Express
+  const expressEnv = {
+    ...process.env,
+    NODE_ENV: 'production',
+    PORT: config.expressPort.toString(),
+    FLASK_PORT: config.flaskPort.toString(),
+    FLASK_AVAILABLE: 'true',
+    // For Replit, use the full domain name instead of localhost
+    FLASK_URL: process.env.REPLIT_DOMAIN ? 
+      `https://${process.env.REPLIT_DOMAIN}` : 
+      `http://localhost:${config.flaskPort}`,
+    // Provide the Replit domain for Express to use in proxying
+    REPLIT_DOMAIN: process.env.REPLIT_DOMAIN || ''
+  };
   
-  // Set up process exit handlers
-  process.on('SIGINT', () => {
-    log('Received SIGINT signal, shutting down...');
-    expressProcess.kill();
-    flaskProcess.kill();
-    process.exit(0);
+  // Start Express process
+  const express = spawn('npx', ['tsx', 'server/index.ts'], {
+    env: expressEnv,
+    stdio: ['ignore', 'pipe', 'pipe']
   });
   
-  process.on('SIGTERM', () => {
-    log('Received SIGTERM signal, shutting down...');
-    expressProcess.kill();
-    flaskProcess.kill();
-    process.exit(0);
+  // Log Express output
+  express.stdout.on('data', (data) => {
+    const message = data.toString().trim();
+    log(`🚀 [Express] ${message}`, expressLogStream);
   });
   
-  // Log startup completion
-  log('Both components have been started. Processes are now running...');
-  log('Press Ctrl+C to stop all components.');
+  express.stderr.on('data', (data) => {
+    const message = data.toString().trim();
+    log(`🚀 [Express Error] ${message}`, expressLogStream);
+  });
+  
+  // Handle Express exit
+  express.on('exit', (code) => {
+    log(`❌ Express frontend exited with code ${code}`, expressLogStream);
+    process.exit(code || 0);
+  });
+  
+  return express;
+}
+
+// Main orchestration function
+async function startApplication() {
+  try {
+    log('🔥 Starting iMagenWiz application...');
+    
+    // 1. Start placeholder server immediately to satisfy Replit
+    const placeholder = await startPlaceholderServer();
+    
+    // 2. Start Flask backend
+    const flask = startFlaskBackend();
+    
+    // 3. Wait for Flask to initialize (but don't block Express startup)
+    setTimeout(async () => {
+      await checkFlaskHealth();
+    }, config.flaskStartTimeout);
+    
+    // 4. Start Express frontend after a short delay
+    setTimeout(() => {
+      const express = startExpressFrontend();
+      
+      // When the process is terminated, clean up
+      process.on('SIGINT', () => {
+        log('Received SIGINT. Shutting down...');
+        placeholder.close();
+        flask.kill();
+        express.kill();
+        process.exit(0);
+      });
+    }, 2000);
+  } catch (error) {
+    log(`❌ Error starting application: ${error.message}`);
+    process.exit(1);
+  }
 }
 
 // Start the application
-startup().catch((error) => {
-  log(`Error during startup: ${error}`);
-  process.exit(1);
-});
+startApplication();

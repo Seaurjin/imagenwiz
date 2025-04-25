@@ -1,36 +1,40 @@
 // Script to start both Express and Flask
 import { spawn } from 'child_process';
-import http from 'http';
 import { setTimeout } from 'timers/promises';
+import http from 'http';
 
-// Create a dummy server on port 5000 (for Replit)
-// This must stay active until the Flask backend is ready to take over
-const dummyServer = http.createServer((req, res) => {
-  // For API health check requests, return 200 to indicate the server is up
-  if (req.url === '/api/health' || req.url === '/health') {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({ status: 'ok', message: 'Placeholder server running' }));
-  } else {
-    // For all other requests, indicate placeholder is active
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('iMagenWiz placeholder server - actual application starting');
-  }
-});
+// Start a placeholder server on port 5000 to satisfy Replit
+// Then start the actual application servers
+const startPlaceholderServer = () => {
+  return new Promise((resolve) => {
+    const server = http.createServer((req, res) => {
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify({ status: 'ok', message: 'Placeholder server running' }));
+    });
+    
+    server.listen(5000, '0.0.0.0', () => {
+      console.log('✅ Placeholder server started on port 5000 to satisfy Replit');
+      resolve(server);
+    });
+  });
+};
 
-// Start processes asynchronously so placeholder stays active
+// Start processes asynchronously
 async function startApplications() {
   try {
-    // Open port 5000 IMMEDIATELY - this is critical for Replit
-    dummyServer.listen(5000, '0.0.0.0', async () => {
-      console.log('✅ Placeholder server started on port 5000 to satisfy Replit');
+    console.log('🔥 Starting iMagenWiz real services...');
+    
+    // Start placeholder server first (this is critical for Replit)
+    const placeholderServer = await startPlaceholderServer();
       
-      // Start both services in parallel
-      startFlaskBackend();
-      
-      // Wait a moment before starting Express to allow Flask to initialize
-      await setTimeout(2000);
-      startExpressFrontend();
-    });
+    // Start Flask backend
+    startFlaskBackend();
+    
+    // Wait a moment before starting Express to allow Flask to initialize
+    await setTimeout(2000);
+    
+    // Then start Express frontend
+    startExpressFrontend();
   } catch (error) {
     console.error('Failed to start application:', error);
     process.exit(1);
@@ -40,7 +44,8 @@ async function startApplications() {
 function startFlaskBackend() {
   console.log('🐍 Starting Flask backend...');
   
-  const flaskBackend = spawn('python3', ['backend/app.py'], {
+  // Use run.py instead of app.py for better initialization
+  const flaskBackend = spawn('python3', ['backend/run.py'], {
     env: {
       ...process.env,
       FLASK_ENV: 'development',

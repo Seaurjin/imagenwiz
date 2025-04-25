@@ -1,2 +1,2 @@
-run = "node start-both.mjs"
+run = "node simple-start.mjs"
 ports = [5000]

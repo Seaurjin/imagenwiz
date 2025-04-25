@@ -50,6 +50,10 @@ const app = express();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 // Flask backend uses port 5001 in dual-server setup
 const FLASK_PORT: number = process.env.FLASK_PORT ? parseInt(process.env.FLASK_PORT, 10) : 5001;
+// Flask backend URL - use environment variable or build based on port
+const FLASK_URL: string = process.env.FLASK_URL || `http://localhost:${FLASK_PORT}`;
+// Log the Flask backend URL being used
+console.log(`Using Flask backend URL: ${FLASK_URL}`);
 
 // Define the frontend dist path - check all potential locations
 
@@ -119,7 +123,7 @@ async function checkFlaskBackend() {
   
   try {
     // Check if Flask is already running with a longer timeout (10 seconds)
-    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 10000 });
+    const response = await axios.get(`${FLASK_URL}/api/health-check`, { timeout: 10000 });
     if (response.status === 200) {
       console.log('✅ Flask backend is running and responding to health checks');
       console.log('✅ Full stack application is running with all components!');
@@ -147,7 +151,7 @@ async function checkFlaskBackend() {
   retryDelays.forEach((delay, index) => {
     setTimeout(() => {
       console.log(`🔄 Performing Flask health check retry #${index + 1} (after ${delay/1000}s)`);
-      axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 5000 })
+      axios.get(`${FLASK_URL}/api/health-check`, { timeout: 5000 })
         .then((response) => {
           if (response.status === 200) {
             console.log('✅ Flask backend is now running and responding to health checks!');
@@ -393,7 +397,7 @@ app.post('/api/auth/login', async (req, res) => {
   console.log('Auth: Received login request');
   try {
     // Forward login request to Flask backend
-    const flaskUrl = `http://localhost:${FLASK_PORT}/api/auth/login`;
+    const flaskUrl = `${FLASK_URL}/api/auth/login`;
     console.log(`Auth: Forwarding login request to Flask backend at ${flaskUrl}`);
     
     try {
@@ -430,7 +434,7 @@ app.post('/api/auth/register', async (req, res) => {
   console.log('Auth: Received registration request');
   try {
     // Forward registration request to Flask backend
-    const flaskUrl = `http://localhost:${FLASK_PORT}/api/auth/register`;
+    const flaskUrl = `${FLASK_URL}/api/auth/register`;
     console.log(`Auth: Forwarding registration request to Flask backend at ${flaskUrl}`);
     
     try {
@@ -564,7 +568,7 @@ app.get('/api/auth/user', async (req, res) => {
     }
     
     // Forward verification request to Flask backend
-    const flaskUrl = `http://localhost:${FLASK_PORT}/api/auth/user`;
+    const flaskUrl = `${FLASK_URL}/api/auth/user`;
     console.log(`Auth: Forwarding user verification request to Flask backend at ${flaskUrl}`);
     
     try {
@@ -773,7 +777,7 @@ app.get('/api/cms/blog', async (req, res) => {
       if (value) queryParams.append(key, value.toString());
     }
     
-    const url = `http://localhost:${FLASK_PORT}/api/cms/blog${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${FLASK_URL}/api/cms/blog${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -841,7 +845,7 @@ app.get('/api/cms/blog/:slug', async (req, res) => {
       if (value) queryParams.append(key, value.toString());
     }
     
-    const url = `http://localhost:${FLASK_PORT}/api/cms/blog/${slug}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${FLASK_URL}/api/cms/blog/${slug}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -869,7 +873,7 @@ app.get('/api/cms/blog/:slug', async (req, res) => {
 app.get('/api/cms/tags', async (req, res) => {
   console.log('Manual proxy: Received CMS tags request');
   try {
-    const url = `http://localhost:${FLASK_PORT}/api/cms/tags`;
+    const url = `${FLASK_URL}/api/cms/tags`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -898,7 +902,7 @@ app.get('/api/cms/tags', async (req, res) => {
 app.post('/api/cms/tags', async (req, res) => {
   console.log('Manual proxy: Received CREATE CMS tag request');
   try {
-    const url = `http://localhost:${FLASK_PORT}/api/cms/tags`;
+    const url = `${FLASK_URL}/api/cms/tags`;
     console.log(`Forwarding to backend: ${url}`);
     console.log('Request body:', JSON.stringify(req.body));
     
@@ -934,7 +938,7 @@ app.put('/api/cms/tags/:id', async (req, res) => {
   console.log('Manual proxy: Received UPDATE CMS tag request');
   try {
     const { id } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/tags/${id}`;
+    const url = `${FLASK_URL}/api/cms/tags/${id}`;
     console.log(`Forwarding to backend: ${url}`);
     console.log('Request body:', JSON.stringify(req.body));
     
@@ -968,7 +972,7 @@ app.delete('/api/cms/tags/:id', async (req, res) => {
   console.log('Manual proxy: Received DELETE CMS tag request');
   try {
     const { id } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/tags/${id}`;
+    const url = `${FLASK_URL}/api/cms/tags/${id}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1004,7 +1008,7 @@ app.get('/api/cms/languages', async (req, res) => {
       if (value) queryParams.append(key, value.toString());
     }
     
-    const url = `http://localhost:${FLASK_PORT}/api/cms/languages${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${FLASK_URL}/api/cms/languages${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1039,7 +1043,7 @@ app.get('/api/cms/posts', async (req, res) => {
       if (value) queryParams.append(key, value.toString());
     }
     
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${FLASK_URL}/api/cms/posts${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1075,7 +1079,7 @@ app.get('/api/cms/posts/:id', async (req, res) => {
       if (value) queryParams.append(key, value.toString());
     }
     
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/${id}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${FLASK_URL}/api/cms/posts/${id}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1103,7 +1107,7 @@ app.get('/api/cms/posts/:id', async (req, res) => {
 app.post('/api/cms/posts', async (req, res) => {
   console.log('Manual proxy: Received CMS post create request');
   try {
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts`;
+    const url = `${FLASK_URL}/api/cms/posts`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1133,7 +1137,7 @@ app.put('/api/cms/posts/:id', async (req, res) => {
   console.log('Manual proxy: Received CMS post update request');
   try {
     const { id } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/${id}`;
+    const url = `${FLASK_URL}/api/cms/posts/${id}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1163,7 +1167,7 @@ app.delete('/api/cms/posts/:id', async (req, res) => {
   console.log('Manual proxy: Received CMS post delete request');
   try {
     const { id } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/${id}`;
+    const url = `${FLASK_URL}/api/cms/posts/${id}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1193,7 +1197,7 @@ app.get('/api/cms/posts/:id/media', async (req, res) => {
   console.log('Manual proxy: Received CMS post media request');
   try {
     const { id } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/${id}/media`;
+    const url = `${FLASK_URL}/api/cms/posts/${id}/media`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1230,7 +1234,7 @@ app.post('/api/cms/posts/:id/media', cmsUpload.single('file'), async (req, res) 
   console.log('Manual proxy: Received CMS post media upload request');
   try {
     const { id } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/${id}/media`;
+    const url = `${FLASK_URL}/api/cms/posts/${id}/media`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {};
@@ -1276,7 +1280,7 @@ app.delete('/api/cms/posts/:id/translations/:language_code', async (req, res) =>
   console.log('Manual proxy: Received CMS post translation delete request');
   try {
     const { id, language_code } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/${id}/translations/${language_code}`;
+    const url = `${FLASK_URL}/api/cms/posts/${id}/translations/${language_code}`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1305,7 +1309,7 @@ app.delete('/api/cms/posts/:id/translations/:language_code', async (req, res) =>
 app.post('/api/cms/posts/auto-translate-all', async (req, res) => {
   console.log('Manual proxy: Received CMS post auto-translate-all request');
   try {
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/auto-translate-all`;
+    const url = `${FLASK_URL}/api/cms/posts/auto-translate-all`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1336,7 +1340,7 @@ app.post('/api/cms/posts/:id/auto-translate', async (req, res) => {
   console.log('Manual proxy: Received CMS post auto-translate request');
   try {
     const { id } = req.params;
-    const url = `http://localhost:${FLASK_PORT}/api/cms/posts/${id}/auto-translate`;
+    const url = `${FLASK_URL}/api/cms/posts/${id}/auto-translate`;
     console.log(`Forwarding to backend: ${url}`);
     
     const headers: HeadersInit = {
@@ -1383,7 +1387,7 @@ app.get('/api/order-confirmation', async (req, res) => {
     if (user_id) queryParams.append('user_id', user_id.toString());
     
     // URL to forward to the Flask backend
-    const url = `http://localhost:${FLASK_PORT}/api/order-confirmation?${queryParams.toString()}`;
+    const url = `${FLASK_URL}/api/order-confirmation?${queryParams.toString()}`;
     console.log('Forwarding to backend:', url);
     
     try {
@@ -1487,7 +1491,7 @@ app.post('/api/payment/create-payment-intent', async (req, res) => {
     console.log('Request body:', JSON.stringify(req.body));
     
     // URL to forward to the Flask backend
-    const url = `http://localhost:${FLASK_PORT}/payment/create-payment-intent`;
+    const url = `${FLASK_URL}/payment/create-payment-intent`;
     console.log('Forwarding to:', url);
     
     // Make the request to the Flask backend
@@ -2110,7 +2114,7 @@ app.post('/api/payment/webhook', async (req, res) => {
       headers['Stripe-Signature'] = typeof signature === 'string' ? signature : signature[0];
     }
     
-    const response = await fetch(`http://localhost:${FLASK_PORT}/payment/webhook`, {
+    const response = await fetch(`${FLASK_URL}/payment/webhook`, {
       method: 'POST',
       headers,
       body: rawBody
@@ -2152,7 +2156,7 @@ app.get('/api/payment/verify', async (req, res) => {
 
     
     // URL to forward to the Flask backend for real Stripe verification
-    const url = `http://localhost:${FLASK_PORT}/payment/verify?session_id=${sessionId}`;
+    const url = `${FLASK_URL}/payment/verify?session_id=${sessionId}`;
     console.log('Forwarding to real payment verification endpoint:', url);
     
     // Make the request to the Flask backend
@@ -2223,7 +2227,7 @@ app.get('/api/payment/verify-session/:sessionId', async (req, res) => {
     console.log('Manual proxy: Forwarding verify session request with auth header:', authHeader.substring(0, 20) + '...');
     
     // URL to forward to the Flask backend
-    const url = `http://localhost:${FLASK_PORT}/payment/verify/${req.params.sessionId}`;
+    const url = `${FLASK_URL}/payment/verify/${req.params.sessionId}`;
     console.log('Forwarding to:', url);
     
     // Make the request to the Flask backend
@@ -2375,7 +2379,7 @@ app.use('/api', (req, res, next) => {
 
 // Proxy API requests (except manually handled ones) to Flask backend
 app.use('/api', createProxyMiddleware({
-  target: `http://localhost:${FLASK_PORT}`,
+  target: `${FLASK_URL}`,
   changeOrigin: true,
   // @ts-ignore - logLevel is a valid option but TypeScript doesn't recognize it
   logLevel: 'debug',
@@ -2394,7 +2398,7 @@ app.use('/api', createProxyMiddleware({
 
 // Proxy uploads requests to Flask backend
 app.use('/uploads', createProxyMiddleware({
-  target: `http://localhost:${FLASK_PORT}`,
+  target: `${FLASK_URL}`,
   changeOrigin: true
 }));
 
@@ -2577,13 +2581,13 @@ app.use('/blog', (req, res, next) => {
 
 // Proxy processed requests to Flask backend
 app.use('/processed', createProxyMiddleware({
-  target: `http://localhost:${FLASK_PORT}`,
+  target: `${FLASK_URL}`,
   changeOrigin: true
 }));
 
 // Define our specialized order confirmation API proxy middleware
 const orderConfirmationApiProxy = createProxyMiddleware({
-  target: `http://localhost:${FLASK_PORT}`,
+  target: `${FLASK_URL}`,
   changeOrigin: true,
   logLevel: 'debug',
   // Special case - our Flask backend expects /payment/order-confirmation
