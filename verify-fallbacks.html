@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Express Fallbacks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .test-card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    .test-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .test-output {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    input {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>iMagenWiz Express Fallbacks Test</h1>
+    
+    <div class="test-card">
+      <div class="test-title">1. Logo Settings API Test</div>
+      <button onclick="testLogoSettings()">Test Logo Settings API</button>
+      <div id="logo-settings-output" class="test-output">Click the button to run the test.</div>
+    </div>
+    
+    <div class="test-card">
+      <div class="test-title">2. Authentication Test</div>
+      <input type="text" id="username" placeholder="Username" value="testuser">
+      <input type="password" id="password" placeholder="Password" value="password123">
+      <button onclick="testLogin()">Test Login</button>
+      <div id="login-output" class="test-output">Enter credentials and click the button to run the test.</div>
+    </div>
+
+    <div class="test-card">
+      <div class="test-title">3. Payment Packages API Test</div>
+      <button onclick="testPaymentPackages()">Test Payment Packages API</button>
+      <div id="packages-output" class="test-output">Click the button to run the test.</div>
+    </div>
+
+    <div class="test-card">
+      <div class="test-title">4. Checkout Session API Test</div>
+      <select id="package-id">
+        <option value="lite_monthly">Lite Monthly</option>
+        <option value="pro_monthly">Pro Monthly</option>
+        <option value="lite_yearly">Lite Yearly</option>
+        <option value="pro_yearly">Pro Yearly</option>
+      </select>
+      <button onclick="testCheckoutSession()">Test Checkout Session API</button>
+      <div id="checkout-output" class="test-output">Select a package and click the button to run the test.</div>
+    </div>
+
+    <div class="test-card">
+      <div class="test-title">5. User Profile API Test</div>
+      <button onclick="testUserProfile()">Test User Profile API</button>
+      <div id="profile-output" class="test-output">First login, then click this button to test getting user profile.</div>
+    </div>
+  </div>
+
+  <script>
+    // Store the token after login
+    let authToken = '';
+
+    // Helper function to format and display JSON
+    function displayOutput(elementId, data, isSuccess) {
+      const outputElement = document.getElementById(elementId);
+      if (typeof data === 'object') {
+        outputElement.textContent = JSON.stringify(data, null, 2);
+      } else {
+        outputElement.textContent = data;
+      }
+      outputElement.className = isSuccess ? 'test-output success' : 'test-output error';
+    }
+
+    // 1. Test Logo Settings API
+    async function testLogoSettings() {
+      const outputElement = document.getElementById('logo-settings-output');
+      outputElement.textContent = 'Testing logo settings API...';
+      
+      try {
+        const response = await fetch('/api/settings/logo');
+        const data = await response.json();
+        
+        displayOutput('logo-settings-output', data, true);
+      } catch (error) {
+        displayOutput('logo-settings-output', `Error: ${error.message}`, false);
+      }
+    }
+
+    // 2. Test Login API
+    async function testLogin() {
+      const outputElement = document.getElementById('login-output');
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      outputElement.textContent = `Attempting login for ${username}...`;
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.access_token) {
+          authToken = data.access_token;
+          displayOutput('login-output', { ...data, access_token: `${data.access_token.substring(0, 15)}...` }, true);
+        } else {
+          displayOutput('login-output', data, false);
+        }
+      } catch (error) {
+        displayOutput('login-output', `Error: ${error.message}`, false);
+      }
+    }
+
+    // 3. Test Payment Packages API
+    async function testPaymentPackages() {
+      const outputElement = document.getElementById('packages-output');
+      outputElement.textContent = 'Testing payment packages API...';
+      
+      try {
+        const response = await fetch('/api/payment/packages');
+        const data = await response.json();
+        
+        displayOutput('packages-output', data, true);
+      } catch (error) {
+        displayOutput('packages-output', `Error: ${error.message}`, false);
+      }
+    }
+
+    // 4. Test Checkout Session API
+    async function testCheckoutSession() {
+      const outputElement = document.getElementById('checkout-output');
+      const packageId = document.getElementById('package-id').value;
+      
+      if (!authToken) {
+        displayOutput('checkout-output', 'Error: Please login first to get an authentication token', false);
+        return;
+      }
+      
+      outputElement.textContent = `Creating checkout session for package ${packageId}...`;
+      
+      try {
+        const response = await fetch('/api/payment/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ packageId })
+        });
+        
+        const data = await response.json();
+        displayOutput('checkout-output', data, response.ok);
+      } catch (error) {
+        displayOutput('checkout-output', `Error: ${error.message}`, false);
+      }
+    }
+
+    // 5. Test User Profile API
+    async function testUserProfile() {
+      const outputElement = document.getElementById('profile-output');
+      
+      if (!authToken) {
+        displayOutput('profile-output', 'Error: Please login first to get an authentication token', false);
+        return;
+      }
+      
+      outputElement.textContent = 'Getting user profile...';
+      
+      try {
+        const response = await fetch('/api/auth/user', {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+        
+        const data = await response.json();
+        displayOutput('profile-output', data, response.ok);
+      } catch (error) {
+        displayOutput('profile-output', `Error: ${error.message}`, false);
+      }
+    }
+  </script>
+</body>
+</html>

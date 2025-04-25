@@ -48,7 +48,7 @@ axios.interceptors.request.use(
   }
 );
 
-console.log('🔒 Safe entry point: Using mocked Stripe to avoid errors');
+console.log('🔒 Using real Stripe implementation with VITE_STRIPE_PUBLIC_KEY');
 
 // Add global error handler for Stripe errors
 window.addEventListener('error', function(event) {

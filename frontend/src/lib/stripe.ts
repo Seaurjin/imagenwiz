@@ -1,7 +1,10 @@
-// Mock implementation that doesn't require the real Stripe library
-// This prevents the app from crashing when Stripe keys are missing
+import { loadStripe } from '@stripe/stripe-js';
 
-// Default price IDs for the pricing page
+// Make sure to call `loadStripe` outside of a component's render to avoid
+// recreating the `Stripe` object on every render.
+let stripePromise = null;
+
+// Default price IDs - these will be the same regardless of Stripe connection
 export const PRICE_IDS = {
   LITE_MONTHLY: 'price_1QIA8yAGgrMJnivhbqEgzPCx',
   LITE_YEARLY: 'price_1QIA8yAGgrMJnivhKTBJHjP9',
@@ -9,42 +12,20 @@ export const PRICE_IDS = {
   PRO_YEARLY: 'price_1QIAAnAGgrMJnivhCL2VYPNH',
 };
 
-// Mock loadStripe function that returns a Promise with a mock Stripe instance
-export const loadStripe = (key: string) => {
-  console.log('Using mock Stripe implementation with key:', key);
+try {
+  // Get stripe key from environment
+  const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
   
-  // Return a Promise that resolves to a mock Stripe instance
-  return Promise.resolve({
-    elements: () => ({
-      getElement: () => null,
-      create: () => ({}),
-      update: () => ({}),
-    }),
-    confirmPayment: () => Promise.resolve({ paymentIntent: { status: 'succeeded' } }),
-    createToken: () => Promise.resolve({ token: { id: 'mock_token' } }),
-    createSource: () => Promise.resolve({ source: { id: 'mock_source' } }),
-    createPaymentMethod: () => Promise.resolve({ paymentMethod: { id: 'mock_payment_method' } }),
-    confirmCardPayment: () => Promise.resolve({ paymentIntent: { status: 'succeeded' } }),
-    confirmCardSetup: () => Promise.resolve({ setupIntent: { status: 'succeeded' } }),
-  });
-};
+  // Only attempt to load Stripe if we have a key
+  if (stripeKey) {
+    console.log('Initializing Stripe with public key');
+    stripePromise = loadStripe(stripeKey);
+  } else {
+    console.warn('Stripe key missing: VITE_STRIPE_PUBLISHABLE_KEY. Payment features will be disabled.');
+  }
+} catch (error) {
+  console.warn('Failed to initialize Stripe:', error);
+}
 
-// Mock Stripe Elements components
-export const Elements = ({ children }: { children: React.ReactNode }) => children;
-export const PaymentElement = () => null;
-export const CardElement = () => null;
-
-// Mock Stripe hooks
-export const useStripe = () => ({
-  confirmPayment: () => Promise.resolve({ paymentIntent: { status: 'succeeded' } }),
-  createToken: () => Promise.resolve({ token: { id: 'mock_token' } }),
-  confirmCardPayment: () => Promise.resolve({ paymentIntent: { status: 'succeeded' } }),
-});
-
-export const useElements = () => ({
-  getElement: () => null,
-});
-
-// For modules that expect default export
-const stripePromise = Promise.resolve(null);
+// Export the Stripe promise so it can be used elsewhere
 export default stripePromise;
