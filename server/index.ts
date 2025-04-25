@@ -109,8 +109,8 @@ async function checkFlaskBackend() {
   console.log('🔍 Checking if Flask backend is running...');
   
   try {
-    // Check if Flask is already running
-    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 2000 });
+    // Check if Flask is already running with a longer timeout (10 seconds)
+    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 10000 });
     if (response.status === 200) {
       console.log('✅ Flask backend is running and responding to health checks');
       console.log('✅ Full stack application is running with all components!');
@@ -120,16 +120,34 @@ async function checkFlaskBackend() {
     console.log('⚠️ Flask backend not detected or not responding to health checks');
     console.log('⚠️ WARNING: Running in Express-only mode with limited functionality');
     console.log('⚠️ Some advanced features will not be available');
-    console.log('⚠️ To run the full application, use the "Start Full Stack" workflow');
+    
+    // Try to start Flask backend if not already running
+    console.log('🔄 Attempting to re-check Flask backend in 5 seconds...');
   }
   
-  console.log('⚠️ WARNING: Running WITHOUT Flask backend');
+  // Let Express continue starting up while we wait for Flask
+  console.log('⚠️ Express will start in fallback mode while waiting for Flask backend');
   console.log('Express will provide fallbacks for critical API endpoints');
-  console.log('Some advanced features may be limited, but basic functionality will work');
+  console.log('Some advanced features may be limited until Flask is fully initialized');
+  
+  // Schedule periodic health checks to detect when Flask becomes available
+  setTimeout(() => {
+    console.log('🔄 Performing delayed Flask backend health check...');
+    axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 5000 })
+      .then(() => {
+        console.log('✅ Flask backend is now running and responding to health checks!');
+        console.log('✅ Full application functionality is now available');
+      })
+      .catch(() => {
+        console.log('⚠️ Flask backend still not detected after delayed check');
+        console.log('⚠️ Continuing in Express-only mode');
+      });
+  }, 5000); // Check again after 5 seconds
+  
   return false;
 }
 
-// Check if Flask backend is running (but don't try to start it)
+// Start the health check process but don't wait for it to complete
 checkFlaskBackend();
 
 // Enable CORS
@@ -684,6 +702,53 @@ app.post('/api/payment/create-checkout-session', async (req, res) => {
 });
 
 // Add manual proxy endpoints for CMS blog routes
+// Sample blog data for fallback when Flask is down
+const fallbackBlogPosts = [
+  {
+    id: 1,
+    title: "Getting Started with iMagenWiz",
+    slug: "getting-started-with-imagenwiz",
+    content: "Welcome to iMagenWiz! This guide will help you get started with our powerful image processing tools.",
+    published: true,
+    featured_image: "/attached_assets/sample-image-1.jpg",
+    author: "iMagenWiz Team",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    meta_title: "Getting Started Guide | iMagenWiz",
+    meta_description: "Learn how to use iMagenWiz's powerful image processing tools",
+    tags: ["tutorial", "beginner"]
+  },
+  {
+    id: 2,
+    title: "Advanced Image Processing Techniques",
+    slug: "advanced-image-processing-techniques",
+    content: "Take your image editing skills to the next level with these advanced techniques.",
+    published: true,
+    featured_image: "/attached_assets/sample-image-2.jpg",
+    author: "iMagenWiz Team",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    meta_title: "Advanced Techniques | iMagenWiz",
+    meta_description: "Master advanced image processing techniques with iMagenWiz",
+    tags: ["advanced", "tutorial"]
+  },
+  {
+    id: 3,
+    title: "AI-Powered Image Enhancement",
+    slug: "ai-powered-image-enhancement",
+    content: "Discover how our AI technology automatically enhances your images.",
+    published: true,
+    featured_image: "/attached_assets/sample-image-3.jpg",
+    author: "iMagenWiz Team",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    meta_title: "AI Image Enhancement | iMagenWiz",
+    meta_description: "Learn about our AI-powered image enhancement features",
+    tags: ["AI", "technology"]
+  }
+];
+
+// Blog endpoint with fallback
 app.get('/api/cms/blog', async (req, res) => {
   console.log('Manual proxy: Received CMS blog request');
   try {
@@ -705,13 +770,45 @@ app.get('/api/cms/blog', async (req, res) => {
       headers['Authorization'] = authHeader;
     }
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers,
-    });
-    
-    const data = await response.json();
-    res.status(response.status).json(data);
+    try {
+      // Try connecting to Flask backend with a short timeout
+      const response = await fetch(url, {
+        method: 'GET',
+        headers,
+        signal: AbortSignal.timeout(2000) // 2 second timeout
+      });
+      
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } catch (fetchError) {
+      console.log('⚠️ Flask backend unavailable, using Express fallback for blog posts');
+      
+      // Parse pagination parameters
+      const page = parseInt(req.query.page?.toString() || '1', 10);
+      const limit = parseInt(req.query.limit?.toString() || '10', 10);
+      const language = req.query.language?.toString() || 'en';
+      
+      // Create pagination
+      const totalPosts = fallbackBlogPosts.length;
+      const totalPages = Math.ceil(totalPosts / limit);
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedPosts = fallbackBlogPosts.slice(startIndex, endIndex);
+      
+      // Return fallback data
+      res.status(200).json({
+        posts: paginatedPosts,
+        pagination: {
+          total: totalPosts,
+          page: page,
+          limit: limit,
+          total_pages: totalPages,
+          has_next: page < totalPages,
+          has_prev: page > 1
+        },
+        message: "Fallback data - Flask backend unavailable"
+      });
+    }
   } catch (error) {
     console.error('Manual proxy: Error forwarding CMS blog request', error);
     res.status(500).json({ error: 'Internal server error' });

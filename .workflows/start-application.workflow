@@ -1,6 +1,6 @@
 {
   "name": "Start application",
-  "command": "npx tsx server/index.ts",
+  "command": "npm run dev",
   "port": 3000,
   "restartOn": {
     "fileChange": ["*.js", "*.ts"]
