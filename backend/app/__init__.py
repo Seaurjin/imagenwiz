@@ -25,10 +25,10 @@ def create_app():
     # IMPORTANT: Force MySQL database usage, ignoring SQLite or PostgreSQL URLs
     from urllib.parse import quote_plus
     
-    # Get MySQL credentials from environment variables
+    # Get MySQL credentials from environment variables - UPDATED with correct values
     mysql_user = os.environ.get('DB_USER', 'root')
-    mysql_password = quote_plus(os.environ.get('DB_PASSWORD', ''))
-    mysql_host = os.environ.get('DB_HOST', 'localhost')
+    mysql_password = quote_plus(os.environ.get('DB_PASSWORD', 'Ir%86241992'))  # Default to known password
+    mysql_host = os.environ.get('DB_HOST', '8.130.113.102')  # Default to known host
     mysql_db = os.environ.get('DB_NAME', 'mat_db')
     mysql_port = os.environ.get('DB_PORT', '3306')
     
@@ -41,8 +41,13 @@ def create_app():
         os.environ['DATABASE_URL_DISABLED'] = os.environ.pop('DATABASE_URL')
     
     # Configure MySQL connection exclusively
+    # Note: password is already URL-encoded by quote_plus above
     mysql_uri = f'mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_db}'
-    print(f"Using database URI: {mysql_uri}")
+    
+    # Show database URI (with password obscured for logs)
+    masked_uri = mysql_uri.replace(mysql_password, '*******')
+    print(f"Using database URI: {masked_uri}")
+    
     app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
     
     # Add connection pool settings separately
@@ -105,9 +110,11 @@ def create_app():
         
         # Run database migrations for new columns
         # Check first if migrations should be skipped for faster startup
-        from .utils.migration_config import should_run_migration, SKIP_MIGRATIONS
+        from .utils.migration_config import should_run_migration, should_skip_all_migrations
         
-        if SKIP_MIGRATIONS:
+        # Check if migrations should be skipped
+        skip_migrations = should_skip_all_migrations()
+        if skip_migrations:
             app.logger.warning("Database migrations SKIPPED due to SKIP_MIGRATIONS environment variable")
             app.logger.warning("This is recommended only for development environments")
             app.logger.warning("Some features may not work correctly without proper database schema")

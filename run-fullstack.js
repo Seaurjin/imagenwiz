@@ -86,6 +86,13 @@ if (skipMigrations) {
   flaskEnv.SKIP_MIGRATIONS = 'true';
 }
 
+// Set MySQL environment variables
+flaskEnv.DB_HOST = '8.130.113.102';
+flaskEnv.DB_PORT = '3306';
+flaskEnv.DB_NAME = 'mat_db';
+flaskEnv.DB_USER = 'root';
+flaskEnv.DB_PASSWORD = 'Ir%86241992';
+
 flaskProcess = spawn(FLASK_START_CMD, FLASK_START_ARGS, {
   stdio: 'pipe',
   env: flaskEnv

@@ -14,31 +14,87 @@ import psycopg2
 import psycopg2.extras
 from datetime import datetime
 
-# PostgreSQL connection details (from environment)
-PG_HOST = os.environ.get('PGHOST')
-PG_PORT = os.environ.get('PGPORT')
-PG_DATABASE = os.environ.get('PGDATABASE')
-PG_USER = os.environ.get('PGUSER')
-PG_PASSWORD = os.environ.get('PGPASSWORD')
+# Import database connection configuration
+try:
+    # Try to import from the backend module
+    from backend.app.utils.database_config import (
+        get_pg_connection_params,
+        get_mysql_connection_params,
+        print_connection_info
+    )
+    print("✅ Using backend.app.utils.database_config")
+except ImportError:
+    try:
+        # Alternative import path if running directly
+        sys.path.append('.')
+        from app.utils.database_config import (
+            get_pg_connection_params,
+            get_mysql_connection_params,
+            print_connection_info
+        )
+        print("✅ Using app.utils.database_config")
+    except ImportError:
+        # If all else fails, import the raw file
+        sys.path.append('backend')
+        try:
+            # Try one more path
+            from utils.database_config import (
+                get_pg_connection_params,
+                get_mysql_connection_params,
+                print_connection_info
+            )
+            print("✅ Using utils.database_config")
+        except ImportError:
+            # Fallback to direct code definition
+            print("⚠️ Could not import database_config module, using fallback configuration")
+            
+            # PostgreSQL connection details (from environment)
+            PG_HOST = os.environ.get('PGHOST')
+            PG_PORT = os.environ.get('PGPORT')
+            PG_DATABASE = os.environ.get('PGDATABASE')
+            PG_USER = os.environ.get('PGUSER')
+            PG_PASSWORD = os.environ.get('PGPASSWORD')
 
-# MySQL connection details (hardcoded for this migration)
-MYSQL_HOST = "8.130.113.102"
-MYSQL_PORT = 3306
-MYSQL_DATABASE = "mat_db"
-MYSQL_USER = "root"
-MYSQL_PASSWORD = "Ir%2586241992"
+            # MySQL connection details from environment variables
+            MYSQL_HOST = os.environ.get('DB_HOST', '8.130.113.102')
+            MYSQL_PORT = int(os.environ.get('DB_PORT', 3306))
+            MYSQL_DATABASE = os.environ.get('DB_NAME', 'mat_db')
+            MYSQL_USER = os.environ.get('DB_USER', 'root')
+            MYSQL_PASSWORD = os.environ.get('DB_PASSWORD', 'Ir%2586241992')
+            
+            def get_pg_connection_params():
+                return {
+                    'host': PG_HOST,
+                    'port': PG_PORT,
+                    'database': PG_DATABASE,
+                    'user': PG_USER,
+                    'password': PG_PASSWORD
+                }
+                
+            def get_mysql_connection_params():
+                return {
+                    'host': MYSQL_HOST,
+                    'port': MYSQL_PORT,
+                    'database': MYSQL_DATABASE,
+                    'user': MYSQL_USER,
+                    'password': MYSQL_PASSWORD
+                }
+                
+            def print_connection_info(include_passwords=False):
+                pg_params = get_pg_connection_params()
+                mysql_params = get_mysql_connection_params()
+                print("\nConnection Parameters:")
+                print("-" * 40)
+                print(f"PostgreSQL: {pg_params['host']}:{pg_params['port']}/{pg_params['database']} (User: {pg_params['user']})")
+                print(f"MySQL: {mysql_params['host']}:{mysql_params['port']}/{mysql_params['database']} (User: {mysql_params['user']})")
+                print("-" * 40)
 
 def connect_postgres():
     """Connect to PostgreSQL database"""
+    params = get_pg_connection_params()
     try:
-        conn = psycopg2.connect(
-            host=PG_HOST,
-            port=PG_PORT,
-            database=PG_DATABASE,
-            user=PG_USER,
-            password=PG_PASSWORD
-        )
-        print(f"✅ Connected to PostgreSQL: {PG_HOST}:{PG_PORT}/{PG_DATABASE}")
+        conn = psycopg2.connect(**params)
+        print(f"✅ Connected to PostgreSQL: {params['host']}:{params['port']}/{params['database']}")
         return conn
     except Exception as e:
         print(f"❌ Failed to connect to PostgreSQL: {str(e)}")
@@ -46,16 +102,11 @@ def connect_postgres():
 
 def connect_mysql():
     """Connect to MySQL database using the mysql-connector-python package"""
+    params = get_mysql_connection_params()
     try:
         import mysql.connector
-        conn = mysql.connector.connect(
-            host=MYSQL_HOST,
-            port=MYSQL_PORT,
-            database=MYSQL_DATABASE,
-            user=MYSQL_USER,
-            password=MYSQL_PASSWORD
-        )
-        print(f"✅ Connected to MySQL: {MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}")
+        conn = mysql.connector.connect(**params)
+        print(f"✅ Connected to MySQL: {params['host']}:{params['port']}/{params['database']}")
         return conn
     except Exception as e:
         print(f"❌ Failed to connect to MySQL: {str(e)}")
@@ -63,16 +114,13 @@ def connect_mysql():
         # Try with pymysql as fallback
         try:
             import pymysql
-            conn = pymysql.connect(
-                host=MYSQL_HOST,
-                port=MYSQL_PORT,
-                database=MYSQL_DATABASE,
-                user=MYSQL_USER,
-                password=MYSQL_PASSWORD,
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            print(f"✅ Connected to MySQL with PyMySQL: {MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}")
+            # Add charset and cursor parameters specific to pymysql
+            pymysql_params = params.copy()
+            pymysql_params['charset'] = 'utf8mb4'
+            pymysql_params['cursorclass'] = pymysql.cursors.DictCursor
+            
+            conn = pymysql.connect(**pymysql_params)
+            print(f"✅ Connected to MySQL with PyMySQL: {params['host']}:{params['port']}/{params['database']}")
             return conn
         except Exception as e:
             print(f"❌ Failed to connect to MySQL with PyMySQL: {str(e)}")
