@@ -1,6 +1,6 @@
 // Script to start both Express and Flask
-const { spawn } = require('child_process');
-const http = require('http');
+import { spawn } from 'child_process';
+import http from 'http';
 
 // Create a dummy server on port 5000 (for Replit)
 const dummyServer = http.createServer((req, res) => {
