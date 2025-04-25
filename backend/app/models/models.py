@@ -1,5 +1,6 @@
 from datetime import datetime
-from app import db, bcrypt
+# Fix circular import issue - import from parent package
+from .. import db, bcrypt
 
 class SiteSettings(db.Model):
     """

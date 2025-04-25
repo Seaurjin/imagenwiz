@@ -1,1 +1,2 @@
-run = "cd backend && python run.py"
+run = "node startup.mjs"
+ports = [5000]

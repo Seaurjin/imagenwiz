@@ -1,5 +1,6 @@
 from datetime import datetime
-from app import db
+# Fix circular import issue - import from parent package
+from .. import db
 from sqlalchemy import Text
 
 # Association table for many-to-many relationship between posts and tags

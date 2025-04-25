@@ -106,12 +106,20 @@ if (!foundValidPath) {
 
 // Function to check if the Flask backend is running with improved retries
 async function checkFlaskBackend() {
+  // Check if we should skip Flask checks (used in Express-only mode)
+  if (process.env.SKIP_FLASK_CHECK === 'true' || process.env.EXPRESS_FALLBACK === 'true') {
+    console.log('⚠️ SKIP_FLASK_CHECK is enabled, running in Express-only mode');
+    console.log('⚠️ Flask backend checks are disabled');
+    console.log('⚠️ Express will operate in fallback mode for all API endpoints');
+    console.log('⚠️ Some advanced features may be limited in this mode');
+    return false;
+  }
+  
   console.log('🔍 Checking if Flask backend is running...');
   
   try {
-    // Check if Flask is already running with a longer timeout (20 seconds)
-    // This longer timeout allows Flask to complete its migrations during startup
-    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 20000 });
+    // Check if Flask is already running with a longer timeout (10 seconds)
+    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 10000 });
     if (response.status === 200) {
       console.log('✅ Flask backend is running and responding to health checks');
       console.log('✅ Full stack application is running with all components!');
@@ -132,13 +140,14 @@ async function checkFlaskBackend() {
   
   // Set up multiple retry attempts with increasing delays
   // This handles cases where Flask takes longer to initialize due to migrations
-  const retryDelays = [10000, 20000, 30000, 60000]; // 10s, 20s, 30s, 60s
+  // Only do a few retries with shorter delays
+  const retryDelays = [10000, 20000]; // 10s, 20s
   
   // Setup sequential retries with increasing delays
   retryDelays.forEach((delay, index) => {
     setTimeout(() => {
       console.log(`🔄 Performing Flask health check retry #${index + 1} (after ${delay/1000}s)`);
-      axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 10000 })
+      axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 5000 })
         .then((response) => {
           if (response.status === 200) {
             console.log('✅ Flask backend is now running and responding to health checks!');
