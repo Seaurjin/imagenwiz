@@ -48,8 +48,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 // Use port 3000 but prefer environment variable if set
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-// Flask backend should use port 5000
-const FLASK_PORT: number = 5000;
+// Flask backend uses port 5001 in dual-server setup
+const FLASK_PORT: number = process.env.FLASK_PORT ? parseInt(process.env.FLASK_PORT, 10) : 5001;
 
 // Define the frontend dist path - check all potential locations
 
@@ -388,83 +388,77 @@ app.post('/api/contact', express.json(), async (req, res) => {
   }
 });
 
-// Add a fallback endpoint for auth login (since we're running without Flask)
+// Proxy login requests to Flask backend only (no fallback)
 app.post('/api/auth/login', async (req, res) => {
-  console.log('Auth Fallback: Received login request', req.body);
+  console.log('Auth: Received login request');
   try {
-    // Get username/email and password from request
-    const { username, password } = req.body;
+    // Forward login request to Flask backend
+    const flaskUrl = `http://localhost:${FLASK_PORT}/api/auth/login`;
+    console.log(`Auth: Forwarding login request to Flask backend at ${flaskUrl}`);
     
-    if (!username || !password) {
-      return res.status(400).json({
+    try {
+      const response = await fetch(flaskUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(req.body),
+      });
+      
+      const data = await response.json();
+      return res.status(response.status).json(data);
+    } catch (fetchError) {
+      console.error('Auth: Error connecting to Flask backend', fetchError);
+      return res.status(503).json({
         success: false,
-        message: 'Username and password are required'
+        message: 'Authentication service currently unavailable. Please try again later.',
+        error: 'Flask backend unreachable'
       });
     }
-    
-    // For testing/demo purposes, accept any login attempt
-    // This is for development only and allows easy testing
-    console.log('Auth Fallback: Login successful for', username);
-    
-    // Generate a fake token
-    const token = `demo_token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-    
-    // Check if this is admin user
-    const isAdmin = username.toLowerCase() === 'admin';
-    
-    return res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      access_token: token,
-      user: {
-        id: isAdmin ? 1 : 2,
-        username: username,
-        email: `${username}@example.com`,
-        credits: isAdmin ? 1000 : 50,
-        is_admin: isAdmin
-      }
-    });
   } catch (error) {
-    console.error('Auth Fallback: Error handling login request', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Auth: Error handling login request', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: 'Server error processing login request'
+    });
   }
 });
 
-// Add a fallback endpoint for auth register (since we're running without Flask)
+// Proxy registration requests to Flask backend only (no fallback)
 app.post('/api/auth/register', async (req, res) => {
-  console.log('Auth Fallback: Received register request', req.body);
+  console.log('Auth: Received registration request');
   try {
-    // Get username, email, and password from request
-    const { username, email, password } = req.body;
+    // Forward registration request to Flask backend
+    const flaskUrl = `http://localhost:${FLASK_PORT}/api/auth/register`;
+    console.log(`Auth: Forwarding registration request to Flask backend at ${flaskUrl}`);
     
-    if (!username || !email || !password) {
-      return res.status(400).json({
+    try {
+      const response = await fetch(flaskUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(req.body),
+      });
+      
+      const data = await response.json();
+      return res.status(response.status).json(data);
+    } catch (fetchError) {
+      console.error('Auth: Error connecting to Flask backend', fetchError);
+      return res.status(503).json({
         success: false,
-        message: 'Username, email, and password are required'
+        message: 'Registration service currently unavailable. Please try again later.',
+        error: 'Flask backend unreachable'
       });
     }
-    
-    // For testing/demo purposes, simulate successful registration
-    console.log('Auth Fallback: Registration successful for', username);
-    
-    // Generate a fake token
-    const token = `demo_token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-    
-    return res.status(201).json({
-      success: true,
-      message: 'Registration successful',
-      access_token: token,
-      user: {
-        id: 2,
-        username: username,
-        email: email,
-        credits: 10,
-        is_admin: false
-      }
-    });
   } catch (error) {
-    console.error('Auth Fallback: Error handling register request', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Auth: Error handling registration request', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: 'Server error processing registration request'
+    });
   }
 });
 
@@ -555,51 +549,49 @@ app.post('/api/settings/logo/upload', logoUpload.single('logo'), (req, res) => {
   });
 });
 
-// Add a fallback endpoint for auth user (since we're running without Flask)
+// Proxy user verification requests to Flask backend only (no fallback)
 app.get('/api/auth/user', async (req, res) => {
-  console.log('Auth Fallback: Received user request');
+  console.log('Auth: Received user verification request');
   try {
     // Extract the token from the Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      console.log('Auth Fallback: No authorization header provided');
+      console.log('Auth: No authorization header provided');
       return res.status(401).json({ 
         success: false,
         message: 'No authorization header provided' 
       });
     }
     
-    // Check if token looks like our demo token format (very basic check)
-    if (authHeader.startsWith('Bearer demo_token_')) {
-      console.log('Auth Fallback: Valid demo token detected');
-      
-      // Extract the username from the token (for demo purposes)
-      // In a real app, this would decode and validate the token
-      const demoUsername = authHeader.includes('admin') ? 'admin' : 'testuser';
-      
-      // Return a mock user object
-      return res.status(200).json({
-        success: true,
-        user: {
-          id: demoUsername === 'admin' ? 1 : 2,
-          username: demoUsername,
-          email: `${demoUsername}@example.com`,
-          credits: demoUsername === 'admin' ? 1000 : 50,
-          is_admin: demoUsername === 'admin'
+    // Forward verification request to Flask backend
+    const flaskUrl = `http://localhost:${FLASK_PORT}/api/auth/user`;
+    console.log(`Auth: Forwarding user verification request to Flask backend at ${flaskUrl}`);
+    
+    try {
+      const response = await fetch(flaskUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
         }
       });
-    } else {
-      console.log('Auth Fallback: Invalid token format');
-      return res.status(401).json({ 
+      
+      const data = await response.json();
+      return res.status(response.status).json(data);
+    } catch (fetchError) {
+      console.error('Auth: Error connecting to Flask backend for user verification', fetchError);
+      return res.status(503).json({
         success: false,
-        message: 'Invalid or expired token' 
+        message: 'Authentication service currently unavailable. Please try again later.',
+        error: 'Flask backend unreachable'
       });
     }
   } catch (error) {
-    console.error('Auth Fallback: Error handling user request', error);
+    console.error('Auth: Error handling user verification request', error);
     res.status(500).json({ 
       success: false,
-      message: 'Internal server error' 
+      message: 'Internal server error',
+      error: 'Server error processing user verification request'
     });
   }
 });
