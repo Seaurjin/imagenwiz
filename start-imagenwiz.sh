@@ -27,8 +27,13 @@ echo -e "${YELLOW}This may take a moment. Please be patient.${NC}"
 
 # Check if port 5000 is already in use
 if nc -z localhost 5000 >/dev/null 2>&1; then
-  echo -e "${RED}Port 5000 is already in use. Please stop any other services using this port.${NC}"
-  exit 1
+  echo -e "${YELLOW}Port 5000 is already in use. Starting without placeholder server.${NC}"
+else
+  # Start placeholder server in the background
+  echo -e "${GREEN}Starting placeholder server on port 5000...${NC}"
+  node ultraminimal.js > logs/placeholder-server.log 2>&1 &
+  PLACEHOLDER_PID=$!
+  echo -e "${GREEN}Placeholder server started with PID $PLACEHOLDER_PID${NC}"
 fi
 
 # Set environment variables for the application
@@ -45,8 +50,32 @@ export DB_NAME=mat_db
 export DB_PORT=3306
 export SKIP_MIGRATIONS=true
 
-# Launch the application
-node minimal-5000.js
+# Start Flask backend in the background
+echo -e "${GREEN}Starting Flask backend...${NC}"
+python backend/run.py > logs/flask-backend.log 2>&1 &
+FLASK_PID=$!
+echo -e "${GREEN}Flask backend started with PID $FLASK_PID${NC}"
 
-# Exit with the status of the last command
-exit $?
+# Give Flask a moment to initialize before starting Express
+sleep 3
+
+# Start Express frontend
+echo -e "${GREEN}Starting Express frontend...${NC}"
+npm run dev
+
+# If we reach here, the Express process has terminated
+echo -e "${YELLOW}Express frontend terminated. Stopping other processes...${NC}"
+
+# Kill background processes if they exist
+if [ -n "$FLASK_PID" ] && ps -p $FLASK_PID > /dev/null; then
+  echo -e "${YELLOW}Stopping Flask backend (PID $FLASK_PID)...${NC}"
+  kill $FLASK_PID
+fi
+
+if [ -n "$PLACEHOLDER_PID" ] && ps -p $PLACEHOLDER_PID > /dev/null; then
+  echo -e "${YELLOW}Stopping placeholder server (PID $PLACEHOLDER_PID)...${NC}"
+  kill $PLACEHOLDER_PID
+fi
+
+echo -e "${GREEN}All processes stopped. Exiting...${NC}"
+exit 0

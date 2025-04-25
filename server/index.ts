@@ -55,12 +55,24 @@ let FLASK_URL: string = '';
 
 if (process.env.FLASK_URL) {
   FLASK_URL = process.env.FLASK_URL;
+} else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+  // If we're in Replit, construct the domain from REPL_SLUG and REPL_OWNER
+  const replitDomain = `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+  FLASK_URL = `https://${replitDomain}`;
+  console.log(`🔍 Detected Replit environment: ${replitDomain}`);
 } else if (process.env.REPLIT_DOMAIN) {
-  // If we're in Replit, use the Replit domain
+  // Alternative way to get Replit domain
   FLASK_URL = `https://${process.env.REPLIT_DOMAIN}`;
 } else {
   // Fallback to localhost for local development
   FLASK_URL = `http://localhost:${FLASK_PORT}`;
+  console.log(`🔍 Using local development environment`);
+}
+
+// Detect port in URL and remove if present (use consistent URL format)
+if (FLASK_URL.includes(':3000') || FLASK_URL.includes(':5000') || FLASK_URL.includes(':5001')) {
+  console.log(`⚠️ Removing port from Flask URL (not needed in Replit): ${FLASK_URL}`);
+  FLASK_URL = FLASK_URL.replace(/:\d+/, '');
 }
 
 // Log the Flask backend URL being used
@@ -133,19 +145,47 @@ async function checkFlaskBackend() {
   console.log('🔍 Checking if Flask backend is running...');
   
   try {
-    // Check if Flask is already running with a longer timeout (10 seconds)
-    const response = await axios.get(`${FLASK_URL}/api/health-check`, { timeout: 10000 });
-    if (response.status === 200) {
-      console.log('✅ Flask backend is running and responding to health checks');
-      console.log('✅ Full stack application is running with all components!');
-      return true;
+    // Try multiple health check endpoints since Flask might respond to different ones
+    const healthCheckPaths = [
+      '/api/health-check',
+      '/health-check',
+      '/api/health',
+      '/health',
+      '/api/status',
+      '/ping'
+    ];
+    
+    // Log the exact URL we're checking
+    console.log(`🔍 Checking Flask health with base URL: ${FLASK_URL}`);
+    
+    // Try each health check path
+    for (const path of healthCheckPaths) {
+      const fullUrl = `${FLASK_URL}${path}`;
+      console.log(`🔍 Trying health check endpoint: ${fullUrl}`);
+      
+      try {
+        // Use a shorter timeout to avoid blocking startup for too long
+        const response = await axios.get(fullUrl, { timeout: 5000 });
+        if (response.status === 200) {
+          console.log(`✅ Flask backend is running and responding to health check at ${path}`);
+          console.log('✅ Full stack application is running with all components!');
+          return true;
+        }
+      } catch (pathError) {
+        console.log(`⚠️ Health check failed for endpoint ${path}`);
+        // Continue to next path
+      }
     }
-  } catch (error: any) {
-    console.log('⚠️ Flask backend not detected or not responding to health checks yet');
+    
+    // If we get here, all health checks failed
+    console.log('⚠️ Flask backend not detected or not responding to any health checks yet');
     console.log('⚠️ This is normal during initialization as migrations may be running');
     console.log('⚠️ Temporarily starting in Express-only mode with limited functionality');
     
     // Continue with retries to detect when Flask becomes available
+  } catch (error: any) {
+    console.log(`❌ Unexpected error checking Flask health: ${error.message}`);
+    console.log('⚠️ Temporarily starting in Express-only mode with limited functionality');
   }
   
   // Let Express continue starting up while we wait for Flask
