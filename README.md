@@ -1,66 +1,75 @@
 # iMagenWiz
 
-An advanced AI-powered image processing and multilingual content management platform.
+iMagenWiz is an advanced AI-powered image processing and multilingual content management platform that provides intelligent visual manipulation and comprehensive translation capabilities.
 
-## Key Features
+## System Architecture
 
-- AI-driven image processing and manipulation
-- Comprehensive multilingual translation capabilities
-- Stripe payment integration
-- Google OAuth authentication
-- Blog/CMS with 22+ languages support
+The application consists of:
+- **Express Frontend**: Node.js service handling the React user interface (port 3000)
+- **Flask Backend**: Python service providing AI and data processing (port 5001)
+- **Placeholder Server**: Minimal server for Replit workflow support (port 5000)
 
-## Technical Stack
+## Starting the Application
 
-- **Frontend**: Vite + React.js with modern build process
-- **Backend**: Flask (Python) for API endpoints
-- **Database**: MySQL for data management
-- **AI Integration**: DeepSeek AI translation service
+### Option 1: Using Replit Workflow (Recommended)
 
-## Running the Application
+The simplest way to start the application is to use the Replit workflow:
 
-### Default Mode
+1. In the Replit interface, click the "Run" button
+2. This will start the application using the workflow configuration
 
-Use the workflow "Start application" to run the Express server with fallbacks for missing Flask API endpoints.
+### Option 2: Using the Startup Script
 
-### Full-Stack Mode
+For better control over the startup process, use the provided startup script:
 
-Use the workflow "Start Fullstack Application" to run both Express and Flask together. This will:
-1. Start the Flask backend first
-2. Wait for Flask to initialize
-3. Start the Express frontend
-4. Provide proper health checks and coordination between components
+```bash
+./start-imagenwiz.sh
+```
 
-### Development Mode
+This script automatically:
+- Sets the right environment variables
+- Starts the placeholder server on port 5000
+- Launches the full application stack
 
-Use the workflow "Development Mode (Skip Migrations)" to run a faster version that skips database migrations. This is recommended for development only as it may not have the complete database schema.
+### Option 3: Using the Coordinated Startup Script
 
-## Environment Variables
+For complete control with detailed logs:
 
-The application supports these environment variables:
+```bash
+node coordinated-startup.js
+```
 
-- `SKIP_MIGRATIONS`: Set to `true` to skip all database migrations for faster startup in development
-- `SKIP_RECHARGE_HISTORY_MIGRATION`: Set to `true` to skip just the recharge history migration
-- `SKIP_USER_CREDITS_MIGRATION`: Set to `true` to skip just the user credits migration
-- `SKIP_MYSQL_AUTO_TRANSLATION_MIGRATION`: Set to `true` to skip just the auto translation migration
+This script:
+- Starts all components with proper sequencing
+- Provides detailed color-coded logs
+- Handles proper shutdown of all services
 
-## Authentication
+## Environment Configuration
 
-The application supports standard username/password authentication as well as Google OAuth login.
+The application uses these environment variables:
 
-## API Structure
+- `REPLIT_DOMAIN`: The domain of your Replit application
+- `FLASK_URL`: URL to access the Flask backend
+- `EXPRESS_PORT`: Port for the Express frontend (default: 3000)
+- `FLASK_PORT`: Port for the Flask backend (default: 5001)
+- `DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, DB_PORT`: Database connection settings
 
-- `/api/auth/*` - Authentication endpoints
-- `/api/matting/*` - Image processing endpoints
-- `/api/payment/*` - Payment and subscription endpoints
-- `/api/cms/*` - Content management endpoints
+## Development Guidelines
 
-## Common Issues
+When developing:
 
-### Slow Startup
+1. The Express frontend serves static files and proxies API requests to Flask
+2. Flask backend handles AI processing, database operations, and complex business logic
+3. The placeholder server on port 5000 keeps the Replit workflow active
 
-The application may take longer to start initially because of database migrations, especially when connecting to an external MySQL database. This is normal and expected behavior. Use the development mode workflow to skip migrations for faster startup during development.
+## Troubleshooting
 
-### Missing API Functionality
+If you encounter issues:
 
-If certain advanced features don't work, it may be because the Flask backend is still initializing or hasn't started properly. Check the logs for "Flask backend is now running" messages to confirm when the backend is fully available.
+1. **Workflow Timeout**: Make sure port 5000 is available for the placeholder server
+2. **Flask Connection**: Check that the Flask backend is running and accessible
+3. **Frontend Issues**: Verify that the Express server can locate the built frontend files
+
+## License
+
+Copyright © 2025 iMagenWiz

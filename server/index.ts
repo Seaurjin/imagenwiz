@@ -50,10 +50,21 @@ const app = express();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 // Flask backend uses port 5001 in dual-server setup
 const FLASK_PORT: number = process.env.FLASK_PORT ? parseInt(process.env.FLASK_PORT, 10) : 5001;
-// Flask backend URL - use environment variable or build based on port
-const FLASK_URL: string = process.env.FLASK_URL || `http://localhost:${FLASK_PORT}`;
+// Flask backend URL - use environment variable or build based on port and Replit domain
+let FLASK_URL: string = '';
+
+if (process.env.FLASK_URL) {
+  FLASK_URL = process.env.FLASK_URL;
+} else if (process.env.REPLIT_DOMAIN) {
+  // If we're in Replit, use the Replit domain
+  FLASK_URL = `https://${process.env.REPLIT_DOMAIN}`;
+} else {
+  // Fallback to localhost for local development
+  FLASK_URL = `http://localhost:${FLASK_PORT}`;
+}
+
 // Log the Flask backend URL being used
-console.log(`Using Flask backend URL: ${FLASK_URL}`);
+console.log(`📡 Using Flask backend URL: ${FLASK_URL}`);
 
 // Define the frontend dist path - check all potential locations
 

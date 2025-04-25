@@ -237,8 +237,14 @@ async function startApplication() {
   try {
     log('🔥 Starting iMagenWiz application...');
     
-    // 1. Start placeholder server immediately to satisfy Replit
-    const placeholder = await startPlaceholderServer();
+    // Check if placeholder server is already running (from placeholder-server-only.mjs)
+    let placeholder = null;
+    if (process.env.PLACEHOLDER_RUNNING === 'true') {
+      log('Placeholder server is already running, skipping initialization');
+    } else {
+      // 1. Start placeholder server immediately to satisfy Replit
+      placeholder = await startPlaceholderServer();
+    }
     
     // 2. Start Flask backend
     const flask = startFlaskBackend();
@@ -255,7 +261,9 @@ async function startApplication() {
       // When the process is terminated, clean up
       process.on('SIGINT', () => {
         log('Received SIGINT. Shutting down...');
-        placeholder.close();
+        if (placeholder) {
+          placeholder.close();
+        }
         flask.kill();
         express.kill();
         process.exit(0);
