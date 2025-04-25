@@ -104,25 +104,25 @@ if (!foundValidPath) {
   }
 }
 
-// Function to check if the Flask backend is running
+// Function to check if the Flask backend is running with improved retries
 async function checkFlaskBackend() {
   console.log('🔍 Checking if Flask backend is running...');
   
   try {
-    // Check if Flask is already running with a longer timeout (10 seconds)
-    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 10000 });
+    // Check if Flask is already running with a longer timeout (20 seconds)
+    // This longer timeout allows Flask to complete its migrations during startup
+    const response = await axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 20000 });
     if (response.status === 200) {
       console.log('✅ Flask backend is running and responding to health checks');
       console.log('✅ Full stack application is running with all components!');
       return true;
     }
   } catch (error: any) {
-    console.log('⚠️ Flask backend not detected or not responding to health checks');
-    console.log('⚠️ WARNING: Running in Express-only mode with limited functionality');
-    console.log('⚠️ Some advanced features will not be available');
+    console.log('⚠️ Flask backend not detected or not responding to health checks yet');
+    console.log('⚠️ This is normal during initialization as migrations may be running');
+    console.log('⚠️ Temporarily starting in Express-only mode with limited functionality');
     
-    // Try to start Flask backend if not already running
-    console.log('🔄 Attempting to re-check Flask backend in 5 seconds...');
+    // Continue with retries to detect when Flask becomes available
   }
   
   // Let Express continue starting up while we wait for Flask
@@ -130,19 +130,33 @@ async function checkFlaskBackend() {
   console.log('Express will provide fallbacks for critical API endpoints');
   console.log('Some advanced features may be limited until Flask is fully initialized');
   
-  // Schedule periodic health checks to detect when Flask becomes available
-  setTimeout(() => {
-    console.log('🔄 Performing delayed Flask backend health check...');
-    axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 5000 })
-      .then(() => {
-        console.log('✅ Flask backend is now running and responding to health checks!');
-        console.log('✅ Full application functionality is now available');
-      })
-      .catch(() => {
-        console.log('⚠️ Flask backend still not detected after delayed check');
-        console.log('⚠️ Continuing in Express-only mode');
-      });
-  }, 5000); // Check again after 5 seconds
+  // Set up multiple retry attempts with increasing delays
+  // This handles cases where Flask takes longer to initialize due to migrations
+  const retryDelays = [10000, 20000, 30000, 60000]; // 10s, 20s, 30s, 60s
+  
+  // Setup sequential retries with increasing delays
+  retryDelays.forEach((delay, index) => {
+    setTimeout(() => {
+      console.log(`🔄 Performing Flask health check retry #${index + 1} (after ${delay/1000}s)`);
+      axios.get(`http://localhost:${FLASK_PORT}/api/health-check`, { timeout: 10000 })
+        .then((response) => {
+          if (response.status === 200) {
+            console.log('✅ Flask backend is now running and responding to health checks!');
+            console.log('✅ Full application functionality is now available');
+            console.log(`✅ Flask became available after retry #${index + 1}`);
+          }
+        })
+        .catch(() => {
+          console.log(`⚠️ Flask backend still not detected after retry #${index + 1}`);
+          if (index === retryDelays.length - 1) {
+            console.log('⚠️ Final retry attempt failed, continuing in Express-only mode');
+            console.log('⚠️ Some features requiring Flask will not be available');
+          } else {
+            console.log(`⚠️ Will try again in ${retryDelays[index+1]/1000}s`);
+          }
+        });
+    }, delay);
+  });
   
   return false;
 }

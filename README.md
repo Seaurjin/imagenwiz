@@ -1,106 +1,66 @@
-# iMagenWiz - AI Image Background Removal
+# iMagenWiz
 
-iMagenWiz is an advanced AI-powered image processing platform that provides intelligent background removal, manipulation, and enhancement tools for designers, marketers, and businesses.
+An advanced AI-powered image processing and multilingual content management platform.
 
-## Features
+## Key Features
 
-- **AI-Powered Background Removal**: Remove backgrounds from images with precision using our advanced algorithms
-- **User Authentication**: Secure user accounts with JWT-based authentication
-- **Credit System**: Purchase credits to process images using Stripe payment integration
-- **History Tracking**: View your processing history and download previous work
-- **Responsive Design**: Fully responsive interface that works on desktop and mobile devices
+- AI-driven image processing and manipulation
+- Comprehensive multilingual translation capabilities
+- Stripe payment integration
+- Google OAuth authentication
+- Blog/CMS with 22+ languages support
 
-## Tech Stack
+## Technical Stack
 
-### Backend
-- **Python Flask**: RESTful API backend
-- **PostgreSQL**: Database for storing user data and processing history
-- **SQLAlchemy**: ORM for database interactions
-- **Flask-JWT-Extended**: User authentication with JWT tokens
-- **Stripe**: Payment processing integration
+- **Frontend**: Vite + React.js with modern build process
+- **Backend**: Flask (Python) for API endpoints
+- **Database**: MySQL for data management
+- **AI Integration**: DeepSeek AI translation service
 
-### Frontend
-- **React**: Frontend UI library
-- **Tailwind CSS**: Utility-first CSS framework
-- **Axios**: HTTP client for API requests
+## Running the Application
 
-## Project Structure
+### Default Mode
 
-```
-.
-├── backend/              # Flask backend
-│   ├── app/              # Main application code
-│   │   ├── auth/         # Authentication routes and logic
-│   │   ├── matting/      # Image processing routes and logic
-│   │   ├── models/       # Database models
-│   │   ├── payment/      # Payment processing with Stripe
-│   │   ├── static/       # Static files (uploads, processed images)
-│   │   └── utils/        # Utility functions
-│   └── run.py            # Application entry point
-├── frontend/             # React frontend
-│   ├── public/           # Static assets
-│   └── src/              # React components and logic
-├── server/               # Node.js proxy server
-└── run_both.js           # Script to run both backend and frontend
-```
+Use the workflow "Start application" to run the Express server with fallbacks for missing Flask API endpoints.
 
-## Getting Started
+### Full-Stack Mode
 
-### Prerequisites
+Use the workflow "Start Fullstack Application" to run both Express and Flask together. This will:
+1. Start the Flask backend first
+2. Wait for Flask to initialize
+3. Start the Express frontend
+4. Provide proper health checks and coordination between components
 
-- Python 3.7+
-- Node.js 14+
-- PostgreSQL database
+### Development Mode
 
-### Installation
+Use the workflow "Development Mode (Skip Migrations)" to run a faster version that skips database migrations. This is recommended for development only as it may not have the complete database schema.
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/imagenwiz.git
-   cd imagenwiz
-   ```
+## Environment Variables
 
-2. Set up the backend:
-   ```
-   pip install -r backend/requirements.txt
-   ```
+The application supports these environment variables:
 
-3. Configure the environment variables in `backend/.env`:
-   ```
-   DATABASE_URL=postgresql://username:password@localhost/imagenwiz
-   SESSION_SECRET=your-secret-key
-   STRIPE_SECRET_KEY=your-stripe-secret-key
-   STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
-   ```
+- `SKIP_MIGRATIONS`: Set to `true` to skip all database migrations for faster startup in development
+- `SKIP_RECHARGE_HISTORY_MIGRATION`: Set to `true` to skip just the recharge history migration
+- `SKIP_USER_CREDITS_MIGRATION`: Set to `true` to skip just the user credits migration
+- `SKIP_MYSQL_AUTO_TRANSLATION_MIGRATION`: Set to `true` to skip just the auto translation migration
 
-4. Create a database and run the Flask application:
-   ```
-   cd backend
-   python run.py
-   ```
+## Authentication
 
-5. Set up the frontend proxy:
-   ```
-   cd server
-   node index.js
-   ```
+The application supports standard username/password authentication as well as Google OAuth login.
 
-### Creating an Admin User
+## API Structure
 
-To create an admin user with extra privileges:
+- `/api/auth/*` - Authentication endpoints
+- `/api/matting/*` - Image processing endpoints
+- `/api/payment/*` - Payment and subscription endpoints
+- `/api/cms/*` - Content management endpoints
 
-```
-cd backend
-python -m app.create-admin
-```
+## Common Issues
 
-Follow the prompts to set up the admin username and password.
+### Slow Startup
 
-## License
+The application may take longer to start initially because of database migrations, especially when connecting to an external MySQL database. This is normal and expected behavior. Use the development mode workflow to skip migrations for faster startup during development.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Missing API Functionality
 
-## Acknowledgments
-
-- Special thanks to the Replit team for hosting and development support
-- All open-source libraries and frameworks that made this project possible
+If certain advanced features don't work, it may be because the Flask backend is still initializing or hasn't started properly. Check the logs for "Flask backend is now running" messages to confirm when the backend is fully available.

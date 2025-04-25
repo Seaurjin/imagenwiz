@@ -104,74 +104,104 @@ def create_app():
                 app.logger.error(f"Error adding default language: {e}")
         
         # Run database migrations for new columns
-        try:
-            # Migrate recharge_history table first
-            from .utils.migrate_recharge_history import run_migration as migrate_recharge_history
-            
-            # Execute the migration to add required columns
-            recharge_migration_result = migrate_recharge_history()
-            if recharge_migration_result:
-                app.logger.info("Database migration for recharge_history columns completed successfully")
-            else:
-                app.logger.warning("Database migration for recharge_history failed, payments may have limited functionality")
-                
-            # Run user credits migration
-            from .utils.migrate_user_credits import run_migration as migrate_user_credits
-            
-            # Execute the migration to add credits column to users table
-            user_migration_result = migrate_user_credits()
-            if user_migration_result:
-                app.logger.info("Database migration for users table credits column completed successfully")
-            else:
-                app.logger.warning("Database migration for users table credits column failed, payment verification may fail")
-            
-            # Run auto-translation fields migration for CMS
+        # Check first if migrations should be skipped for faster startup
+        from .utils.migration_config import should_run_migration, SKIP_MIGRATIONS
+        
+        if SKIP_MIGRATIONS:
+            app.logger.warning("Database migrations SKIPPED due to SKIP_MIGRATIONS environment variable")
+            app.logger.warning("This is recommended only for development environments")
+            app.logger.warning("Some features may not work correctly without proper database schema")
+        else:
             try:
-                # Try MySQL migration first (since we're using MySQL)
-                from .utils.migrate_mysql_auto_translation import run_migration as migrate_mysql_auto_translation
+                app.logger.info("Starting database migrations...")
                 
-                # Execute the migration to add auto-translation fields
-                auto_translation_result = migrate_mysql_auto_translation()
-                if auto_translation_result:
-                    app.logger.info("Database migration for CMS auto-translation fields completed successfully")
-                else:
-                    app.logger.warning("Database migration for CMS auto-translation fields failed, auto-translation may not work properly")
+                # Migrate recharge_history table first
+                if should_run_migration('recharge_history'):
+                    from .utils.migrate_recharge_history import run_migration as migrate_recharge_history
                     
-                # Run tags description migration
-                from .utils.migrate_mysql_tags_description import run_migration as migrate_mysql_tags_description
-                
-                # Execute the migration to add description field to tags
-                tags_description_result = migrate_mysql_tags_description()
-                if tags_description_result:
-                    app.logger.info("Database migration for CMS tags description field completed successfully")
+                    # Execute the migration to add required columns
+                    recharge_migration_result = migrate_recharge_history()
+                    if recharge_migration_result:
+                        app.logger.info("Database migration for recharge_history columns completed successfully")
+                    else:
+                        app.logger.warning("Database migration for recharge_history failed, payments may have limited functionality")
                 else:
-                    app.logger.warning("Database migration for CMS tags description field failed, tags may not display correctly")
+                    app.logger.info("Skipping recharge_history migration due to configuration")
+                
+                # Run user credits migration
+                if should_run_migration('user_credits'):
+                    from .utils.migrate_user_credits import run_migration as migrate_user_credits
                     
-                # Run language flags migration
-                from .utils.migrate_mysql_language_flags import run_migration as migrate_mysql_language_flags
-                
-                # Execute the migration to add flag field to languages
-                language_flags_result = migrate_mysql_language_flags()
-                if language_flags_result:
-                    app.logger.info("Database migration for CMS language flags completed successfully")
+                    # Execute the migration to add credits column to users table
+                    user_migration_result = migrate_user_credits()
+                    if user_migration_result:
+                        app.logger.info("Database migration for users table credits column completed successfully")
+                    else:
+                        app.logger.warning("Database migration for users table credits column failed, payment verification may fail")
                 else:
-                    app.logger.warning("Database migration for CMS language flags failed, language flags may not display correctly")
-            except ImportError:
-                # Fallback to PostgreSQL migration if MySQL migration fails
-                from .utils.migrate_auto_translation import run_migration as migrate_auto_translation
+                    app.logger.info("Skipping user_credits migration due to configuration")
                 
-                # Execute the migration to add auto-translation fields
-                auto_translation_result = migrate_auto_translation()
-                if auto_translation_result:
-                    app.logger.info("Database migration for CMS auto-translation fields completed successfully (PostgreSQL)")
-                else:
-                    app.logger.warning("Database migration for CMS auto-translation fields failed, auto-translation may not work properly")
+                # Run auto-translation fields migration for CMS
+                try:
+                    # Try MySQL migration first (since we're using MySQL)
+                    if should_run_migration('mysql_auto_translation'):
+                        from .utils.migrate_mysql_auto_translation import run_migration as migrate_mysql_auto_translation
+                        
+                        # Execute the migration to add auto-translation fields
+                        auto_translation_result = migrate_mysql_auto_translation()
+                        if auto_translation_result:
+                            app.logger.info("Database migration for CMS auto-translation fields completed successfully")
+                        else:
+                            app.logger.warning("Database migration for CMS auto-translation fields failed, auto-translation may not work properly")
+                    else:
+                        app.logger.info("Skipping mysql_auto_translation migration due to configuration")
+                    
+                    # Run tags description migration
+                    if should_run_migration('mysql_tags_description'):
+                        from .utils.migrate_mysql_tags_description import run_migration as migrate_mysql_tags_description
+                        
+                        # Execute the migration to add description field to tags
+                        tags_description_result = migrate_mysql_tags_description()
+                        if tags_description_result:
+                            app.logger.info("Database migration for CMS tags description field completed successfully")
+                        else:
+                            app.logger.warning("Database migration for CMS tags description field failed, tags may not display correctly")
+                    else:
+                        app.logger.info("Skipping mysql_tags_description migration due to configuration")
+                    
+                    # Run language flags migration
+                    if should_run_migration('mysql_language_flags'):
+                        from .utils.migrate_mysql_language_flags import run_migration as migrate_mysql_language_flags
+                        
+                        # Execute the migration to add flag field to languages
+                        language_flags_result = migrate_mysql_language_flags()
+                        if language_flags_result:
+                            app.logger.info("Database migration for CMS language flags completed successfully")
+                        else:
+                            app.logger.warning("Database migration for CMS language flags failed, language flags may not display correctly")
+                    else:
+                        app.logger.info("Skipping mysql_language_flags migration due to configuration")
+                except ImportError:
+                    # Fallback to PostgreSQL migration if MySQL migration fails
+                    if should_run_migration('auto_translation'):
+                        from .utils.migrate_auto_translation import run_migration as migrate_auto_translation
+                        
+                        # Execute the migration to add auto-translation fields
+                        auto_translation_result = migrate_auto_translation()
+                        if auto_translation_result:
+                            app.logger.info("Database migration for CMS auto-translation fields completed successfully (PostgreSQL)")
+                        else:
+                            app.logger.warning("Database migration for CMS auto-translation fields failed, auto-translation may not work properly")
+                    else:
+                        app.logger.info("Skipping auto_translation migration due to configuration")
                 
-        except Exception as e:
-            app.logger.error(f"Error running database migrations: {e}")
-            # Log error details for troubleshooting
-            import traceback
-            app.logger.error(traceback.format_exc())
+                app.logger.info("All database migrations completed")
+                
+            except Exception as e:
+                app.logger.error(f"Error running database migrations: {e}")
+                # Log error details for troubleshooting
+                import traceback
+                app.logger.error(traceback.format_exc())
         
         # Register blueprints
         from .auth import bp as auth_bp
