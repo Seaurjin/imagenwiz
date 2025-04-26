@@ -371,34 +371,82 @@ const PricingNew = () => {
 
               <div className="pt-6 pb-8 px-6">
                 <ul className="space-y-4">
-                  {plan.features.map((feature, index) => {
-                    // Try to get the feature from translation files
-                    const featureKey = `plans.${plan.key}.features.${index}`;
-                    const translatedFeature = getTrans(featureKey, t(featureKey, { defaultValue: feature }));
+                  {(() => {
+                    // Debug log to see what's in the features array
+                    console.log(`FEATURE DEBUG: plan.key = ${plan.key}, features =`, plan.features);
+                    if (translationData && translationData.plans && translationData.plans[plan.key]) {
+                      console.log(`FEATURE DEBUG: Translation for ${plan.key} features =`, 
+                          translationData.plans[plan.key].features);
+                    }
                     
-                    return (
-                      <li key={index} className="flex items-start">
-                        <div className="flex-shrink-0">
-                          <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
-                        </div>
-                        <p className="ml-3 text-sm text-gray-500">{translatedFeature}</p>
-                      </li>
-                    );
-                  })}
-                  {plan.notIncluded.map((feature, index) => {
-                    // Try to get the "not included" feature from translation files
-                    const featureKey = `plans.${plan.key}.notIncluded.${index}`;
-                    const translatedFeature = getTrans(featureKey, t(featureKey, { defaultValue: feature }));
+                    // Directly get the features from translations
+                    let displayFeatures = [];
+                    if (translationData && 
+                        translationData.plans && 
+                        translationData.plans[plan.key] && 
+                        Array.isArray(translationData.plans[plan.key].features)) {
+                      displayFeatures = translationData.plans[plan.key].features;
+                      console.log(`FEATURE DEBUG: Using direct translations for features: ${displayFeatures}`);
+                    } else {
+                      // Fallback to plan.features with translation attempt
+                      displayFeatures = plan.features || [];
+                      console.log(`FEATURE DEBUG: Falling back to plan.features: ${displayFeatures}`);
+                    }
                     
-                    return (
-                      <li key={index} className="flex items-start opacity-50">
-                        <div className="flex-shrink-0">
-                          <XIcon className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <p className="ml-3 text-sm text-gray-400">{translatedFeature}</p>
-                      </li>
-                    );
-                  })}
+                    return displayFeatures.map((feature, index) => {
+                      // Try to get the feature from translation files as fallback
+                      const featureKey = `plans.${plan.key}.features.${index}`;
+                      const translatedFeature = getTrans(featureKey, t(featureKey, { defaultValue: feature }));
+                      console.log(`FEATURE DEBUG: For feature ${index}, using: ${translatedFeature}`);
+                      
+                      return (
+                        <li key={index} className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
+                          </div>
+                          <p className="ml-3 text-sm text-gray-500">{translatedFeature}</p>
+                        </li>
+                      );
+                    });
+                  })()}
+                  {(() => {
+                    // Debug log for notIncluded features
+                    console.log(`NOT INCLUDED DEBUG: plan.key = ${plan.key}, notIncluded =`, plan.notIncluded);
+                    if (translationData && translationData.plans && translationData.plans[plan.key]) {
+                      console.log(`NOT INCLUDED DEBUG: Translation for ${plan.key} notIncluded =`, 
+                          translationData.plans[plan.key].notIncluded);
+                    }
+                    
+                    // Directly get the notIncluded from translations
+                    let displayNotIncluded = [];
+                    if (translationData && 
+                        translationData.plans && 
+                        translationData.plans[plan.key] && 
+                        Array.isArray(translationData.plans[plan.key].notIncluded)) {
+                      displayNotIncluded = translationData.plans[plan.key].notIncluded;
+                      console.log(`NOT INCLUDED DEBUG: Using direct translations for notIncluded: ${displayNotIncluded}`);
+                    } else {
+                      // Fallback to plan.notIncluded with translation attempt
+                      displayNotIncluded = plan.notIncluded || [];
+                      console.log(`NOT INCLUDED DEBUG: Falling back to plan.notIncluded: ${displayNotIncluded}`);
+                    }
+                    
+                    return displayNotIncluded.map((feature, index) => {
+                      // Try to get the feature from translation files as fallback
+                      const featureKey = `plans.${plan.key}.notIncluded.${index}`;
+                      const translatedFeature = getTrans(featureKey, t(featureKey, { defaultValue: feature }));
+                      console.log(`NOT INCLUDED DEBUG: For feature ${index}, using: ${translatedFeature}`);
+                      
+                      return (
+                        <li key={index} className="flex items-start opacity-50">
+                          <div className="flex-shrink-0">
+                            <XIcon className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <p className="ml-3 text-sm text-gray-400">{translatedFeature}</p>
+                        </li>
+                      );
+                    });
+                  })()}
                 </ul>
 
                 <div className="mt-8">
