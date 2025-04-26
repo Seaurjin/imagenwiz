@@ -372,15 +372,26 @@ const PricingNew = () => {
               <div className="pt-6 pb-8 px-6">
                 <ul className="space-y-4">
                   {(() => {
-                    // Get language for direct access to features
-                    const language = baseLanguage in directTranslations ? baseLanguage : 'en';
+                    // Get language for direct access to features - use full current language for debugging
+                    console.log(`💫 TRANSLATION DEBUG - Current language from i18n: ${i18n.language}`);
+                    console.log(`💫 TRANSLATION DEBUG - baseLanguage derived: ${baseLanguage}`);
+                    
                     // Force use of direct translations from import to bypass any issues
-                    const features = directTranslations[language]?.plans?.[plan.key]?.features || [];
+                    const translatedFeatures = directTranslations[baseLanguage]?.plans?.[plan.key]?.features || [];
+                    const fallbackFeatures = directTranslations['en']?.plans?.[plan.key]?.features || [];
                     
-                    console.log(`DIRECT TRANSLATION ACCESS: ${language} features for ${plan.key}:`, features);
+                    // Log everything to see what's happening
+                    console.log(`💫 TRANSLATION DEBUG - Available languages:`, Object.keys(directTranslations));
+                    console.log(`💫 TRANSLATION DEBUG - Current plan key:`, plan.key);
+                    console.log(`💫 TRANSLATION DEBUG - French translations available:`, directTranslations['fr']);
+                    console.log(`💫 TRANSLATION DEBUG - Translated Features (${baseLanguage}):`, translatedFeatures);
+                    console.log(`💫 TRANSLATION DEBUG - Fallback Features (en):`, fallbackFeatures);
                     
-                    // If we found direct translations, use them
-                    return features.map((feature, index) => (
+                    // Use the translated features or fall back to English
+                    const features = translatedFeatures.length > 0 ? translatedFeatures : fallbackFeatures;
+                    
+                    // Ensure we're showing something even if both fail
+                    return (features && features.length > 0 ? features : ['No features available']).map((feature, index) => (
                       <li key={index} className="flex items-start">
                         <div className="flex-shrink-0">
                           <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
@@ -390,15 +401,22 @@ const PricingNew = () => {
                     ));
                   })()}
                   {(() => {
-                    // Get language for direct access to notIncluded
-                    const language = baseLanguage in directTranslations ? baseLanguage : 'en';
+                    // Apply same debugging logic for not included features
+                    console.log(`🔴 NOT INCLUDED DEBUG - Current language from i18n: ${i18n.language}`);
+                    
                     // Force use of direct translations from import to bypass any issues
-                    const notIncluded = directTranslations[language]?.plans?.[plan.key]?.notIncluded || [];
+                    const translatedNotIncluded = directTranslations[baseLanguage]?.plans?.[plan.key]?.notIncluded || [];
+                    const fallbackNotIncluded = directTranslations['en']?.plans?.[plan.key]?.notIncluded || [];
                     
-                    console.log(`DIRECT TRANSLATION ACCESS: ${language} notIncluded for ${plan.key}:`, notIncluded);
+                    // Log details
+                    console.log(`🔴 NOT INCLUDED DEBUG - Translated Not Included (${baseLanguage}):`, translatedNotIncluded);
+                    console.log(`🔴 NOT INCLUDED DEBUG - Fallback Not Included (en):`, fallbackNotIncluded);
                     
-                    // If we found direct translations, use them
-                    return notIncluded.map((feature, index) => (
+                    // Use translated or fallback
+                    const notIncluded = translatedNotIncluded.length > 0 ? translatedNotIncluded : fallbackNotIncluded;
+                    
+                    // Map and render
+                    return (notIncluded || []).map((feature, index) => (
                       <li key={index} className="flex items-start opacity-50">
                         <div className="flex-shrink-0">
                           <XIcon className="h-5 w-5 text-gray-400" />
