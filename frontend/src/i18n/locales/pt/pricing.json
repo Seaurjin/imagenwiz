@@ -1,0 +1,100 @@
+{
+  "title": "Escolha seu Plano",
+  "subtitle": "Preços simples para todos",
+  "selectPlan": "Escolha um plano que se adeque a você",
+  "monthly": "Mensal",
+  "yearly": "Anual",
+  "yearlyDiscount": "Economize 10%",
+  "credits": "créditos",
+  "perMonth": "/mês",
+  "perYear": "/ano",
+  "forever": "para sempre",
+  "currentPlan": "Plano Atual",
+  "popular": "Mais Popular",
+  "getStarted": "Começar",
+  "upgrade": "Fazer Upgrade Agora",
+  "contactSales": "Contatar Vendas",
+  "creditBalance": "Saldo de Créditos",
+  "remainingCredits": "Você tem {{count}} créditos restantes",
+  "signUp": "Cadastrar-se",
+  "subscribe": "Assinar",
+  "moreInfoNeeded": "Precisa de mais informações?",
+  "enterpriseText": "Entre em contato conosco para planos empresariais com volumes maiores e recursos adicionais.",
+  "plans": {
+    "free": {
+      "name": "Gratuito",
+      "description": "Para indivíduos que desejam experimentar nosso serviço",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 créditos gratuitos por mês",
+        "Processamento com qualidade padrão",
+        "Editor baseado na web",
+        "Downloads em JPG e PNG"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "Para indivíduos e pequenas equipes com necessidades regulares",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 créditos por mês",
+        "Processamento de alta qualidade",
+        "Editor baseado na web",
+        "Suporte para todos os formatos comuns",
+        "Processamento em lote de até 10 imagens",
+        "Processamento prioritário"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Para profissionais e empresas com necessidades de alto volume",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 créditos por mês",
+        "Processamento de qualidade premium",
+        "Ferramentas avançadas de edição",
+        "Suporte para todos os formatos, incluindo TIFF",
+        "Processamento em lote de até 50 imagens",
+        "Acesso à API",
+        "Processamento com prioridade máxima"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Perguntas Frequentes",
+    "items": [
+      {
+        "question": "O que acontece quando meus créditos acabam?",
+        "answer": "Quando seus créditos acabarem, você pode comprar mais ou fazer upgrade do seu plano. Quaisquer créditos não utilizados serão transferidos para o próximo mês."
+      },
+      {
+        "question": "Posso cancelar minha assinatura a qualquer momento?",
+        "answer": "Sim, você pode cancelar sua assinatura a qualquer momento. Sua assinatura permanecerá ativa até o final do seu período de cobrança."
+      },
+      {
+        "question": "Como os créditos são calculados?",
+        "answer": "Um crédito equivale a uma imagem processada. O tamanho e a complexidade da imagem não afetam o uso de créditos."
+      },
+      {
+        "question": "Os créditos não utilizados expiram?",
+        "answer": "Os créditos são válidos por 12 meses a partir da data de compra ou renovação."
+      },
+      {
+        "question": "Posso fazer upgrade ou downgrade do meu plano?",
+        "answer": "Sim, você pode fazer upgrade ou downgrade do seu plano a qualquer momento. Ao fazer upgrade, você será cobrado proporcionalmente pela diferença. Ao fazer downgrade, o novo plano entrará em vigor no início do seu próximo ciclo de cobrança."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Pronto para começar?",
+    "description": "Comece com nosso plano gratuito e faça upgrade a qualquer momento",
+    "button": "Experimente Gratuitamente"
+  }
+}

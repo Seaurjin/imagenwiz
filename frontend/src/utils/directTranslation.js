@@ -17,6 +17,9 @@ import huPricing from '../i18n/locales/hu/pricing.json';
 import nlPricing from '../i18n/locales/nl/pricing.json';
 import noPricing from '../i18n/locales/no/pricing.json';
 import plPricing from '../i18n/locales/pl/pricing.json';
+import viPricing from '../i18n/locales/vi/pricing.json';
+import thPricing from '../i18n/locales/th/pricing.json';
+import ptPricing from '../i18n/locales/pt/pricing.json';
 
 import enCommon from '../i18n/locales/en/common.json';
 import deCommon from '../i18n/locales/de/common.json';
@@ -141,6 +144,21 @@ export const directTranslations = {
     pricing: enPricing, // Using English as fallback
     common: commonEL,
     blog: elBlog
+  },
+  vi: {
+    pricing: viPricing,
+    common: enCommon, // Using English as fallback
+    blog: enBlog // Using English as fallback
+  },
+  th: {
+    pricing: thPricing,
+    common: enCommon, // Using English as fallback
+    blog: enBlog // Using English as fallback
+  },
+  pt: {
+    pricing: ptPricing,
+    common: enCommon, // Using English as fallback
+    blog: enBlog // Using English as fallback
   }
 };
 

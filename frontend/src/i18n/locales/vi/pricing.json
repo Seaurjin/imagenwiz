@@ -1,0 +1,100 @@
+{
+  "title": "Chọn Gói Dịch Vụ",
+  "subtitle": "Giá đơn giản cho tất cả mọi người",
+  "selectPlan": "Chọn gói phù hợp với bạn",
+  "monthly": "Hàng tháng",
+  "yearly": "Hàng năm",
+  "yearlyDiscount": "Tiết kiệm 10%",
+  "credits": "tín dụng",
+  "perMonth": "/tháng",
+  "perYear": "/năm",
+  "forever": "mãi mãi",
+  "currentPlan": "Gói Hiện Tại",
+  "popular": "Phổ Biến Nhất",
+  "getStarted": "Bắt Đầu",
+  "upgrade": "Nâng Cấp Ngay",
+  "contactSales": "Liên Hệ Bán Hàng",
+  "creditBalance": "Số Dư Tín Dụng",
+  "remainingCredits": "Bạn còn {{count}} tín dụng",
+  "signUp": "Đăng Ký",
+  "subscribe": "Đăng Ký Gói",
+  "moreInfoNeeded": "Cần thêm thông tin?",
+  "enterpriseText": "Liên hệ với chúng tôi để biết về các gói doanh nghiệp với khối lượng cao hơn và các tính năng bổ sung.",
+  "plans": {
+    "free": {
+      "name": "Miễn Phí",
+      "description": "Dành cho cá nhân muốn dùng thử dịch vụ của chúng tôi",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 tín dụng miễn phí mỗi tháng",
+        "Xử lý chất lượng tiêu chuẩn",
+        "Trình soạn thảo trên web",
+        "Tải xuống JPG và PNG"
+      ]
+    },
+    "lite": {
+      "name": "Cơ Bản",
+      "description": "Dành cho cá nhân và nhóm nhỏ có nhu cầu thường xuyên",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 tín dụng mỗi tháng",
+        "Xử lý chất lượng cao",
+        "Trình soạn thảo trên web",
+        "Hỗ trợ tất cả các định dạng phổ biến",
+        "Xử lý hàng loạt lên đến 10 hình ảnh",
+        "Xử lý ưu tiên"
+      ]
+    },
+    "pro": {
+      "name": "Chuyên Nghiệp",
+      "description": "Dành cho chuyên gia và doanh nghiệp có nhu cầu khối lượng lớn",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 tín dụng mỗi tháng",
+        "Xử lý chất lượng cao cấp",
+        "Công cụ chỉnh sửa nâng cao",
+        "Hỗ trợ tất cả các định dạng, bao gồm TIFF",
+        "Xử lý hàng loạt lên đến 50 hình ảnh",
+        "Truy cập API",
+        "Xử lý ưu tiên cao nhất"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Câu Hỏi Thường Gặp",
+    "items": [
+      {
+        "question": "Điều gì xảy ra khi tôi hết tín dụng?",
+        "answer": "Khi bạn hết tín dụng, bạn có thể mua thêm hoặc nâng cấp gói của bạn. Bất kỳ tín dụng chưa sử dụng nào sẽ được chuyển sang tháng tiếp theo."
+      },
+      {
+        "question": "Tôi có thể hủy đăng ký bất cứ lúc nào không?",
+        "answer": "Có, bạn có thể hủy đăng ký bất cứ lúc nào. Đăng ký của bạn sẽ vẫn hoạt động cho đến khi kết thúc kỳ thanh toán của bạn."
+      },
+      {
+        "question": "Tín dụng được tính toán như thế nào?",
+        "answer": "Một tín dụng tương đương với một hình ảnh được xử lý. Kích thước và độ phức tạp của hình ảnh không ảnh hưởng đến việc sử dụng tín dụng."
+      },
+      {
+        "question": "Tín dụng chưa sử dụng có hết hạn không?",
+        "answer": "Tín dụng có hiệu lực trong 12 tháng kể từ ngày mua hoặc gia hạn."
+      },
+      {
+        "question": "Tôi có thể nâng cấp hoặc hạ cấp gói của mình không?",
+        "answer": "Có, bạn có thể nâng cấp hoặc hạ cấp gói của mình bất cứ lúc nào. Khi nâng cấp, bạn sẽ được tính phí cho phần chênh lệch theo tỷ lệ. Khi hạ cấp, gói mới sẽ có hiệu lực vào đầu chu kỳ thanh toán tiếp theo của bạn."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Sẵn sàng để bắt đầu?",
+    "description": "Bắt đầu với gói miễn phí của chúng tôi và nâng cấp bất cứ lúc nào",
+    "button": "Dùng Thử Miễn Phí"
+  }
+}
