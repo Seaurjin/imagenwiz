@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CheckIcon, XIcon } from 'lucide-react';
@@ -6,6 +6,24 @@ import { useTranslation } from 'react-i18next';
 
 // Import from mock module
 import { PRICE_IDS } from '../lib/stripe-mock.js';
+
+// Import direct translations for easier debugging
+import enPricing from '../i18n/locales/en/pricing.json';
+import dePricing from '../i18n/locales/de/pricing.json';
+import esPricing from '../i18n/locales/es/pricing.json';
+import frPricing from '../i18n/locales/fr/pricing.json';
+import jaPricing from '../i18n/locales/ja/pricing.json';
+import ruPricing from '../i18n/locales/ru/pricing.json';
+
+// Static translations map for direct access (fallback mechanism)
+const directTranslations = {
+  en: enPricing,
+  de: dePricing,
+  es: esPricing,
+  fr: frPricing,
+  ja: jaPricing,
+  ru: ruPricing
+};
 
 // Pricing plan base structure - display values come from translation files
 const pricingPlansBase = [
@@ -49,77 +67,138 @@ const PricingNew = () => {
   const [yearlyBilling, setYearlyBilling] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [translationData, setTranslationData] = useState(null);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
   // Get current language for currency formatting
   const currentLanguage = i18n.language || 'en';
+  const baseLanguage = currentLanguage.split('-')[0]; // Handle cases like 'en-US' by getting the base language
+  
+  // Effect to get the appropriate translation data when language changes
+  useEffect(() => {
+    // First try to get the translations from i18n system
+    try {
+      // Check if we have direct access to the translations
+      const directLanguage = baseLanguage in directTranslations ? baseLanguage : 'en';
+      const translations = directTranslations[directLanguage];
+      
+      console.log(`Loading direct translations for ${directLanguage}:`, 
+        translations ? "Found" : "Not found");
+      
+      if (translations) {
+        setTranslationData(translations);
+      } else {
+        // Fallback to English if the language is not available
+        console.log("No direct translations found, using English as fallback");
+        setTranslationData(directTranslations.en);
+      }
+    } catch (error) {
+      console.error("Error loading translations:", error);
+      // Always have a fallback
+      setTranslationData(directTranslations.en);
+    }
+  }, [currentLanguage, baseLanguage]);
   
   // Debug: Log current language and check if pricing translations exist
   console.log("PricingNew - Current language:", currentLanguage);
-  console.log("PricingNew - i18n resources for current language:", 
-    i18n.options.resources && i18n.options.resources[currentLanguage]?.pricing ? "Available" : "Missing");
+  console.log("PricingNew - Using direct translations:", translationData ? "Yes" : "No");
   
-  // Attempt to access a nested translation to check if it's working
-  const testTranslation = t('plans.free.name');
-  console.log("Test translation for 'plans.free.name':", testTranslation);
+  // Helper function to get a value from translation data
+  const getTrans = (path, defaultValue = '') => {
+    if (!translationData) return defaultValue;
+    
+    // Split the path into parts
+    const parts = path.split('.');
+    let current = translationData;
+    
+    // Navigate through the object
+    for (const part of parts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part];
+      } else {
+        return defaultValue;
+      }
+    }
+    
+    return current || defaultValue;
+  };
 
   // Create translated pricing plans by combining the base structure with translations
   const pricingPlans = pricingPlansBase.map(plan => {
-    // Get the translated content from the i18n files
+    // Get the translated content from both i18n system and direct translations
     const translatedPlan = {
       ...plan,
-      name: t(`plans.${plan.key}.name`),
-      description: t(`plans.${plan.key}.description`),
+      // Try direct translations first, then fall back to i18n
+      name: getTrans(`plans.${plan.key}.name`, t(`plans.${plan.key}.name`)),
+      description: getTrans(`plans.${plan.key}.description`, t(`plans.${plan.key}.description`)),
     };
     
     try {
-      // Get features from translation file
-      // The || operator handles fallback if translation lookup fails
-      const featuresKey = `plans.${plan.key}.features`;
-      const featuresObj = t(featuresKey, { returnObjects: true }) || [];
-      
-      // Debug log the features object
-      console.log(`Features for ${plan.key} in ${currentLanguage}:`, featuresObj);
-      
-      // Check if we got an array or an object with indices
-      if (typeof featuresObj === 'object' && !Array.isArray(featuresObj)) {
-        // Handle case where i18next returns object with numeric keys instead of array
-        const featuresArray = Object.keys(featuresObj)
-          .sort()
-          .map(key => featuresObj[key])
-          .filter(Boolean);
-        translatedPlan.features = featuresArray;
+      // Get features using direct translations object access
+      if (translationData && 
+          translationData.plans && 
+          translationData.plans[plan.key] && 
+          Array.isArray(translationData.plans[plan.key].features)) {
+        // Use direct access
+        translatedPlan.features = translationData.plans[plan.key].features;
+        console.log(`Using direct translations for ${plan.key} features:`, translatedPlan.features);
       } else {
-        translatedPlan.features = Array.isArray(featuresObj) ? featuresObj : [];
+        // Fall back to i18n
+        const featuresKey = `plans.${plan.key}.features`;
+        const featuresObj = t(featuresKey, { returnObjects: true }) || [];
+        
+        // Debug log the features object
+        console.log(`Fallback: Features for ${plan.key} in ${currentLanguage}:`, featuresObj);
+        
+        // Check if we got an array or an object with indices
+        if (typeof featuresObj === 'object' && !Array.isArray(featuresObj)) {
+          // Handle case where i18next returns object with numeric keys instead of array
+          const featuresArray = Object.keys(featuresObj)
+            .sort()
+            .map(key => featuresObj[key])
+            .filter(Boolean);
+          translatedPlan.features = featuresArray;
+        } else {
+          translatedPlan.features = Array.isArray(featuresObj) ? featuresObj : [];
+        }
       }
       
       // Add not included features based on plan type
       if (plan.key === 'free' || plan.key === 'lite') {
-        // First check if the translation file has specific notIncluded array
-        const notIncludedKey = `plans.${plan.key}.notIncluded`;
-        const notIncludedTranslation = t(notIncludedKey, { returnObjects: true });
-        
-        console.log(`NotIncluded for ${plan.key} in ${currentLanguage}:`, notIncludedTranslation);
-        
-        if (typeof notIncludedTranslation === 'object' && !Array.isArray(notIncludedTranslation)) {
-          // Handle case where i18next returns object with numeric keys instead of array
-          const notIncludedArray = Object.keys(notIncludedTranslation)
-            .sort()
-            .map(key => notIncludedTranslation[key])
-            .filter(Boolean);
-          translatedPlan.notIncluded = notIncludedArray;
-          console.log(`Converted notIncluded object to array:`, notIncludedArray);
-        }
-        else if (Array.isArray(notIncludedTranslation) && notIncludedTranslation.length > 0) {
-          translatedPlan.notIncluded = notIncludedTranslation;
-          console.log(`Using array from translation:`, notIncludedTranslation);
+        // Check direct translations first
+        if (translationData && 
+            translationData.plans && 
+            translationData.plans[plan.key] && 
+            Array.isArray(translationData.plans[plan.key].notIncluded)) {
+          // Use direct access
+          translatedPlan.notIncluded = translationData.plans[plan.key].notIncluded;
+          console.log(`Using direct translations for ${plan.key} notIncluded:`, translatedPlan.notIncluded);
         } else {
-          // Fallback for plans without explicit notIncluded in translation
-          translatedPlan.notIncluded = plan.key === 'free' ? 
-            [t('notIncluded'), t('notIncluded'), t('notIncluded'), t('notIncluded')] : 
-            [t('notIncluded'), t('notIncluded')];
-          console.log(`Using fallback notIncluded:`, translatedPlan.notIncluded);
+          // Fall back to i18n
+          const notIncludedKey = `plans.${plan.key}.notIncluded`;
+          const notIncludedTranslation = t(notIncludedKey, { returnObjects: true });
+          
+          console.log(`Fallback: NotIncluded for ${plan.key} in ${currentLanguage}:`, notIncludedTranslation);
+          
+          if (typeof notIncludedTranslation === 'object' && !Array.isArray(notIncludedTranslation)) {
+            // Handle case where i18next returns object with numeric keys instead of array
+            const notIncludedArray = Object.keys(notIncludedTranslation)
+              .sort()
+              .map(key => notIncludedTranslation[key])
+              .filter(Boolean);
+            translatedPlan.notIncluded = notIncludedArray;
+          }
+          else if (Array.isArray(notIncludedTranslation) && notIncludedTranslation.length > 0) {
+            translatedPlan.notIncluded = notIncludedTranslation;
+          } else {
+            // Fallback text
+            const notIncludedText = getTrans('notIncluded', t('notIncluded'));
+            // Fallback for plans without explicit notIncluded in translation
+            translatedPlan.notIncluded = plan.key === 'free' ? 
+              [notIncludedText, notIncludedText, notIncludedText, notIncludedText] : 
+              [notIncludedText, notIncludedText];
+          }
         }
       } else {
         translatedPlan.notIncluded = [];
@@ -166,10 +245,10 @@ const PricingNew = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight">
-            {t('title')}
+            {getTrans('title', t('title'))}
           </h1>
           <p className="mt-5 text-xl text-gray-500 max-w-3xl mx-auto">
-            {t('subtitle')}
+            {getTrans('subtitle', t('subtitle'))}
           </p>
           
           {/* Billing toggle */}
@@ -182,7 +261,7 @@ const PricingNew = () => {
                 } relative py-2.5 px-8 border-transparent rounded-full text-sm font-medium whitespace-nowrap focus:outline-none focus:z-10 transition-all`}
                 onClick={handleBillingToggle}
               >
-                {t('monthly')}
+                {getTrans('monthly', t('monthly'))}
               </button>
               <button
                 type="button"
@@ -192,9 +271,9 @@ const PricingNew = () => {
                 onClick={handleBillingToggle}
               >
                 <span className="flex items-center gap-2">
-                  {t('yearly')} 
+                  {getTrans('yearly', t('yearly'))} 
                   <span className="rounded-full bg-amber-400 px-2 py-0.5 text-xs font-semibold text-gray-800">
-                    {t('yearlyDiscount')}
+                    {getTrans('yearlyDiscount', t('yearlyDiscount'))}
                   </span>
                 </span>
               </button>
@@ -226,7 +305,7 @@ const PricingNew = () => {
               {plan.mostPopular && (
                 <div className="bg-amber-500 rounded-t-lg py-1.5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-white text-center">
-                    {t('popular')}
+                    {getTrans('popular', t('popular'))}
                   </p>
                 </div>
               )}
@@ -241,21 +320,21 @@ const PricingNew = () => {
                 <p className="mt-4">
                   <span className="text-4xl font-extrabold text-gray-900">
                     {yearlyBilling 
-                      ? t(`plans.${plan.key}.priceYearly`, { defaultValue: plan.yearlyPrice.toString() }) 
-                      : t(`plans.${plan.key}.priceMonthly`, { defaultValue: plan.monthlyPrice.toString() })
+                      ? getTrans(`plans.${plan.key}.priceYearly`, t(`plans.${plan.key}.priceYearly`, { defaultValue: plan.yearlyPrice.toString() })) 
+                      : getTrans(`plans.${plan.key}.priceMonthly`, t(`plans.${plan.key}.priceMonthly`, { defaultValue: plan.monthlyPrice.toString() }))
                     }
                   </span>
                   <span className="text-base font-medium text-gray-500">
-                    {yearlyBilling ? t('perYear') : t('perMonth')}
+                    {yearlyBilling ? getTrans('perYear', t('perYear')) : getTrans('perMonth', t('perMonth'))}
                   </span>
                 </p>
                 <p className="mt-4 text-sm text-gray-500">
                   <span className="font-medium text-gray-800">
                     {yearlyBilling 
-                      ? t(`plans.${plan.key}.creditsYearly`, { defaultValue: plan.yearlyCredits.toString() }) 
-                      : t(`plans.${plan.key}.creditsMonthly`, { defaultValue: plan.monthlyCredits.toString() })
+                      ? getTrans(`plans.${plan.key}.creditsYearly`, t(`plans.${plan.key}.creditsYearly`, { defaultValue: plan.yearlyCredits.toString() })) 
+                      : getTrans(`plans.${plan.key}.creditsMonthly`, t(`plans.${plan.key}.creditsMonthly`, { defaultValue: plan.monthlyCredits.toString() }))
                     }
-                  </span> {t('credits')}
+                  </span> {getTrans('credits', t('credits'))}
                 </p>
               </div>
 
