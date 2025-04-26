@@ -53,6 +53,7 @@ import blogJA from './locales/ja/blog.json';
 // Import Arabic resources
 import commonAR from './locales/ar/common.json';
 import blogAR from './locales/ar/blog.json';
+import pricingAR from './locales/ar/pricing.json';
 
 // Import German resources
 import commonDE from './locales/de/common.json';
@@ -69,6 +70,7 @@ import commonPT from './locales/pt/common.json';
 // Import Korean resources
 import commonKO from './locales/ko/common.json';
 import blogKO from './locales/ko/blog.json';
+import pricingKO from './locales/ko/pricing.json';
 
 // Import Vietnamese resources
 import commonVI from './locales/vi/common.json';
@@ -150,7 +152,7 @@ const resources = {
   ar: {
     common: commonAR,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingAR,
     blog: blogAR,
     cms: cmsEN
   },
@@ -178,7 +180,7 @@ const resources = {
   ko: {
     common: commonKO,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingKO,
     blog: blogKO,
     cms: cmsEN
   },

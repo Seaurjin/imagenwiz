@@ -8,6 +8,8 @@ import esPricing from '../i18n/locales/es/pricing.json';
 import frPricing from '../i18n/locales/fr/pricing.json';
 import jaPricing from '../i18n/locales/ja/pricing.json';
 import ruPricing from '../i18n/locales/ru/pricing.json';
+import arPricing from '../i18n/locales/ar/pricing.json';
+import koPricing from '../i18n/locales/ko/pricing.json';
 import idPricing from '../i18n/locales/id/pricing.json';
 import msPricing from '../i18n/locales/ms/pricing.json';
 import itPricing from '../i18n/locales/it/pricing.json';
@@ -86,12 +88,12 @@ export const directTranslations = {
     blog: ruBlog
   },
   ar: {
-    pricing: enPricing, // Using English as fallback
+    pricing: arPricing,
     common: commonAR,
     blog: arBlog
   },
   ko: {
-    pricing: enPricing, // Using English as fallback
+    pricing: koPricing,
     common: commonKO,
     blog: koBlog
   },
