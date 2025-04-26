@@ -14,6 +14,8 @@ import esPricing from '../i18n/locales/es/pricing.json';
 import frPricing from '../i18n/locales/fr/pricing.json';
 import jaPricing from '../i18n/locales/ja/pricing.json';
 import ruPricing from '../i18n/locales/ru/pricing.json';
+import arPricing from '../i18n/locales/ar/pricing.json';
+import koPricing from '../i18n/locales/ko/pricing.json';
 
 // Static translations map for direct access (fallback mechanism)
 const directTranslations = {
@@ -22,7 +24,9 @@ const directTranslations = {
   es: esPricing,
   fr: frPricing,
   ja: jaPricing,
-  ru: ruPricing
+  ru: ruPricing,
+  ar: arPricing,
+  ko: koPricing
 };
 
 // Pricing plan base structure - display values come from translation files
