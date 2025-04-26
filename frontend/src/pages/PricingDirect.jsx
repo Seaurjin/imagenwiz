@@ -113,19 +113,25 @@ const PricingDirect = () => {
   console.log('Translation data available:', directTranslations[baseLanguage]?.pricing ? 'Yes' : 'No');
   console.log('Available translation languages:', Object.keys(directTranslations));
   
-  // Check if Arabic and Korean translations exist
+  // Check for all our targeted language translations
   console.log('Arabic pricing translation exists:', directTranslations.ar?.pricing ? 'Yes' : 'No');
   console.log('Korean pricing translation exists:', directTranslations.ko?.pricing ? 'Yes' : 'No');
+  console.log('Vietnamese pricing translation exists:', directTranslations.vi?.pricing ? 'Yes' : 'No');
+  console.log('Thai pricing translation exists:', directTranslations.th?.pricing ? 'Yes' : 'No');
+  console.log('Portuguese pricing translation exists:', directTranslations.pt?.pricing ? 'Yes' : 'No');
   
-  // Debug the actual content for Arabic and Korean if available
-  if (directTranslations.ar?.pricing) {
-    console.log('Arabic pricing title:', directTranslations.ar.pricing.title);
-    console.log('Arabic pricing plans:', Object.keys(directTranslations.ar.pricing.plans || {}));
-  }
+  // Debug the pricing title for each language
+  const languagesToCheck = ['ar', 'ko', 'vi', 'th', 'pt'];
+  languagesToCheck.forEach(lang => {
+    if (directTranslations[lang]?.pricing) {
+      console.log(`${lang} pricing title:`, directTranslations[lang].pricing.title);
+      console.log(`${lang} pricing plans:`, Object.keys(directTranslations[lang].pricing.plans || {}));
+    }
+  });
   
-  if (directTranslations.ko?.pricing) {
-    console.log('Korean pricing title:', directTranslations.ko.pricing.title);
-    console.log('Korean pricing plans:', Object.keys(directTranslations.ko.pricing.plans || {}));
+  // Debug the current language's title
+  if (directTranslations[baseLanguage]?.pricing) {
+    console.log(`Current language (${baseLanguage}) pricing title:`, directTranslations[baseLanguage].pricing.title);
   }
   
   console.log('Plans with translations:', pricingPlans);
