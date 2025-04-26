@@ -42,6 +42,8 @@ import commonAR from '../i18n/locales/ar/common.json';
 import commonKO from '../i18n/locales/ko/common.json';
 import commonTR from '../i18n/locales/tr/common.json';
 import commonEL from '../i18n/locales/el/common.json';
+import commonSV from '../i18n/locales/sv/common.json';
+import commonZHTW from '../i18n/locales/zh-TW/common.json';
 
 // Import blog translations
 import enBlog from '../i18n/locales/en/blog.json';
@@ -151,12 +153,12 @@ export const directTranslations = {
   },
   sv: {
     pricing: svPricing,
-    common: enCommon, // Using English as fallback
+    common: commonSV,
     blog: enBlog // Using English as fallback
   },
   "zh-TW": {
     pricing: zhTWPricing,
-    common: enCommon, // Using English as fallback
+    common: commonZHTW,
     blog: enBlog // Using English as fallback
   },
   vi: {
