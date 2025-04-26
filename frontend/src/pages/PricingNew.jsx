@@ -54,6 +54,15 @@ const PricingNew = () => {
   
   // Get current language for currency formatting
   const currentLanguage = i18n.language || 'en';
+  
+  // Debug: Log current language and check if pricing translations exist
+  console.log("PricingNew - Current language:", currentLanguage);
+  console.log("PricingNew - i18n resources for current language:", 
+    i18n.options.resources && i18n.options.resources[currentLanguage]?.pricing ? "Available" : "Missing");
+  
+  // Attempt to access a nested translation to check if it's working
+  const testTranslation = t('plans.free.name');
+  console.log("Test translation for 'plans.free.name':", testTranslation);
 
   // Create translated pricing plans by combining the base structure with translations
   const pricingPlans = pricingPlansBase.map(plan => {
@@ -62,29 +71,63 @@ const PricingNew = () => {
       ...plan,
       name: t(`plans.${plan.key}.name`),
       description: t(`plans.${plan.key}.description`),
-      // For the features, we need to get them from the translation file
-      features: Array.from(
-        { length: 7 }, // Maximum of 7 features
-        (_, i) => {
-          const key = `plans.${plan.key}.features.${i}`;
-          const translation = t(key, '');
-          return translation !== '' ? translation : null;
-        }
-      ).filter(Boolean), // Remove empty translations
     };
     
-    // Add not included features for display
-    if (plan.key === 'free' || plan.key === 'lite') {
-      // Get not included features from translation
-      translatedPlan.notIncluded = Array.from(
-        { length: 4 }, // Max 4 non-included features
-        (_, i) => {
-          const key = `plans.${plan.key}.notIncluded.${i}`;
-          const translation = t(key, '');
-          return translation !== '' ? translation : null;
+    try {
+      // Get features from translation file
+      // The || operator handles fallback if translation lookup fails
+      const featuresKey = `plans.${plan.key}.features`;
+      const featuresObj = t(featuresKey, { returnObjects: true }) || [];
+      
+      // Debug log the features object
+      console.log(`Features for ${plan.key} in ${currentLanguage}:`, featuresObj);
+      
+      // Check if we got an array or an object with indices
+      if (typeof featuresObj === 'object' && !Array.isArray(featuresObj)) {
+        // Handle case where i18next returns object with numeric keys instead of array
+        const featuresArray = Object.keys(featuresObj)
+          .sort()
+          .map(key => featuresObj[key])
+          .filter(Boolean);
+        translatedPlan.features = featuresArray;
+      } else {
+        translatedPlan.features = Array.isArray(featuresObj) ? featuresObj : [];
+      }
+      
+      // Add not included features based on plan type
+      if (plan.key === 'free' || plan.key === 'lite') {
+        // First check if the translation file has specific notIncluded array
+        const notIncludedKey = `plans.${plan.key}.notIncluded`;
+        const notIncludedTranslation = t(notIncludedKey, { returnObjects: true });
+        
+        console.log(`NotIncluded for ${plan.key} in ${currentLanguage}:`, notIncludedTranslation);
+        
+        if (typeof notIncludedTranslation === 'object' && !Array.isArray(notIncludedTranslation)) {
+          // Handle case where i18next returns object with numeric keys instead of array
+          const notIncludedArray = Object.keys(notIncludedTranslation)
+            .sort()
+            .map(key => notIncludedTranslation[key])
+            .filter(Boolean);
+          translatedPlan.notIncluded = notIncludedArray;
+          console.log(`Converted notIncluded object to array:`, notIncludedArray);
         }
-      ).filter(Boolean);
-    } else {
+        else if (Array.isArray(notIncludedTranslation) && notIncludedTranslation.length > 0) {
+          translatedPlan.notIncluded = notIncludedTranslation;
+          console.log(`Using array from translation:`, notIncludedTranslation);
+        } else {
+          // Fallback for plans without explicit notIncluded in translation
+          translatedPlan.notIncluded = plan.key === 'free' ? 
+            [t('notIncluded'), t('notIncluded'), t('notIncluded'), t('notIncluded')] : 
+            [t('notIncluded'), t('notIncluded')];
+          console.log(`Using fallback notIncluded:`, translatedPlan.notIncluded);
+        }
+      } else {
+        translatedPlan.notIncluded = [];
+      }
+    } catch (error) {
+      console.error(`Error translating plan ${plan.key}:`, error);
+      // Fallback to empty arrays if translation fails
+      translatedPlan.features = [];
       translatedPlan.notIncluded = [];
     }
     

@@ -28,6 +28,12 @@
         "Manuelle Hintergrundentfernung",
         "PNG-Download",
         "7-tägige Verlaufsaufbewahrung"
+      ],
+      "notIncluded": [
+        "Priorisierte Verarbeitung",
+        "Stapelverarbeitung",
+        "Erweiterte Bearbeitungswerkzeuge",
+        "API-Zugriff"
       ]
     },
     "lite": {
@@ -44,6 +50,10 @@
         "PNG & JPG Downloads",
         "30-tägige Verlaufsaufbewahrung",
         "Priorisierte Verarbeitung"
+      ],
+      "notIncluded": [
+        "Vollständige Stapelverarbeitung",
+        "API-Zugriff"
       ]
     },
     "pro": {
