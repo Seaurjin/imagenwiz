@@ -85,8 +85,12 @@ const PricingNew = () => {
       
       console.log(`Loading direct translations for ${directLanguage}:`, 
         translations ? "Found" : "Not found");
+      console.log(`Current i18n language: ${i18n.language}, base language: ${baseLanguage}`);
       
+      // Show available translation keys for debugging
       if (translations) {
+        console.log("Available translation keys:", Object.keys(translations).join(", "));
+        console.log("Plans translation keys:", Object.keys(translations.plans || {}).join(", "));
         setTranslationData(translations);
       } else {
         // Fallback to English if the language is not available
@@ -370,7 +374,7 @@ const PricingNew = () => {
                       loading ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
                   >
-                    {loading ? 'Processing...' : plan.id === 'free' ? t('signUp') : t('subscribe')}
+                    {loading ? 'Processing...' : plan.id === 'free' ? getTrans('signUp', t('signUp')) : getTrans('subscribe', t('subscribe'))}
                   </button>
                 </div>
               </div>
@@ -379,15 +383,15 @@ const PricingNew = () => {
         </div>
 
         <div className="mt-16 text-center">
-          <h3 className="text-lg font-medium text-gray-900">{t('moreInfoNeeded')}</h3>
+          <h3 className="text-lg font-medium text-gray-900">{getTrans('moreInfoNeeded', t('moreInfoNeeded'))}</h3>
           <p className="mt-2 text-gray-500">
-            {t('enterpriseText')}
+            {getTrans('enterpriseText', t('enterpriseText'))}
           </p>
           <a
             href="mailto:enterprise@imagenwiz.com"
             className="mt-4 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-teal-600 bg-white hover:bg-teal-50"
           >
-            {t('contactSales')}
+            {getTrans('contactSales', t('contactSales'))}
           </a>
         </div>
       </div>
