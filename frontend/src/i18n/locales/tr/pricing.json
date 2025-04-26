@@ -24,22 +24,17 @@
     "free": {
       "name": "Ücretsiz",
       "description": "Hizmetimizi denemek isteyen bireyler için",
-      "price": "0",
-      "credits": "3",
       "features": [
         "Ayda 3 ücretsiz kredi",
         "Standart kalitede işleme",
         "Web tabanlı düzenleyici",
         "JPG ve PNG indirmeleri"
-      ]
+      ],
+      "notIncluded": []
     },
     "lite": {
       "name": "Lite",
       "description": "Düzenli ihtiyaçları olan bireyler ve küçük ekipler için",
-      "priceMonthly": "9.90",
-      "priceYearly": "106.80",
-      "creditsMonthly": "50",
-      "creditsYearly": "600",
       "features": [
         "Ayda 50 kredi",
         "Yüksek kalitede işleme",
@@ -47,15 +42,12 @@
         "Tüm yaygın formatlar için destek",
         "10 resme kadar toplu işleme",
         "Öncelikli işleme"
-      ]
+      ],
+      "notIncluded": []
     },
     "pro": {
       "name": "Pro",
       "description": "Yüksek hacimli ihtiyaçları olan profesyoneller ve işletmeler için",
-      "priceMonthly": "24.90",
-      "priceYearly": "262.80",
-      "creditsMonthly": "250",
-      "creditsYearly": "3000",
       "features": [
         "Ayda 250 kredi",
         "Premium kalitede işleme",
@@ -64,7 +56,8 @@
         "50 resme kadar toplu işleme",
         "API erişimi",
         "En yüksek öncelikli işleme"
-      ]
+      ],
+      "notIncluded": []
     }
   },
   "faq": {
