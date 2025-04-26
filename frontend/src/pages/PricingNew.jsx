@@ -79,6 +79,11 @@ const PricingNew = () => {
   useEffect(() => {
     // First try to get the translations from i18n system
     try {
+      // Force i18n to load the new translations
+      i18n.loadNamespaces('pricing').then(() => {
+        console.log(`Loaded pricing namespace for language: ${i18n.language}`);
+      });
+      
       // Check if we have direct access to the translations
       const directLanguage = baseLanguage in directTranslations ? baseLanguage : 'en';
       const translations = directTranslations[directLanguage];
@@ -90,7 +95,19 @@ const PricingNew = () => {
       // Show available translation keys for debugging
       if (translations) {
         console.log("Available translation keys:", Object.keys(translations).join(", "));
-        console.log("Plans translation keys:", Object.keys(translations.plans || {}).join(", "));
+        if (translations.plans) {
+          console.log("Plans translation keys:", Object.keys(translations.plans).join(", "));
+          
+          // Debug for free plan
+          if (translations.plans.free) {
+            console.log("Free plan translations available:", Object.keys(translations.plans.free).join(", "));
+            console.log("Free plan name:", translations.plans.free.name);
+            console.log("Free plan description:", translations.plans.free.description);
+          } else {
+            console.log("Free plan translations NOT available");
+          }
+        }
+        
         setTranslationData(translations);
       } else {
         // Fallback to English if the language is not available
@@ -112,6 +129,9 @@ const PricingNew = () => {
   const getTrans = (path, defaultValue = '') => {
     if (!translationData) return defaultValue;
     
+    // For debugging purposes
+    console.log(`Trying to get translation for path: ${path}`);
+    
     // Split the path into parts
     const parts = path.split('.');
     let current = translationData;
@@ -121,11 +141,18 @@ const PricingNew = () => {
       if (current && typeof current === 'object' && part in current) {
         current = current[part];
       } else {
+        console.log(`Path part "${part}" not found in current object:`, current);
         return defaultValue;
       }
     }
     
-    return current || defaultValue;
+    if (current === undefined || current === null) {
+      console.log(`Translation for ${path} is undefined or null`);
+      return defaultValue;
+    }
+    
+    console.log(`Found translation for ${path}:`, current);
+    return current;
   };
 
   // Create translated pricing plans by combining the base structure with translations
@@ -316,10 +343,10 @@ const PricingNew = () => {
 
               <div className="p-6">
                 <h2 className="text-xl leading-6 font-bold text-gray-900">
-                  {plan.name}
+                  {getTrans(`plans.${plan.key}.name`, t(`plans.${plan.key}.name`, { defaultValue: plan.name }))}
                 </h2>
                 <p className="mt-2 text-sm text-gray-500">
-                  {plan.description}
+                  {getTrans(`plans.${plan.key}.description`, t(`plans.${plan.key}.description`, { defaultValue: plan.description }))}
                 </p>
                 <p className="mt-4">
                   <span className="text-4xl font-extrabold text-gray-900">
