@@ -24,22 +24,17 @@
     "free": {
       "name": "免費",
       "description": "適合想要嘗試我們服務的個人",
-      "price": "0",
-      "credits": "3",
       "features": [
         "每月3個免費點數",
         "標準品質處理",
         "網頁版編輯器",
         "JPG和PNG下載"
-      ]
+      ],
+      "notIncluded": []
     },
     "lite": {
       "name": "輕量版",
       "description": "適合有常規需求的個人和小型團隊",
-      "priceMonthly": "9.90",
-      "priceYearly": "106.80",
-      "creditsMonthly": "50",
-      "creditsYearly": "600",
       "features": [
         "每月50點數",
         "高品質處理",
@@ -47,15 +42,12 @@
         "支持所有常見格式",
         "批量處理最多10張圖片",
         "優先處理"
-      ]
+      ],
+      "notIncluded": []
     },
     "pro": {
       "name": "專業版",
       "description": "適合有大量需求的專業人士和企業",
-      "priceMonthly": "24.90",
-      "priceYearly": "262.80",
-      "creditsMonthly": "250",
-      "creditsYearly": "3000",
       "features": [
         "每月250點數",
         "頂級品質處理",
@@ -64,7 +56,8 @@
         "批量處理最多50張圖片",
         "API訪問",
         "最高優先處理"
-      ]
+      ],
+      "notIncluded": []
     }
   },
   "faq": {
