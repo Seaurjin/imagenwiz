@@ -1,0 +1,100 @@
+{
+  "title": "選擇您的方案",
+  "subtitle": "簡單明瞭的價格方案",
+  "selectPlan": "選擇適合您的方案",
+  "monthly": "月付",
+  "yearly": "年付",
+  "yearlyDiscount": "節省10%",
+  "credits": "點數",
+  "perMonth": "/月",
+  "perYear": "/年",
+  "forever": "永久",
+  "currentPlan": "當前方案",
+  "popular": "最受歡迎",
+  "getStarted": "立即開始",
+  "upgrade": "立即升級",
+  "contactSales": "聯繫銷售",
+  "creditBalance": "點數餘額",
+  "remainingCredits": "您還有{{count}}點數",
+  "signUp": "註冊",
+  "subscribe": "訂閱",
+  "moreInfoNeeded": "需要更多信息？",
+  "enterpriseText": "請聯繫我們了解更高容量和附加功能的企業方案。",
+  "plans": {
+    "free": {
+      "name": "免費",
+      "description": "適合想要嘗試我們服務的個人",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "每月3個免費點數",
+        "標準品質處理",
+        "網頁版編輯器",
+        "JPG和PNG下載"
+      ]
+    },
+    "lite": {
+      "name": "輕量版",
+      "description": "適合有常規需求的個人和小型團隊",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "每月50點數",
+        "高品質處理",
+        "網頁版編輯器",
+        "支持所有常見格式",
+        "批量處理最多10張圖片",
+        "優先處理"
+      ]
+    },
+    "pro": {
+      "name": "專業版",
+      "description": "適合有大量需求的專業人士和企業",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "每月250點數",
+        "頂級品質處理",
+        "進階編輯工具",
+        "支持所有格式，包括TIFF",
+        "批量處理最多50張圖片",
+        "API訪問",
+        "最高優先處理"
+      ]
+    }
+  },
+  "faq": {
+    "title": "常見問題",
+    "items": [
+      {
+        "question": "當我的點數用完時會發生什麼？",
+        "answer": "當您的點數用完時，您可以購買更多或升級您的方案。任何未使用的點數將轉入下個月。"
+      },
+      {
+        "question": "我可以隨時取消訂閱嗎？",
+        "answer": "是的，您可以隨時取消訂閱。您的訂閱將保持有效直到您的計費期結束。"
+      },
+      {
+        "question": "點數如何計算？",
+        "answer": "一個點數等於一張處理過的圖片。圖片的大小和複雜度不影響點數使用。"
+      },
+      {
+        "question": "未使用的點數會過期嗎？",
+        "answer": "點數自購買或續訂日起有效期為12個月。"
+      },
+      {
+        "question": "我可以升級或降級我的方案嗎？",
+        "answer": "是的，您可以隨時升級或降級您的方案。當您升級時，您將按比例支付差額。當您降級時，新方案將在您下一個計費週期開始時生效。"
+      }
+    ]
+  },
+  "cta": {
+    "title": "準備好開始了嗎？",
+    "description": "從我們的免費方案開始，隨時可以升級",
+    "button": "免費試用"
+  }
+}

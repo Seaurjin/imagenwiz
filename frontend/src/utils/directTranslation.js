@@ -20,6 +20,10 @@ import plPricing from '../i18n/locales/pl/pricing.json';
 import viPricing from '../i18n/locales/vi/pricing.json';
 import thPricing from '../i18n/locales/th/pricing.json';
 import ptPricing from '../i18n/locales/pt/pricing.json';
+import elPricing from '../i18n/locales/el/pricing.json';
+import trPricing from '../i18n/locales/tr/pricing.json';
+import svPricing from '../i18n/locales/sv/pricing.json';
+import zhTWPricing from '../i18n/locales/zh-TW/pricing.json';
 
 import enCommon from '../i18n/locales/en/common.json';
 import deCommon from '../i18n/locales/de/common.json';
@@ -136,14 +140,24 @@ export const directTranslations = {
     blog: plBlog
   },
   tr: {
-    pricing: enPricing, // Using English as fallback
+    pricing: trPricing,
     common: commonTR,
     blog: trBlog
   },
   el: {
-    pricing: enPricing, // Using English as fallback
+    pricing: elPricing,
     common: commonEL,
     blog: elBlog
+  },
+  sv: {
+    pricing: svPricing,
+    common: enCommon, // Using English as fallback
+    blog: enBlog // Using English as fallback
+  },
+  "zh-TW": {
+    pricing: zhTWPricing,
+    common: enCommon, // Using English as fallback
+    blog: enBlog // Using English as fallback
   },
   vi: {
     pricing: viPricing,
@@ -172,6 +186,13 @@ export const directTranslations = {
  * @returns {*} - The translated value or fallback
  */
 export const getDirectTranslation = (language, namespace, key, fallback = '') => {
+  // Special case for Traditional Chinese which has a hyphen in its code
+  if (language === 'zh-TW' && directTranslations['zh-TW']) {
+    if (directTranslations['zh-TW'][namespace]) {
+      return getPathValue(directTranslations['zh-TW'][namespace], key, fallback);
+    }
+  }
+  
   // Get base language (e.g., 'en' from 'en-US')
   const baseLanguage = language.split('-')[0];
   

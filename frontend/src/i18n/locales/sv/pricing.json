@@ -1,0 +1,100 @@
+{
+  "title": "Välj Din Plan",
+  "subtitle": "Enkel prissättning för alla",
+  "selectPlan": "Välj en plan som passar dig",
+  "monthly": "Månadsvis",
+  "yearly": "Årsvis",
+  "yearlyDiscount": "Spara 10%",
+  "credits": "krediter",
+  "perMonth": "/månad",
+  "perYear": "/år",
+  "forever": "för alltid",
+  "currentPlan": "Nuvarande Plan",
+  "popular": "Mest Populär",
+  "getStarted": "Kom Igång",
+  "upgrade": "Uppgradera Nu",
+  "contactSales": "Kontakta Försäljning",
+  "creditBalance": "Kreditsaldo",
+  "remainingCredits": "Du har {{count}} krediter kvar",
+  "signUp": "Registrera Dig",
+  "subscribe": "Prenumerera",
+  "moreInfoNeeded": "Behöver du mer information?",
+  "enterpriseText": "Kontakta oss för företagsplaner med högre volymer och ytterligare funktioner.",
+  "plans": {
+    "free": {
+      "name": "Gratis",
+      "description": "För individer som vill prova vår tjänst",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 gratis krediter per månad",
+        "Standardkvalitetsbearbetning",
+        "Webbaserad redigerare",
+        "JPG och PNG nedladdningar"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "För individer och små team med regelbundna behov",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 krediter per månad",
+        "Högkvalitativ bearbetning",
+        "Webbaserad redigerare",
+        "Stöd för alla vanliga format",
+        "Batchbearbetning upp till 10 bilder",
+        "Prioriterad bearbetning"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "För professionella och företag med behov av hög volym",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 krediter per månad",
+        "Premiumkvalitetsbearbetning",
+        "Avancerade redigeringsverktyg",
+        "Stöd för alla format, inklusive TIFF",
+        "Batchbearbetning upp till 50 bilder",
+        "API-åtkomst",
+        "Högsta prioritetsbearbetning"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Vanliga Frågor",
+    "items": [
+      {
+        "question": "Vad händer när mina krediter tar slut?",
+        "answer": "När dina krediter tar slut kan du köpa fler eller uppgradera din plan. Eventuella oanvända krediter överförs till nästa månad."
+      },
+      {
+        "question": "Kan jag avbryta min prenumeration när som helst?",
+        "answer": "Ja, du kan avbryta din prenumeration när som helst. Din prenumeration förblir aktiv till slutet av din faktureringsperiod."
+      },
+      {
+        "question": "Hur beräknas krediter?",
+        "answer": "En kredit motsvarar en bearbetad bild. Bildens storlek och komplexitet påverkar inte kreditanvändningen."
+      },
+      {
+        "question": "Utgår oanvända krediter?",
+        "answer": "Krediter är giltiga i 12 månader från inköps- eller förnyelsedatum."
+      },
+      {
+        "question": "Kan jag uppgradera eller nedgradera min plan?",
+        "answer": "Ja, du kan uppgradera eller nedgradera din plan när som helst. Vid uppgradering debiteras du proportionellt för skillnaden. Vid nedgradering träder den nya planen i kraft i början av din nästa faktureringsperiod."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Redo att börja?",
+    "description": "Börja med vår gratisplan och uppgradera när som helst",
+    "button": "Prova Gratis"
+  }
+}

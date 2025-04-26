@@ -119,9 +119,13 @@ const PricingDirect = () => {
   console.log('Vietnamese pricing translation exists:', directTranslations.vi?.pricing ? 'Yes' : 'No');
   console.log('Thai pricing translation exists:', directTranslations.th?.pricing ? 'Yes' : 'No');
   console.log('Portuguese pricing translation exists:', directTranslations.pt?.pricing ? 'Yes' : 'No');
+  console.log('Greek pricing translation exists:', directTranslations.el?.pricing ? 'Yes' : 'No');
+  console.log('Turkish pricing translation exists:', directTranslations.tr?.pricing ? 'Yes' : 'No');
+  console.log('Swedish pricing translation exists:', directTranslations.sv?.pricing ? 'Yes' : 'No');
+  console.log('Traditional Chinese pricing translation exists:', directTranslations['zh-TW']?.pricing ? 'Yes' : 'No');
   
   // Debug the pricing title for each language
-  const languagesToCheck = ['ar', 'ko', 'vi', 'th', 'pt'];
+  const languagesToCheck = ['ar', 'ko', 'vi', 'th', 'pt', 'el', 'tr', 'sv', 'zh-TW'];
   languagesToCheck.forEach(lang => {
     if (directTranslations[lang]?.pricing) {
       console.log(`${lang} pricing title:`, directTranslations[lang].pricing.title);
