@@ -186,26 +186,37 @@ export const directTranslations = {
  * @returns {*} - The translated value or fallback
  */
 export const getDirectTranslation = (language, namespace, key, fallback = '') => {
-  // First check for exact match (like 'zh-TW')
-  if (directTranslations[language] && directTranslations[language][namespace]) {
-    console.log(`Using exact language match for ${language}/${namespace}/${key}`);
-    return getPathValue(directTranslations[language][namespace], key, fallback);
+  // Debug current request
+  console.log(`[Debug] Getting translation for ${language}/${namespace}/${key}`);
+  
+  // Check for hyphenated languages like zh-TW directly
+  if (language.includes('-')) {
+    // First check for exact match (like 'zh-TW')
+    if (directTranslations[language] && directTranslations[language][namespace]) {
+      console.log(`[Debug] Found exact match for ${language}/${namespace}`);
+      return getPathValue(directTranslations[language][namespace], key, fallback);
+    } else {
+      console.log(`[Debug] No exact match for ${language}/${namespace}`);
+    }
   }
   
   // Get base language (e.g., 'en' from 'en-US')
   const baseLanguage = language.split('-')[0];
+  console.log(`[Debug] Trying base language: ${baseLanguage}`);
   
   // Check if we have translations for this language
   if (!directTranslations[baseLanguage] || !directTranslations[baseLanguage][namespace]) {
+    console.log(`[Debug] No translation for ${baseLanguage}/${namespace}`);
     // Fall back to English if the language or namespace doesn't exist
     if (directTranslations.en && directTranslations.en[namespace]) {
-      console.log(`Falling back to English for ${language}/${namespace}/${key}`);
+      console.log(`[Debug] Falling back to English for ${language}/${namespace}/${key}`);
       return getPathValue(directTranslations.en[namespace], key, fallback);
     }
     return fallback;
   }
   
   // Get the translation value
+  console.log(`[Debug] Using ${baseLanguage}/${namespace} translation`);
   const translationData = directTranslations[baseLanguage][namespace];
   return getPathValue(translationData, key, fallback);
 };

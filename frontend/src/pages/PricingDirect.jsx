@@ -57,10 +57,13 @@ const PricingDirect = () => {
   
   // Get current language for translations
   const currentLanguage = i18n.language || 'en';
-  const baseLanguage = currentLanguage.split('-')[0]; // Handle cases like 'en-US'
+  // We'll use the full language code (including region like zh-TW) instead of just the base language
   
   // Create a translation helper bound to the current language and pricing namespace
-  const getText = createTranslationHelper(baseLanguage, 'pricing');
+  const getText = createTranslationHelper(currentLanguage, 'pricing');
+  
+  // Also keep the base language for debugging
+  const baseLanguage = currentLanguage.split('-')[0]; // Handle cases like 'en-US'
   
   // Function to handle purchase
   const handlePurchase = (planId) => {
@@ -109,8 +112,10 @@ const PricingDirect = () => {
   });
   
   // Enhanced debugging logs
-  console.log('Current language:', baseLanguage);
-  console.log('Translation data available:', directTranslations[baseLanguage]?.pricing ? 'Yes' : 'No');
+  console.log('Full current language:', currentLanguage);
+  console.log('Base current language:', baseLanguage);
+  console.log('Full language translation available:', directTranslations[currentLanguage]?.pricing ? 'Yes' : 'No');
+  console.log('Base language translation available:', directTranslations[baseLanguage]?.pricing ? 'Yes' : 'No');
   console.log('Available translation languages:', Object.keys(directTranslations));
   
   // Check for all our targeted language translations
@@ -136,8 +141,10 @@ const PricingDirect = () => {
   });
   
   // Debug the current language's title
-  if (directTranslations[baseLanguage]?.pricing) {
-    console.log(`Current language (${baseLanguage}) pricing title:`, directTranslations[baseLanguage].pricing.title);
+  if (currentLanguage.includes('-') && directTranslations[currentLanguage]?.pricing) {
+    console.log(`Full language (${currentLanguage}) pricing title:`, directTranslations[currentLanguage].pricing.title);
+  } else if (directTranslations[baseLanguage]?.pricing) {
+    console.log(`Base language (${baseLanguage}) pricing title:`, directTranslations[baseLanguage].pricing.title);
   }
   
   console.log('Plans with translations:', pricingPlans);
