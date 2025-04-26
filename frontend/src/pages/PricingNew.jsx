@@ -7,87 +7,89 @@ import { useTranslation } from 'react-i18next';
 // Import from mock module
 import { PRICE_IDS } from '../lib/stripe-mock.js';
 
-// Simplified plans
-const pricingPlans = [
+// Pricing plan base structure - display values come from translation files
+const pricingPlansBase = [
   {
     id: 'free',
-    name: 'Free',
-    description: 'For individuals wanting to try out our service',
+    key: 'free',
     monthlyPrice: 0,
     yearlyPrice: 0,
     monthlyCredits: 3,
     yearlyCredits: 3,
-    features: [
-      '3 free credits per month',
-      'Standard quality processing',
-      'Web-based editor',
-      'JPG and PNG downloads',
-    ],
-    notIncluded: [
-      'Priority processing',
-      'Bulk processing',
-      'Advanced editing tools',
-      'API access',
-    ],
     mostPopular: false,
   },
   {
     id: 'lite_monthly',
     idYearly: 'lite_yearly',
-    name: 'Lite',
-    description: 'For individuals and small teams with regular needs',
+    key: 'lite',
     monthlyPrice: 9.9,
     yearlyPrice: 106.8,
     monthlyCredits: 50,
     yearlyCredits: 600,
     monthlyPriceId: PRICE_IDS.LITE_MONTHLY,
     yearlyPriceId: PRICE_IDS.LITE_YEARLY,
-    features: [
-      '50 credits per month',
-      'High quality processing',
-      'Web-based editor',
-      'Support for all common formats',
-      'Bulk processing up to 10 images',
-      'Prioritized processing',
-    ],
-    notIncluded: [
-      'Full batch processing',
-      'API access',
-    ],
     mostPopular: true,
   },
   {
     id: 'pro_monthly',
     idYearly: 'pro_yearly',
-    name: 'Pro',
-    description: 'For professionals and businesses with high-volume needs',
+    key: 'pro',
     monthlyPrice: 24.9,
     yearlyPrice: 262.8,
     monthlyCredits: 250,
     yearlyCredits: 3000,
     monthlyPriceId: PRICE_IDS.PRO_MONTHLY,
     yearlyPriceId: PRICE_IDS.PRO_YEARLY,
-    features: [
-      '250 credits per month',
-      'Premium quality processing',
-      'Advanced editing tools',
-      'All format support, including TIFF',
-      'Bulk processing up to 50 images',
-      'API access',
-      'Top-tier prioritized processing',
-    ],
-    notIncluded: [],
     mostPopular: false,
   },
 ];
 
 const PricingNew = () => {
-  const { t } = useTranslation('pricing');
+  const { t, i18n } = useTranslation('pricing');
   const [yearlyBilling, setYearlyBilling] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  
+  // Get current language for currency formatting
+  const currentLanguage = i18n.language || 'en';
+
+  // Create translated pricing plans by combining the base structure with translations
+  const pricingPlans = pricingPlansBase.map(plan => {
+    // Get the translated content from the i18n files
+    const translatedPlan = {
+      ...plan,
+      name: t(`plans.${plan.key}.name`),
+      description: t(`plans.${plan.key}.description`),
+      // For the features, we need to get them from the translation file
+      features: Array.from(
+        { length: 7 }, // Maximum of 7 features
+        (_, i) => {
+          const key = `plans.${plan.key}.features.${i}`;
+          const translation = t(key, '');
+          return translation !== '' ? translation : null;
+        }
+      ).filter(Boolean), // Remove empty translations
+    };
+    
+    // Add not included features for display
+    if (plan.key === 'free' || plan.key === 'lite') {
+      // Get not included features from translation
+      translatedPlan.notIncluded = Array.from(
+        { length: 4 }, // Max 4 non-included features
+        (_, i) => {
+          const key = `plans.${plan.key}.notIncluded.${i}`;
+          const translation = t(key, '');
+          return translation !== '' ? translation : null;
+        }
+      ).filter(Boolean);
+    } else {
+      translatedPlan.notIncluded = [];
+    }
+    
+    return translatedPlan;
+  });
 
   const handleBillingToggle = () => {
     setYearlyBilling(!yearlyBilling);
@@ -195,7 +197,10 @@ const PricingNew = () => {
                 </p>
                 <p className="mt-4">
                   <span className="text-4xl font-extrabold text-gray-900">
-                    ${yearlyBilling ? plan.yearlyPrice : plan.monthlyPrice}
+                    {yearlyBilling 
+                      ? t(`plans.${plan.key}.priceYearly`, { defaultValue: plan.yearlyPrice.toString() }) 
+                      : t(`plans.${plan.key}.priceMonthly`, { defaultValue: plan.monthlyPrice.toString() })
+                    }
                   </span>
                   <span className="text-base font-medium text-gray-500">
                     {yearlyBilling ? t('perYear') : t('perMonth')}
@@ -203,7 +208,10 @@ const PricingNew = () => {
                 </p>
                 <p className="mt-4 text-sm text-gray-500">
                   <span className="font-medium text-gray-800">
-                    {yearlyBilling ? plan.yearlyCredits : plan.monthlyCredits} 
+                    {yearlyBilling 
+                      ? t(`plans.${plan.key}.creditsYearly`, { defaultValue: plan.yearlyCredits.toString() }) 
+                      : t(`plans.${plan.key}.creditsMonthly`, { defaultValue: plan.monthlyCredits.toString() })
+                    }
                   </span> {t('credits')}
                 </p>
               </div>
