@@ -371,22 +371,34 @@ const PricingNew = () => {
 
               <div className="pt-6 pb-8 px-6">
                 <ul className="space-y-4">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="flex-shrink-0">
-                        <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
-                      </div>
-                      <p className="ml-3 text-sm text-gray-500">{feature}</p>
-                    </li>
-                  ))}
-                  {plan.notIncluded.map((feature, index) => (
-                    <li key={index} className="flex items-start opacity-50">
-                      <div className="flex-shrink-0">
-                        <XIcon className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <p className="ml-3 text-sm text-gray-400">{feature}</p>
-                    </li>
-                  ))}
+                  {plan.features.map((feature, index) => {
+                    // Try to get the feature from translation files
+                    const featureKey = `plans.${plan.key}.features.${index}`;
+                    const translatedFeature = getTrans(featureKey, t(featureKey, { defaultValue: feature }));
+                    
+                    return (
+                      <li key={index} className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
+                        </div>
+                        <p className="ml-3 text-sm text-gray-500">{translatedFeature}</p>
+                      </li>
+                    );
+                  })}
+                  {plan.notIncluded.map((feature, index) => {
+                    // Try to get the "not included" feature from translation files
+                    const featureKey = `plans.${plan.key}.notIncluded.${index}`;
+                    const translatedFeature = getTrans(featureKey, t(featureKey, { defaultValue: feature }));
+                    
+                    return (
+                      <li key={index} className="flex items-start opacity-50">
+                        <div className="flex-shrink-0">
+                          <XIcon className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <p className="ml-3 text-sm text-gray-400">{translatedFeature}</p>
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 <div className="mt-8">
