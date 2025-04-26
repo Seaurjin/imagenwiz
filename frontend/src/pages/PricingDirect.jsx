@@ -59,8 +59,63 @@ const PricingDirect = () => {
   const currentLanguage = i18n.language || 'en';
   // We'll use the full language code (including region like zh-TW) instead of just the base language
   
-  // Create a translation helper bound to the current language and pricing namespace
-  const getText = createTranslationHelper(currentLanguage, 'pricing');
+  // Create a custom translation function that prioritizes specific languages
+  const getText = (key, fallback = '') => {
+    // Handle problematic languages directly
+    if (currentLanguage === 'el') {
+      const translation = directTranslations.el?.pricing?.[key];
+      if (translation) return translation;
+    } 
+    else if (currentLanguage === 'tr') {
+      const translation = directTranslations.tr?.pricing?.[key];
+      if (translation) return translation;
+    }
+    else if (currentLanguage === 'sv') {
+      const translation = directTranslations.sv?.pricing?.[key];
+      if (translation) return translation;
+    }
+    else if (currentLanguage === 'zh-TW') {
+      const translation = directTranslations['zh-TW']?.pricing?.[key];
+      if (translation) return translation;
+    }
+    
+    // For nested paths like "plans.free.name"
+    if (key.includes('.')) {
+      const segments = key.split('.');
+      let current;
+      
+      // Handle problematic languages directly for nested paths
+      if (currentLanguage === 'el') {
+        current = directTranslations.el?.pricing;
+      } 
+      else if (currentLanguage === 'tr') {
+        current = directTranslations.tr?.pricing;
+      }
+      else if (currentLanguage === 'sv') {
+        current = directTranslations.sv?.pricing;
+      }
+      else if (currentLanguage === 'zh-TW') {
+        current = directTranslations['zh-TW']?.pricing;
+      }
+      else {
+        // Use standard helper for other languages
+        return createTranslationHelper(currentLanguage, 'pricing')(key, fallback);
+      }
+      
+      // Navigate through the path
+      if (current) {
+        for (const segment of segments) {
+          if (!current || typeof current !== 'object') return fallback;
+          current = current[segment];
+          if (current === undefined) return fallback;
+        }
+        return current !== undefined ? current : fallback;
+      }
+    }
+    
+    // Fall back to standard helper for other languages/cases
+    return createTranslationHelper(currentLanguage, 'pricing')(key, fallback);
+  };
   
   // Also keep the base language for debugging
   const baseLanguage = currentLanguage.split('-')[0]; // Handle cases like 'en-US'
@@ -69,16 +124,37 @@ const PricingDirect = () => {
   console.debug('===== TRANSLATION DEBUG START =====');
   console.debug('Current language (full):', currentLanguage);
   console.debug('Base language:', baseLanguage);
-  console.debug('Title direct from pricing.json:', directTranslations[currentLanguage]?.pricing?.title || 'Not found');
+  
+  // Direct title access with hardcoded translation fixes
   if (currentLanguage === 'el') {
-    console.debug('Greek pricing content:', JSON.stringify(directTranslations.el?.pricing || 'Not found').substring(0, 100) + '...');
+    console.debug('DIRECT Greek title:', directTranslations.el?.pricing?.title);
+    console.debug('DIRECT Greek subtitle:', directTranslations.el?.pricing?.subtitle);
+    
+    // HARDCODED FIX: Override the title and subtitle with known translations
+    document.title = "Επιλέξτε το Πρόγραμμά Σας - iMagenWiz";
   } else if (currentLanguage === 'tr') {
-    console.debug('Turkish pricing content:', JSON.stringify(directTranslations.tr?.pricing || 'Not found').substring(0, 100) + '...');
+    console.debug('DIRECT Turkish title:', directTranslations.tr?.pricing?.title);
+    console.debug('DIRECT Turkish subtitle:', directTranslations.tr?.pricing?.subtitle);
+    
+    // HARDCODED FIX: Override the title and subtitle with known translations
+    document.title = "Planınızı Seçin - iMagenWiz";
   } else if (currentLanguage === 'sv') {
-    console.debug('Swedish pricing content:', JSON.stringify(directTranslations.sv?.pricing || 'Not found').substring(0, 100) + '...');
+    console.debug('DIRECT Swedish title:', directTranslations.sv?.pricing?.title);
+    console.debug('DIRECT Swedish subtitle:', directTranslations.sv?.pricing?.subtitle);
+    
+    // HARDCODED FIX: Override the title and subtitle with known translations
+    document.title = "Välj din plan - iMagenWiz";
   } else if (currentLanguage === 'zh-TW') {
-    console.debug('Chinese (Traditional) pricing content:', JSON.stringify(directTranslations['zh-TW']?.pricing || 'Not found').substring(0, 100) + '...');
+    console.debug('DIRECT Chinese (Traditional) title:', directTranslations['zh-TW']?.pricing?.title);
+    console.debug('DIRECT Chinese (Traditional) subtitle:', directTranslations['zh-TW']?.pricing?.subtitle);
+    
+    // HARDCODED FIX: Override the title and subtitle with known translations
+    document.title = "選擇您的計劃 - iMagenWiz";
   }
+  
+  // Verify our custom getText function works
+  console.debug('Custom getText for title:', getText('title', 'Default title'));
+  console.debug('Custom getText for subtitle:', getText('subtitle', 'Default subtitle'));
   console.debug('===== TRANSLATION DEBUG END =====')
   
   // Function to handle purchase
@@ -170,17 +246,29 @@ const PricingDirect = () => {
       <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-5xl">
-            {getText('title', 'Choose Your Plan')}
+            {currentLanguage === 'el' ? 'Επιλέξτε το Πρόγραμμά Σας' : 
+             currentLanguage === 'tr' ? 'Planınızı Seçin' :
+             currentLanguage === 'sv' ? 'Välj din plan' :
+             currentLanguage === 'zh-TW' ? '選擇您的計劃' :
+             getText('title', 'Choose Your Plan')}
           </h1>
           <p className="mt-4 text-lg text-gray-500">
-            {getText('subtitle', 'Simple pricing for everyone')}
+            {currentLanguage === 'el' ? 'Απλή τιμολόγηση για όλους' : 
+             currentLanguage === 'tr' ? 'Herkes için basit fiyatlandırma' :
+             currentLanguage === 'sv' ? 'Enkla priser för alla' :
+             currentLanguage === 'zh-TW' ? '簡單的價格適合每個人' :
+             getText('subtitle', 'Simple pricing for everyone')}
           </p>
           
           {/* Billing toggle */}
           <div className="mt-8 flex justify-center">
             <div className="relative flex items-center space-x-3">
               <span className={`text-sm font-medium ${!yearlyBilling ? 'text-gray-900' : 'text-gray-500'}`}>
-                {getText('monthly', 'Monthly')}
+                {currentLanguage === 'el' ? 'Μηνιαίο' : 
+                 currentLanguage === 'tr' ? 'Aylık' :
+                 currentLanguage === 'sv' ? 'Månadsvis' :
+                 currentLanguage === 'zh-TW' ? '每月' :
+                 getText('monthly', 'Monthly')}
               </span>
               <button
                 type="button"
@@ -197,11 +285,19 @@ const PricingDirect = () => {
                 />
               </button>
               <span className={`text-sm font-medium ${yearlyBilling ? 'text-gray-900' : 'text-gray-500'}`}>
-                {getText('yearly', 'Yearly')}
+                {currentLanguage === 'el' ? 'Ετήσιο' : 
+                 currentLanguage === 'tr' ? 'Yıllık' :
+                 currentLanguage === 'sv' ? 'Årsvis' :
+                 currentLanguage === 'zh-TW' ? '每年' :
+                 getText('yearly', 'Yearly')}
               </span>
               {yearlyBilling && (
                 <span className="ml-2 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
-                  {getText('yearlyDiscount', 'Save with annual billing')}
+                  {currentLanguage === 'el' ? 'Εξοικονομήστε 10%' : 
+                   currentLanguage === 'tr' ? 'Yıllık faturalandırma ile %10 tasarruf edin' :
+                   currentLanguage === 'sv' ? 'Spara 10% med årlig fakturering' :
+                   currentLanguage === 'zh-TW' ? '年度帳單省 10%' :
+                   getText('yearlyDiscount', 'Save with annual billing')}
                 </span>
               )}
             </div>
@@ -223,8 +319,36 @@ const PricingDirect = () => {
               )}
 
               <div className="p-6">
-                <h2 className="text-2xl font-medium text-gray-900">{plan.name}</h2>
-                <p className="mt-2 text-sm text-gray-500">{plan.description}</p>
+                <h2 className="text-2xl font-medium text-gray-900">
+                  {currentLanguage === 'el' && plan.key === 'free' ? 'Δωρεάν' :
+                   currentLanguage === 'el' && plan.key === 'lite' ? 'Lite' :
+                   currentLanguage === 'el' && plan.key === 'pro' ? 'Pro' :
+                   currentLanguage === 'tr' && plan.key === 'free' ? 'Ücretsiz' :
+                   currentLanguage === 'tr' && plan.key === 'lite' ? 'Lite' :
+                   currentLanguage === 'tr' && plan.key === 'pro' ? 'Pro' :
+                   currentLanguage === 'sv' && plan.key === 'free' ? 'Gratis' :
+                   currentLanguage === 'sv' && plan.key === 'lite' ? 'Lite' :
+                   currentLanguage === 'sv' && plan.key === 'pro' ? 'Pro' :
+                   currentLanguage === 'zh-TW' && plan.key === 'free' ? '免費' :
+                   currentLanguage === 'zh-TW' && plan.key === 'lite' ? '精簡版' :
+                   currentLanguage === 'zh-TW' && plan.key === 'pro' ? '專業版' :
+                   plan.name}
+                </h2>
+                <p className="mt-2 text-sm text-gray-500">
+                  {currentLanguage === 'el' && plan.key === 'free' ? 'Για άτομα που θέλουν να δοκιμάσουν την υπηρεσία μας' :
+                   currentLanguage === 'el' && plan.key === 'lite' ? 'Για άτομα και μικρές ομάδες με τακτικές ανάγκες' :
+                   currentLanguage === 'el' && plan.key === 'pro' ? 'Για επαγγελματίες και επιχειρήσεις με ανάγκες μεγάλου όγκου' :
+                   currentLanguage === 'tr' && plan.key === 'free' ? 'Servisimizi denemek isteyen kişiler için' :
+                   currentLanguage === 'tr' && plan.key === 'lite' ? 'Düzenli ihtiyaçları olan kişiler ve küçük ekipler için' :
+                   currentLanguage === 'tr' && plan.key === 'pro' ? 'Yüksek hacimli ihtiyaçları olan profesyoneller ve işletmeler için' :
+                   currentLanguage === 'sv' && plan.key === 'free' ? 'För privatpersoner som vill prova vår tjänst' :
+                   currentLanguage === 'sv' && plan.key === 'lite' ? 'För privatpersoner och små team med regelbundna behov' :
+                   currentLanguage === 'sv' && plan.key === 'pro' ? 'För proffs och företag med högvolymsbehov' :
+                   currentLanguage === 'zh-TW' && plan.key === 'free' ? '適合想要試用我們服務的個人' :
+                   currentLanguage === 'zh-TW' && plan.key === 'lite' ? '適合有定期需求的個人和小型團隊' :
+                   currentLanguage === 'zh-TW' && plan.key === 'pro' ? '適合需要大量處理的專業人士和企業' :
+                   plan.description}
+                </p>
                 <p className="mt-4">
                   <span className="text-4xl font-extrabold text-gray-900">${plan.price}</span>
                   <span className="text-base font-medium text-gray-500">
@@ -272,9 +396,17 @@ const PricingDirect = () => {
                       loading ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
                   >
-                    {loading ? 'Processing...' : plan.id === 'free' 
-                      ? getText('signUp', 'Sign Up') 
-                      : getText('subscribe', 'Subscribe')}
+                    {loading ? 'Processing...' : 
+                     plan.id === 'free' && currentLanguage === 'el' ? 'Εγγραφή' :
+                     plan.id === 'free' && currentLanguage === 'tr' ? 'Kaydol' : 
+                     plan.id === 'free' && currentLanguage === 'sv' ? 'Registrera dig' :
+                     plan.id === 'free' && currentLanguage === 'zh-TW' ? '註冊' :
+                     plan.id !== 'free' && currentLanguage === 'el' ? 'Εγγραφή' :
+                     plan.id !== 'free' && currentLanguage === 'tr' ? 'Abone Ol' :
+                     plan.id !== 'free' && currentLanguage === 'sv' ? 'Prenumerera' :
+                     plan.id !== 'free' && currentLanguage === 'zh-TW' ? '訂閱' :
+                     plan.id === 'free' ? getText('signUp', 'Sign Up') : 
+                     getText('subscribe', 'Subscribe')}
                   </button>
                 </div>
               </div>
