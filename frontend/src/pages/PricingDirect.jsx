@@ -108,9 +108,26 @@ const PricingDirect = () => {
     };
   });
   
-  // Log for debugging
+  // Enhanced debugging logs
   console.log('Current language:', baseLanguage);
   console.log('Translation data available:', directTranslations[baseLanguage]?.pricing ? 'Yes' : 'No');
+  console.log('Available translation languages:', Object.keys(directTranslations));
+  
+  // Check if Arabic and Korean translations exist
+  console.log('Arabic pricing translation exists:', directTranslations.ar?.pricing ? 'Yes' : 'No');
+  console.log('Korean pricing translation exists:', directTranslations.ko?.pricing ? 'Yes' : 'No');
+  
+  // Debug the actual content for Arabic and Korean if available
+  if (directTranslations.ar?.pricing) {
+    console.log('Arabic pricing title:', directTranslations.ar.pricing.title);
+    console.log('Arabic pricing plans:', Object.keys(directTranslations.ar.pricing.plans || {}));
+  }
+  
+  if (directTranslations.ko?.pricing) {
+    console.log('Korean pricing title:', directTranslations.ko.pricing.title);
+    console.log('Korean pricing plans:', Object.keys(directTranslations.ko.pricing.plans || {}));
+  }
+  
   console.log('Plans with translations:', pricingPlans);
   
   return (
