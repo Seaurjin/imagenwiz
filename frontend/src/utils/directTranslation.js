@@ -188,6 +188,25 @@ export const directTranslations = {
  * @returns {*} - The translated value or fallback
  */
 export const getDirectTranslation = (language, namespace, key, fallback = '') => {
+  // Special fixes for problematic languages
+  if (language === 'el' && namespace === 'pricing') {
+    // Direct access to Greek pricing content
+    console.log(`[Debug] Directly accessing Greek pricing data for ${key}`);
+    return getPathValue(directTranslations.el.pricing, key, fallback);
+  } else if (language === 'tr' && namespace === 'pricing') {
+    // Direct access to Turkish pricing content
+    console.log(`[Debug] Directly accessing Turkish pricing data for ${key}`);
+    return getPathValue(directTranslations.tr.pricing, key, fallback);
+  } else if (language === 'sv' && namespace === 'pricing') {
+    // Direct access to Swedish pricing content
+    console.log(`[Debug] Directly accessing Swedish pricing data for ${key}`);
+    return getPathValue(directTranslations.sv.pricing, key, fallback);
+  } else if (language === 'zh-TW' && namespace === 'pricing') {
+    // Direct access to Chinese Traditional pricing content
+    console.log(`[Debug] Directly accessing Chinese Traditional pricing data for ${key}`);
+    return getPathValue(directTranslations['zh-TW'].pricing, key, fallback);
+  }
+  
   // Debug current request
   console.log(`[Debug] Getting translation for ${language}/${namespace}/${key}`);
   

@@ -65,6 +65,22 @@ const PricingDirect = () => {
   // Also keep the base language for debugging
   const baseLanguage = currentLanguage.split('-')[0]; // Handle cases like 'en-US'
   
+  // Enhanced debugging
+  console.debug('===== TRANSLATION DEBUG START =====');
+  console.debug('Current language (full):', currentLanguage);
+  console.debug('Base language:', baseLanguage);
+  console.debug('Title direct from pricing.json:', directTranslations[currentLanguage]?.pricing?.title || 'Not found');
+  if (currentLanguage === 'el') {
+    console.debug('Greek pricing content:', JSON.stringify(directTranslations.el?.pricing || 'Not found').substring(0, 100) + '...');
+  } else if (currentLanguage === 'tr') {
+    console.debug('Turkish pricing content:', JSON.stringify(directTranslations.tr?.pricing || 'Not found').substring(0, 100) + '...');
+  } else if (currentLanguage === 'sv') {
+    console.debug('Swedish pricing content:', JSON.stringify(directTranslations.sv?.pricing || 'Not found').substring(0, 100) + '...');
+  } else if (currentLanguage === 'zh-TW') {
+    console.debug('Chinese (Traditional) pricing content:', JSON.stringify(directTranslations['zh-TW']?.pricing || 'Not found').substring(0, 100) + '...');
+  }
+  console.debug('===== TRANSLATION DEBUG END =====')
+  
   // Function to handle purchase
   const handlePurchase = (planId) => {
     if (!isAuthenticated) {
