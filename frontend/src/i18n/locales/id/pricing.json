@@ -1,0 +1,96 @@
+{
+  "title": "Pilih Paket Anda",
+  "subtitle": "Harga sederhana untuk semua",
+  "selectPlan": "Pilih paket yang sesuai untuk Anda",
+  "monthly": "Bulanan",
+  "yearly": "Tahunan",
+  "yearlyDiscount": "Hemat 10%",
+  "credits": "kredit",
+  "perMonth": "/bulan",
+  "perYear": "/tahun",
+  "forever": "selamanya",
+  "currentPlan": "Paket Saat Ini",
+  "popular": "Paling Populer",
+  "getStarted": "Mulai",
+  "upgrade": "Tingkatkan Sekarang",
+  "contactSales": "Hubungi Penjualan",
+  "creditBalance": "Saldo Kredit",
+  "remainingCredits": "Anda memiliki {{count}} kredit tersisa",
+  "plans": {
+    "free": {
+      "name": "Gratis",
+      "description": "Untuk individu yang ingin mencoba layanan kami",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 kredit gratis per bulan",
+        "Pemrosesan kualitas standar",
+        "Editor berbasis web",
+        "Unduhan JPG dan PNG"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "Untuk individu dan tim kecil dengan kebutuhan rutin",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 kredit per bulan",
+        "Pemrosesan kualitas tinggi",
+        "Editor berbasis web",
+        "Dukungan untuk semua format umum",
+        "Pemrosesan massal hingga 10 gambar",
+        "Pemrosesan prioritas"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Untuk profesional dan bisnis dengan kebutuhan volume tinggi",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 kredit per bulan",
+        "Pemrosesan kualitas premium",
+        "Alat pengeditan lanjutan",
+        "Dukungan semua format, termasuk TIFF",
+        "Pemrosesan massal hingga 50 gambar",
+        "Akses API",
+        "Pemrosesan prioritas tingkat teratas"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Pertanyaan yang Sering Diajukan",
+    "items": [
+      {
+        "question": "Apa yang terjadi ketika saya kehabisan kredit?",
+        "answer": "Ketika Anda kehabisan kredit, Anda dapat membeli lebih banyak atau meningkatkan paket Anda. Kredit yang tidak terpakai akan berlanjut ke bulan berikutnya."
+      },
+      {
+        "question": "Bisakah saya membatalkan langganan kapan saja?",
+        "answer": "Ya, Anda dapat membatalkan langganan Anda kapan saja. Langganan Anda akan tetap aktif hingga akhir periode penagihan Anda."
+      },
+      {
+        "question": "Bagaimana kredit dihitung?",
+        "answer": "Satu kredit sama dengan satu gambar yang diproses. Ukuran dan kompleksitas gambar tidak memengaruhi penggunaan kredit."
+      },
+      {
+        "question": "Apakah kredit yang tidak terpakai kedaluwarsa?",
+        "answer": "Kredit berlaku selama 12 bulan sejak tanggal pembelian atau pembaruan."
+      },
+      {
+        "question": "Bisakah saya meningkatkan atau menurunkan paket saya?",
+        "answer": "Ya, Anda dapat meningkatkan atau menurunkan paket Anda kapan saja. Saat meningkatkan, Anda akan dikenakan biaya selisih yang proporsional. Saat menurunkan, paket baru akan berlaku pada awal siklus penagihan berikutnya."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Siap untuk memulai?",
+    "description": "Mulai dengan paket gratis kami dan tingkatkan kapan saja",
+    "button": "Coba Gratis"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "title": "Pilih Pelan Anda",
+  "subtitle": "Harga mudah untuk semua",
+  "selectPlan": "Pilih pelan yang sesuai untuk anda",
+  "monthly": "Bulanan",
+  "yearly": "Tahunan",
+  "yearlyDiscount": "Jimat 10%",
+  "credits": "kredit",
+  "perMonth": "/bulan",
+  "perYear": "/tahun",
+  "forever": "selama-lamanya",
+  "currentPlan": "Pelan Semasa",
+  "popular": "Paling Popular",
+  "getStarted": "Mulakan",
+  "upgrade": "Naik Taraf Sekarang",
+  "contactSales": "Hubungi Jualan",
+  "creditBalance": "Baki Kredit",
+  "remainingCredits": "Anda mempunyai {{count}} kredit yang tinggal",
+  "plans": {
+    "free": {
+      "name": "Percuma",
+      "description": "Untuk individu yang ingin mencuba perkhidmatan kami",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 kredit percuma setiap bulan",
+        "Pemprosesan kualiti standard",
+        "Editor berasaskan web",
+        "Muat turun JPG dan PNG"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "Untuk individu dan pasukan kecil dengan keperluan biasa",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 kredit setiap bulan",
+        "Pemprosesan kualiti tinggi",
+        "Editor berasaskan web",
+        "Sokongan untuk semua format biasa",
+        "Pemprosesan pukal sehingga 10 imej",
+        "Pemprosesan keutamaan"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Untuk profesional dan perniagaan dengan keperluan volum tinggi",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 kredit setiap bulan",
+        "Pemprosesan kualiti premium",
+        "Alat pengeditan lanjutan",
+        "Sokongan semua format, termasuk TIFF",
+        "Pemprosesan pukal sehingga 50 imej",
+        "Akses API",
+        "Pemprosesan keutamaan peringkat tertinggi"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Soalan Lazim",
+    "items": [
+      {
+        "question": "Apa yang berlaku apabila kredit saya habis?",
+        "answer": "Apabila kredit anda habis, anda boleh membeli lebih banyak atau menaik taraf pelan anda. Sebarang kredit yang tidak digunakan akan dibawa ke bulan seterusnya."
+      },
+      {
+        "question": "Bolehkah saya membatalkan langganan saya pada bila-bila masa?",
+        "answer": "Ya, anda boleh membatalkan langganan anda pada bila-bila masa. Langganan anda akan kekal aktif sehingga akhir tempoh pengebilan anda."
+      },
+      {
+        "question": "Bagaimana kredit dikira?",
+        "answer": "Satu kredit bersamaan dengan satu imej yang diproses. Saiz dan kerumitan imej tidak mempengaruhi penggunaan kredit."
+      },
+      {
+        "question": "Adakah kredit yang tidak digunakan akan luput?",
+        "answer": "Kredit sah selama 12 bulan dari tarikh pembelian atau pembaharuan."
+      },
+      {
+        "question": "Bolehkah saya menaik taraf atau menurunkan pelan saya?",
+        "answer": "Ya, anda boleh menaik taraf atau menurunkan pelan anda pada bila-bila masa. Semasa menaik taraf, anda akan dikenakan perbezaan yang dibahagikan secara pro rata. Semasa menurunkan, pelan baharu akan berkuat kuasa pada permulaan kitaran pengebilan anda yang seterusnya."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Bersedia untuk bermula?",
+    "description": "Mulakan dengan pelan percuma kami dan naik taraf bila-bila masa",
+    "button": "Cuba Secara Percuma"
+  }
+}

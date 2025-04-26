@@ -1,0 +1,96 @@
+{
+  "title": "Scegli il Tuo Piano",
+  "subtitle": "Prezzi semplici per tutti",
+  "selectPlan": "Seleziona un piano adatto a te",
+  "monthly": "Mensile",
+  "yearly": "Annuale",
+  "yearlyDiscount": "Risparmia 10%",
+  "credits": "crediti",
+  "perMonth": "/mese",
+  "perYear": "/anno",
+  "forever": "per sempre",
+  "currentPlan": "Piano Attuale",
+  "popular": "Più Popolare",
+  "getStarted": "Inizia Ora",
+  "upgrade": "Aggiorna Ora",
+  "contactSales": "Contatta Vendite",
+  "creditBalance": "Saldo Crediti",
+  "remainingCredits": "Hai {{count}} crediti rimanenti",
+  "plans": {
+    "free": {
+      "name": "Gratuito",
+      "description": "Per chi desidera provare il nostro servizio",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 crediti gratuiti al mese",
+        "Elaborazione di qualità standard",
+        "Editor basato sul web",
+        "Download in formato JPG e PNG"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "Per individui e piccoli team con esigenze regolari",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 crediti al mese",
+        "Elaborazione di alta qualità",
+        "Editor basato sul web",
+        "Supporto per tutti i formati comuni",
+        "Elaborazione in blocco fino a 10 immagini",
+        "Elaborazione prioritaria"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Per professionisti e aziende con esigenze ad alto volume",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 crediti al mese",
+        "Elaborazione di qualità premium",
+        "Strumenti di editing avanzati",
+        "Supporto per tutti i formati, incluso TIFF",
+        "Elaborazione in blocco fino a 50 immagini",
+        "Accesso API",
+        "Elaborazione prioritaria di livello superiore"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Domande Frequenti",
+    "items": [
+      {
+        "question": "Cosa succede quando termino i crediti?",
+        "answer": "Quando finisci i crediti, puoi acquistarne altri o aggiornare il tuo piano. I crediti non utilizzati saranno trasferiti al mese successivo."
+      },
+      {
+        "question": "Posso annullare il mio abbonamento in qualsiasi momento?",
+        "answer": "Sì, puoi annullare il tuo abbonamento in qualsiasi momento. Il tuo abbonamento rimarrà attivo fino alla fine del periodo di fatturazione."
+      },
+      {
+        "question": "Come vengono calcolati i crediti?",
+        "answer": "Un credito equivale a un'immagine elaborata. Le dimensioni e la complessità dell'immagine non influiscono sull'utilizzo dei crediti."
+      },
+      {
+        "question": "I crediti non utilizzati scadono?",
+        "answer": "I crediti sono validi per 12 mesi dalla data di acquisto o rinnovo."
+      },
+      {
+        "question": "Posso aggiornare o ridurre il mio piano?",
+        "answer": "Sì, puoi aggiornare o ridurre il tuo piano in qualsiasi momento. In caso di aggiornamento, ti verrà addebitata la differenza proporzionale. In caso di riduzione, il nuovo piano entrerà in vigore all'inizio del prossimo ciclo di fatturazione."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Pronto per iniziare?",
+    "description": "Inizia con il nostro piano gratuito e aggiorna in qualsiasi momento",
+    "button": "Prova Gratis"
+  }
+}
