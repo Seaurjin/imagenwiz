@@ -7,23 +7,8 @@ import { useTranslation } from 'react-i18next';
 // Import from mock module
 import { PRICE_IDS } from '../lib/stripe-mock.js';
 
-// Import direct translations for easier debugging
-import enPricing from '../i18n/locales/en/pricing.json';
-import dePricing from '../i18n/locales/de/pricing.json';
-import esPricing from '../i18n/locales/es/pricing.json';
-import frPricing from '../i18n/locales/fr/pricing.json';
-import jaPricing from '../i18n/locales/ja/pricing.json';
-import ruPricing from '../i18n/locales/ru/pricing.json';
-
-// Direct language translations mapping
-const translations = {
-  en: enPricing,
-  de: dePricing,
-  es: esPricing,
-  fr: frPricing,
-  ja: jaPricing,
-  ru: ruPricing
-};
+// Import the direct translation helper
+import { directTranslations, createTranslationHelper } from '../utils/directTranslation';
 
 // Pricing plan base structure
 const pricingPlansBase = [
@@ -74,26 +59,8 @@ const PricingDirect = () => {
   const currentLanguage = i18n.language || 'en';
   const baseLanguage = currentLanguage.split('-')[0]; // Handle cases like 'en-US'
   
-  // Use direct translations based on current language
-  const translationData = translations[baseLanguage] || translations.en;
-  
-  // Helper to get translations with a fallback
-  const getText = (key, fallback = '') => {
-    // Simple path resolver for nested keys like 'plans.lite.name'
-    const path = key.split('.');
-    let result = translationData;
-    
-    for (const segment of path) {
-      if (result && result[segment]) {
-        result = result[segment];
-      } else {
-        // If path doesn't exist, return fallback
-        return fallback;
-      }
-    }
-    
-    return result || fallback;
-  };
+  // Create a translation helper bound to the current language and pricing namespace
+  const getText = createTranslationHelper(baseLanguage, 'pricing');
   
   // Function to handle purchase
   const handlePurchase = (planId) => {
@@ -143,7 +110,7 @@ const PricingDirect = () => {
   
   // Log for debugging
   console.log('Current language:', baseLanguage);
-  console.log('Translation data:', translationData);
+  console.log('Translation data available:', directTranslations[baseLanguage]?.pricing ? 'Yes' : 'No');
   console.log('Plans with translations:', pricingPlans);
   
   return (
