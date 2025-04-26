@@ -1,0 +1,96 @@
+{
+  "title": "Kies Uw Plan",
+  "subtitle": "Eenvoudige prijzen voor iedereen",
+  "selectPlan": "Selecteer een plan dat bij u past",
+  "monthly": "Maandelijks",
+  "yearly": "Jaarlijks",
+  "yearlyDiscount": "Bespaar 10%",
+  "credits": "credits",
+  "perMonth": "/maand",
+  "perYear": "/jaar",
+  "forever": "voor altijd",
+  "currentPlan": "Huidig Plan",
+  "popular": "Meest Populair",
+  "getStarted": "Aan de slag",
+  "upgrade": "Nu upgraden",
+  "contactSales": "Contact Verkoop",
+  "creditBalance": "Credit Saldo",
+  "remainingCredits": "U heeft {{count}} credits over",
+  "plans": {
+    "free": {
+      "name": "Gratis",
+      "description": "Voor individuen die onze service willen uitproberen",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 gratis credits per maand",
+        "Standaard kwaliteit verwerking",
+        "Web-gebaseerde editor",
+        "JPG en PNG downloads"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "Voor individuen en kleine teams met regelmatige behoeften",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 credits per maand",
+        "Hoge kwaliteit verwerking",
+        "Web-gebaseerde editor",
+        "Ondersteuning voor alle gangbare formaten",
+        "Bulkverwerking tot 10 afbeeldingen",
+        "Prioritaire verwerking"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Voor professionals en bedrijven met hoge volume behoeften",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 credits per maand",
+        "Premium kwaliteit verwerking",
+        "Geavanceerde bewerkingstools",
+        "Ondersteuning voor alle formaten, inclusief TIFF",
+        "Bulkverwerking tot 50 afbeeldingen",
+        "API-toegang",
+        "Topsegment prioritaire verwerking"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Veelgestelde Vragen",
+    "items": [
+      {
+        "question": "Wat gebeurt er als mijn credits op zijn?",
+        "answer": "Wanneer uw credits op zijn, kunt u meer kopen of uw plan upgraden. Ongebruikte credits worden overgedragen naar de volgende maand."
+      },
+      {
+        "question": "Kan ik mijn abonnement op elk moment opzeggen?",
+        "answer": "Ja, u kunt uw abonnement op elk moment opzeggen. Uw abonnement blijft actief tot het einde van uw factureringsperiode."
+      },
+      {
+        "question": "Hoe worden credits berekend?",
+        "answer": "Eén credit staat gelijk aan één verwerkte afbeelding. De grootte en complexiteit van de afbeelding hebben geen invloed op het creditgebruik."
+      },
+      {
+        "question": "Verlopen ongebruikte credits?",
+        "answer": "Credits zijn 12 maanden geldig vanaf de datum van aankoop of verlenging."
+      },
+      {
+        "question": "Kan ik mijn plan upgraden of downgraden?",
+        "answer": "Ja, u kunt uw plan op elk moment upgraden of downgraden. Bij upgraden wordt het proportionele verschil in rekening gebracht. Bij downgraden gaat het nieuwe plan in aan het begin van uw volgende factureringscyclus."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Klaar om te beginnen?",
+    "description": "Begin met ons gratis plan en upgrade op elk moment",
+    "button": "Gratis proberen"
+  }
+}

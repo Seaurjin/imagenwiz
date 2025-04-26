@@ -1,0 +1,96 @@
+{
+  "title": "Velg Din Plan",
+  "subtitle": "Enkel prising for alle",
+  "selectPlan": "Velg en plan som passer for deg",
+  "monthly": "Månedlig",
+  "yearly": "Årlig",
+  "yearlyDiscount": "Spar 10%",
+  "credits": "kreditter",
+  "perMonth": "/måned",
+  "perYear": "/år",
+  "forever": "for alltid",
+  "currentPlan": "Nåværende Plan",
+  "popular": "Mest Populær",
+  "getStarted": "Kom i Gang",
+  "upgrade": "Oppgrader Nå",
+  "contactSales": "Kontakt Salg",
+  "creditBalance": "Kreditt Saldo",
+  "remainingCredits": "Du har {{count}} kreditter igjen",
+  "plans": {
+    "free": {
+      "name": "Gratis",
+      "description": "For enkeltpersoner som ønsker å prøve tjenesten vår",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 gratis kreditter per måned",
+        "Standard kvalitetsbehandling",
+        "Nettbasert redigering",
+        "JPG og PNG nedlastinger"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "For enkeltpersoner og små team med regelmessige behov",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 kreditter per måned",
+        "Høykvalitets behandling",
+        "Nettbasert redigering",
+        "Støtte for alle vanlige formater",
+        "Massebehandling opptil 10 bilder",
+        "Prioritert behandling"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "For profesjonelle og bedrifter med høyvolumbehov",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 kreditter per måned",
+        "Premium kvalitetsbehandling",
+        "Avanserte redigeringsverktøy",
+        "Støtte for alle formater, inkludert TIFF",
+        "Massebehandling opptil 50 bilder",
+        "API-tilgang",
+        "Toppnivå prioritert behandling"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Ofte Stilte Spørsmål",
+    "items": [
+      {
+        "question": "Hva skjer når jeg går tom for kreditter?",
+        "answer": "Når du går tom for kreditter, kan du kjøpe flere eller oppgradere planen din. Ubrukte kreditter vil overføres til neste måned."
+      },
+      {
+        "question": "Kan jeg kansellere abonnementet mitt når som helst?",
+        "answer": "Ja, du kan kansellere abonnementet ditt når som helst. Abonnementet ditt vil forbli aktivt til slutten av faktureringsperioden din."
+      },
+      {
+        "question": "Hvordan beregnes kreditter?",
+        "answer": "Én kreditt tilsvarer ett behandlet bilde. Størrelsen og kompleksiteten til bildet påvirker ikke kredittforbruket."
+      },
+      {
+        "question": "Utløper ubrukte kreditter?",
+        "answer": "Kreditter er gyldige i 12 måneder fra kjøpsdato eller fornyelse."
+      },
+      {
+        "question": "Kan jeg oppgradere eller nedgradere planen min?",
+        "answer": "Ja, du kan oppgradere eller nedgradere planen din når som helst. Ved oppgradering vil du bli belastet for den forholdsmessige forskjellen. Ved nedgradering vil den nye planen tre i kraft ved starten av neste faktureringsperiode."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Klar til å komme i gang?",
+    "description": "Start med vår gratisplan og oppgrader når som helst",
+    "button": "Prøv Gratis"
+  }
+}

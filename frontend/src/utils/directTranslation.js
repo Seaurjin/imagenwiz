@@ -11,6 +11,10 @@ import ruPricing from '../i18n/locales/ru/pricing.json';
 import idPricing from '../i18n/locales/id/pricing.json';
 import msPricing from '../i18n/locales/ms/pricing.json';
 import itPricing from '../i18n/locales/it/pricing.json';
+import huPricing from '../i18n/locales/hu/pricing.json';
+import nlPricing from '../i18n/locales/nl/pricing.json';
+import noPricing from '../i18n/locales/no/pricing.json';
+import plPricing from '../i18n/locales/pl/pricing.json';
 
 import enCommon from '../i18n/locales/en/common.json';
 import deCommon from '../i18n/locales/de/common.json';
@@ -21,6 +25,10 @@ import ruCommon from '../i18n/locales/ru/common.json';
 import idCommon from '../i18n/locales/id/common.json';
 import msCommon from '../i18n/locales/ms/common.json';
 import itCommon from '../i18n/locales/it/common.json';
+import huCommon from '../i18n/locales/hu/common.json';
+import nlCommon from '../i18n/locales/nl/common.json';
+import noCommon from '../i18n/locales/no/common.json';
+import plCommon from '../i18n/locales/pl/common.json';
 
 // Add other translation imports as needed for different namespaces
 
@@ -62,6 +70,22 @@ export const directTranslations = {
   it: {
     pricing: itPricing,
     common: itCommon,
+  },
+  hu: {
+    pricing: huPricing,
+    common: huCommon,
+  },
+  nl: {
+    pricing: nlPricing,
+    common: nlCommon,
+  },
+  no: {
+    pricing: noPricing,
+    common: noCommon,
+  },
+  pl: {
+    pricing: plPricing,
+    common: plCommon,
   },
 };
 

@@ -1,0 +1,96 @@
+{
+  "title": "Válassza ki Csomagját",
+  "subtitle": "Egyszerű árazás mindenkinek",
+  "selectPlan": "Válasszon egy Önnek megfelelő csomagot",
+  "monthly": "Havi",
+  "yearly": "Éves",
+  "yearlyDiscount": "10% megtakarítás",
+  "credits": "kredit",
+  "perMonth": "/hónap",
+  "perYear": "/év",
+  "forever": "örökre",
+  "currentPlan": "Jelenlegi csomag",
+  "popular": "Legnépszerűbb",
+  "getStarted": "Kezdés",
+  "upgrade": "Frissítés most",
+  "contactSales": "Értékesítés kapcsolat",
+  "creditBalance": "Kredit egyenleg",
+  "remainingCredits": "Önnek {{count}} kreditje maradt",
+  "plans": {
+    "free": {
+      "name": "Ingyenes",
+      "description": "Egyéneknek, akik ki szeretnék próbálni szolgáltatásunkat",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 ingyenes kredit havonta",
+        "Normál minőségű feldolgozás",
+        "Webalapú szerkesztő",
+        "JPG és PNG letöltések"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "Egyének és kis csapatok rendszeres igényeire",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 kredit havonta",
+        "Kiváló minőségű feldolgozás",
+        "Webalapú szerkesztő",
+        "Támogatás minden gyakori formátumhoz",
+        "Kötegelt feldolgozás akár 10 képig",
+        "Elsőbbségi feldolgozás"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Szakemberek és vállalkozások nagy mennyiségű igényeihez",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 kredit havonta",
+        "Prémium minőségű feldolgozás",
+        "Speciális szerkesztési eszközök",
+        "Minden formátum támogatása, beleértve a TIFF-et is",
+        "Kötegelt feldolgozás akár 50 képig",
+        "API hozzáférés",
+        "Legmagasabb szintű elsőbbségi feldolgozás"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Gyakran Ismételt Kérdések",
+    "items": [
+      {
+        "question": "Mi történik, ha elfogynak a kreditjeim?",
+        "answer": "Ha elfogynak a kreditjei, vásárolhat többet vagy frissítheti csomagját. A fel nem használt kreditek átvihetők a következő hónapra."
+      },
+      {
+        "question": "Lemondhatom az előfizetésemet bármikor?",
+        "answer": "Igen, bármikor lemondhatja előfizetését. Előfizetése a számlázási időszak végéig aktív marad."
+      },
+      {
+        "question": "Hogyan számolják a krediteket?",
+        "answer": "Egy kredit egy feldolgozott képet jelent. A kép mérete és összetettsége nem befolyásolja a kreditfelhasználást."
+      },
+      {
+        "question": "Lejárnak a fel nem használt kreditek?",
+        "answer": "A kreditek a vásárlás vagy megújítás dátumától számított 12 hónapig érvényesek."
+      },
+      {
+        "question": "Frissíthetem vagy csökkenthetem a csomagomat?",
+        "answer": "Igen, bármikor frissítheti vagy csökkentheti csomagját. Frissítéskor az arányos különbözetet számlázzák. Csökkentéskor az új csomag a következő számlázási ciklus kezdetén lép érvénybe."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Készen áll a kezdésre?",
+    "description": "Kezdje ingyenes csomagunkkal és frissítsen bármikor",
+    "button": "Próbálja ki ingyen"
+  }
+}

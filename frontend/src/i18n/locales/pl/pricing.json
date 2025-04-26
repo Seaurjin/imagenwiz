@@ -1,0 +1,96 @@
+{
+  "title": "Wybierz Swój Plan",
+  "subtitle": "Proste ceny dla każdego",
+  "selectPlan": "Wybierz plan, który Ci odpowiada",
+  "monthly": "Miesięcznie",
+  "yearly": "Rocznie",
+  "yearlyDiscount": "Oszczędź 10%",
+  "credits": "kredytów",
+  "perMonth": "/miesiąc",
+  "perYear": "/rok",
+  "forever": "na zawsze",
+  "currentPlan": "Obecny Plan",
+  "popular": "Najpopularniejszy",
+  "getStarted": "Rozpocznij",
+  "upgrade": "Ulepsz Teraz",
+  "contactSales": "Kontakt ze Sprzedażą",
+  "creditBalance": "Saldo Kredytowe",
+  "remainingCredits": "Masz {{count}} pozostałych kredytów",
+  "plans": {
+    "free": {
+      "name": "Darmowy",
+      "description": "Dla osób, które chcą wypróbować naszą usługę",
+      "price": "0",
+      "credits": "3",
+      "features": [
+        "3 darmowe kredyty miesięcznie",
+        "Standardowa jakość przetwarzania",
+        "Edytor internetowy",
+        "Pobieranie w formatach JPG i PNG"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "description": "Dla osób indywidualnych i małych zespołów o regularnych potrzebach",
+      "priceMonthly": "9.90",
+      "priceYearly": "106.80",
+      "creditsMonthly": "50",
+      "creditsYearly": "600",
+      "features": [
+        "50 kredytów miesięcznie",
+        "Przetwarzanie wysokiej jakości",
+        "Edytor internetowy",
+        "Obsługa wszystkich popularnych formatów",
+        "Przetwarzanie zbiorcze do 10 obrazów",
+        "Priorytetowe przetwarzanie"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Dla profesjonalistów i firm o dużych potrzebach",
+      "priceMonthly": "24.90",
+      "priceYearly": "262.80",
+      "creditsMonthly": "250",
+      "creditsYearly": "3000",
+      "features": [
+        "250 kredytów miesięcznie",
+        "Przetwarzanie premium",
+        "Zaawansowane narzędzia do edycji",
+        "Obsługa wszystkich formatów, w tym TIFF",
+        "Przetwarzanie zbiorcze do 50 obrazów",
+        "Dostęp do API",
+        "Priorytetowe przetwarzanie najwyższej klasy"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Często Zadawane Pytania",
+    "items": [
+      {
+        "question": "Co się stanie, gdy wyczerpię kredyty?",
+        "answer": "Gdy wyczerpiesz kredyty, możesz kupić więcej lub ulepszyć swój plan. Niewykorzystane kredyty przejdą na następny miesiąc."
+      },
+      {
+        "question": "Czy mogę anulować subskrypcję w dowolnym momencie?",
+        "answer": "Tak, możesz anulować subskrypcję w dowolnym momencie. Twoja subskrypcja pozostanie aktywna do końca okresu rozliczeniowego."
+      },
+      {
+        "question": "Jak obliczane są kredyty?",
+        "answer": "Jeden kredyt równa się jednemu przetworzonemu obrazowi. Rozmiar i złożoność obrazu nie wpływają na zużycie kredytów."
+      },
+      {
+        "question": "Czy niewykorzystane kredyty wygasają?",
+        "answer": "Kredyty są ważne przez 12 miesięcy od daty zakupu lub odnowienia."
+      },
+      {
+        "question": "Czy mogę ulepszyć lub obniżyć mój plan?",
+        "answer": "Tak, możesz ulepszyć lub obniżyć swój plan w dowolnym momencie. Przy ulepszaniu zostaniesz obciążony proporcjonalną różnicą. Przy obniżaniu nowy plan wejdzie w życie na początku następnego cyklu rozliczeniowego."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Gotowy, aby zacząć?",
+    "description": "Rozpocznij od naszego darmowego planu i ulepsz w dowolnym momencie",
+    "button": "Wypróbuj za Darmo"
+  }
+}
