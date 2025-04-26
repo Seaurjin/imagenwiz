@@ -1,4 +1,4 @@
-name = "Start application"
-command = "node start-server.cjs"
-watchPattern = ["server/*.ts", "backend/**/*.py"]
+name = "Start application" 
+command = "node pure-5000.js"
+watchPattern = ["server/*.ts", "backend/**/*.py", "*.js"]
 waitForPort = 5000

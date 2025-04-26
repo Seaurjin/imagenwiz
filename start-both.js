@@ -1,63 +1,99 @@
-// Script to start both Express and Flask
-const { spawn } = require('child_process');
+// Start both Express and Flask with proper configuration
 const http = require('http');
+const { spawn } = require('child_process');
 
-// Create a dummy server on port 5000 (for Replit)
-const dummyServer = http.createServer((req, res) => {
+// Constants for better readability
+const EXPRESS_PORT = 3000;
+const FLASK_PORT = 5000;
+const PLACEHOLDER_PORT = 5000;
+
+// ANSI color codes for prettier console output
+const RESET = '\x1b[0m';
+const GREEN = '\x1b[32m';
+const YELLOW = '\x1b[33m';
+const BLUE = '\x1b[34m';
+const CYAN = '\x1b[36m';
+
+// Create a minimal HTTP server on port 5000 to satisfy Replit
+console.log(`${YELLOW}Starting temporary placeholder on port ${PLACEHOLDER_PORT}...${RESET}`);
+const placeholderServer = http.createServer((req, res) => {
   res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('iMagenWiz placeholder server');
+  res.end('iMagenWiz is starting...');
 });
 
-// Start the placeholder server on port 5000
-dummyServer.listen(5000, '0.0.0.0', () => {
-  console.log('✅ Placeholder server started on port 5000 to satisfy Replit');
+placeholderServer.listen(PLACEHOLDER_PORT, '0.0.0.0', () => {
+  console.log(`${GREEN}✅ Placeholder running on port ${PLACEHOLDER_PORT}${RESET}`);
   
-  // Now start the Flask backend
-  console.log('🐍 Starting Flask backend...');
+  // Start the main application components with delay
+  setTimeout(startComponents, 1000);
+});
+
+// Function to start both Flask and Express
+function startComponents() {
+  // Log startup
+  console.log(`${CYAN}🚀 Starting application components...${RESET}`);
   
-  const flaskBackend = spawn('python3', ['backend/app.py'], {
+  // Start Express first
+  startExpress();
+  
+  // Then start Flask
+  setTimeout(startFlask, 5000);
+}
+
+// Function to start Express
+function startExpress() {
+  console.log(`${BLUE}📱 Starting Express frontend...${RESET}`);
+  
+  const express = spawn('npm', ['run', 'dev'], {
     env: {
       ...process.env,
-      FLASK_ENV: 'development',
-      FLASK_DEBUG: '1',
-      PORT: '5000'
+      FLASK_PORT: FLASK_PORT.toString(),
+      FLASK_URL: `http://localhost:${FLASK_PORT}`,
+      ENABLE_FALLBACKS: 'true'
     },
     stdio: 'inherit'
   });
   
-  flaskBackend.on('error', (err) => {
-    console.error('Failed to start Flask backend:', err);
+  express.on('error', (err) => {
+    console.error(`Failed to start Express: ${err.message}`);
+  });
+}
+
+// Function to start Flask
+function startFlask() {
+  console.log(`${CYAN}🐍 Starting Flask backend...${RESET}`);
+  
+  const flask = spawn('python3', ['backend/run.py'], {
+    env: {
+      ...process.env,
+      FLASK_APP: 'backend/run.py',
+      FLASK_ENV: 'development',
+      FLASK_DEBUG: '1',
+      FLASK_PORT: FLASK_PORT.toString(),
+      PORT: FLASK_PORT.toString()
+    },
+    stdio: 'inherit'
   });
   
-  // Wait a moment for Flask to initialize
+  flask.on('error', (err) => {
+    console.error(`Failed to start Flask: ${err.message}`);
+  });
+  
+  flask.on('exit', (code) => {
+    if (code !== 0) {
+      console.log(`Flask exited with code ${code}, restarting...`);
+      setTimeout(startFlask, 5000);
+    }
+  });
+  
+  // After Flask starts, close the placeholder server
   setTimeout(() => {
-    // Then start the Express application
-    console.log('🚀 Starting Express frontend...');
-    
-    const expressApp = spawn('npm', ['run', 'dev'], {
-      env: {
-        ...process.env,
-        NODE_ENV: 'production',
-        PORT: '3000',
-        FLASK_AVAILABLE: 'true'
-      },
-      stdio: 'inherit'
+    console.log(`${YELLOW}Shutting down placeholder server...${RESET}`);
+    placeholderServer.close(() => {
+      console.log(`${GREEN}✅ Placeholder server closed, Flask should now serve port ${FLASK_PORT}${RESET}`);
     });
-    
-    expressApp.on('error', (err) => {
-      console.error('Failed to start Express application:', err);
-      process.exit(1);
-    });
-    
-    expressApp.on('exit', (code) => {
-      console.log(`Express application exited with code ${code}`);
-      flaskBackend.kill();
-      process.exit(code || 0);
-    });
-  }, 5000); // Give Flask 5 seconds to start up
-  
-  flaskBackend.on('exit', (code) => {
-    console.log(`Flask backend exited with code ${code}`);
-    process.exit(code || 0);
-  });
-});
+  }, 10000);
+}
+
+// Keep process running
+setInterval(() => {}, 1000);
