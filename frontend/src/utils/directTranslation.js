@@ -29,6 +29,27 @@ import huCommon from '../i18n/locales/hu/common.json';
 import nlCommon from '../i18n/locales/nl/common.json';
 import noCommon from '../i18n/locales/no/common.json';
 import plCommon from '../i18n/locales/pl/common.json';
+import commonAR from '../i18n/locales/ar/common.json';
+import commonKO from '../i18n/locales/ko/common.json';
+import commonTR from '../i18n/locales/tr/common.json';
+import commonEL from '../i18n/locales/el/common.json';
+
+// Import blog translations
+import enBlog from '../i18n/locales/en/blog.json';
+import frBlog from '../i18n/locales/fr/blog.json';
+import esBlog from '../i18n/locales/es/blog.json';
+import jaBlog from '../i18n/locales/ja/blog.json';
+import ruBlog from '../i18n/locales/ru/blog.json';
+import arBlog from '../i18n/locales/ar/blog.json';
+import koBlog from '../i18n/locales/ko/blog.json';
+import idBlog from '../i18n/locales/id/blog.json';
+import msBlog from '../i18n/locales/ms/blog.json';
+import itBlog from '../i18n/locales/it/blog.json';
+import trBlog from '../i18n/locales/tr/blog.json';
+import huBlog from '../i18n/locales/hu/blog.json';
+import plBlog from '../i18n/locales/pl/blog.json';
+import noBlog from '../i18n/locales/no/blog.json';
+import elBlog from '../i18n/locales/el/blog.json';
 
 // Add other translation imports as needed for different namespaces
 
@@ -37,56 +58,88 @@ export const directTranslations = {
   en: {
     pricing: enPricing,
     common: enCommon,
-    // Add other namespaces as needed
+    blog: enBlog
   },
   de: {
     pricing: dePricing,
     common: deCommon,
+    blog: enBlog // Using English as fallback
   },
   es: {
     pricing: esPricing,
     common: esCommon,
+    blog: esBlog
   },
   fr: {
     pricing: frPricing,
     common: frCommon,
+    blog: frBlog
   },
   ja: {
     pricing: jaPricing,
     common: jaCommon,
+    blog: jaBlog
   },
   ru: {
     pricing: ruPricing,
     common: ruCommon,
+    blog: ruBlog
+  },
+  ar: {
+    pricing: enPricing, // Using English as fallback
+    common: commonAR,
+    blog: arBlog
+  },
+  ko: {
+    pricing: enPricing, // Using English as fallback
+    common: commonKO,
+    blog: koBlog
   },
   id: {
     pricing: idPricing,
     common: idCommon,
+    blog: idBlog
   },
   ms: {
     pricing: msPricing,
     common: msCommon,
+    blog: msBlog
   },
   it: {
     pricing: itPricing,
     common: itCommon,
+    blog: itBlog
   },
   hu: {
     pricing: huPricing,
     common: huCommon,
+    blog: huBlog
   },
   nl: {
     pricing: nlPricing,
     common: nlCommon,
+    blog: enBlog // Using English as fallback
   },
   no: {
     pricing: noPricing,
     common: noCommon,
+    blog: noBlog
   },
   pl: {
     pricing: plPricing,
     common: plCommon,
+    blog: plBlog
   },
+  tr: {
+    pricing: enPricing, // Using English as fallback
+    common: commonTR,
+    blog: trBlog
+  },
+  el: {
+    pricing: enPricing, // Using English as fallback
+    common: commonEL,
+    blog: elBlog
+  }
 };
 
 /**

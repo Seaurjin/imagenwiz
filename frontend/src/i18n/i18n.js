@@ -48,9 +48,11 @@ import pricingES from './locales/es/pricing.json';
 // Import Japanese resources
 import commonJA from './locales/ja/common.json';
 import pricingJA from './locales/ja/pricing.json';
+import blogJA from './locales/ja/blog.json';
 
 // Import Arabic resources
 import commonAR from './locales/ar/common.json';
+import blogAR from './locales/ar/blog.json';
 
 // Import German resources
 import commonDE from './locales/de/common.json';
@@ -59,12 +61,14 @@ import pricingDE from './locales/de/pricing.json';
 // Import Russian resources
 import commonRU from './locales/ru/common.json';
 import pricingRU from './locales/ru/pricing.json';
+import blogRU from './locales/ru/blog.json';
 
 // Import Portuguese resources
 import commonPT from './locales/pt/common.json';
 
 // Import Korean resources
 import commonKO from './locales/ko/common.json';
+import blogKO from './locales/ko/blog.json';
 
 // Import Vietnamese resources
 import commonVI from './locales/vi/common.json';
@@ -140,14 +144,14 @@ const resources = {
     common: commonJA,
     auth: authEN,
     pricing: pricingJA,
-    blog: blogEN,
+    blog: blogJA,
     cms: cmsEN
   },
   ar: {
     common: commonAR,
     auth: authEN,
     pricing: pricingEN,
-    blog: blogEN,
+    blog: blogAR,
     cms: cmsEN
   },
   de: {
@@ -161,7 +165,7 @@ const resources = {
     common: commonRU,
     auth: authEN,
     pricing: pricingRU,
-    blog: blogEN,
+    blog: blogRU,
     cms: cmsEN
   },
   pt: {
@@ -175,7 +179,7 @@ const resources = {
     common: commonKO,
     auth: authEN,
     pricing: pricingEN,
-    blog: blogEN,
+    blog: blogKO,
     cms: cmsEN
   },
   vi: {
