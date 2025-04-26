@@ -186,11 +186,10 @@ export const directTranslations = {
  * @returns {*} - The translated value or fallback
  */
 export const getDirectTranslation = (language, namespace, key, fallback = '') => {
-  // Special case for Traditional Chinese which has a hyphen in its code
-  if (language === 'zh-TW' && directTranslations['zh-TW']) {
-    if (directTranslations['zh-TW'][namespace]) {
-      return getPathValue(directTranslations['zh-TW'][namespace], key, fallback);
-    }
+  // First check for exact match (like 'zh-TW')
+  if (directTranslations[language] && directTranslations[language][namespace]) {
+    console.log(`Using exact language match for ${language}/${namespace}/${key}`);
+    return getPathValue(directTranslations[language][namespace], key, fallback);
   }
   
   // Get base language (e.g., 'en' from 'en-US')
@@ -200,7 +199,7 @@ export const getDirectTranslation = (language, namespace, key, fallback = '') =>
   if (!directTranslations[baseLanguage] || !directTranslations[baseLanguage][namespace]) {
     // Fall back to English if the language or namespace doesn't exist
     if (directTranslations.en && directTranslations.en[namespace]) {
-      console.log(`Falling back to English for ${baseLanguage}/${namespace}/${key}`);
+      console.log(`Falling back to English for ${language}/${namespace}/${key}`);
       return getPathValue(directTranslations.en[namespace], key, fallback);
     }
     return fallback;

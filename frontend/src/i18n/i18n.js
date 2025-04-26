@@ -66,6 +66,7 @@ import blogRU from './locales/ru/blog.json';
 
 // Import Portuguese resources
 import commonPT from './locales/pt/common.json';
+import pricingPT from './locales/pt/pricing.json';
 
 // Import Korean resources
 import commonKO from './locales/ko/common.json';
@@ -74,9 +75,11 @@ import pricingKO from './locales/ko/pricing.json';
 
 // Import Vietnamese resources
 import commonVI from './locales/vi/common.json';
+import pricingVI from './locales/vi/pricing.json';
 
 // Import Thai resources
 import commonTH from './locales/th/common.json';
+import pricingTH from './locales/th/pricing.json';
 
 // Import Indonesian resources
 import commonID from './locales/id/common.json';
@@ -91,17 +94,25 @@ import commonNL from './locales/nl/common.json';
 
 // Import Swedish resources
 import commonSV from './locales/sv/common.json';
+import pricingSV from './locales/sv/pricing.json';
 
 // Import Traditional Chinese resources
 import commonZHTW from './locales/zh-TW/common.json';
+import pricingZHTW from './locales/zh-TW/pricing.json';
 
-// Import Italian resources
-import commonIT from './locales/it/common.json';
-import blogIT from './locales/it/blog.json';
+// Import Greek resources
+import commonEL from './locales/el/common.json';
+import blogEL from './locales/el/blog.json';
+import pricingEL from './locales/el/pricing.json';
 
 // Import Turkish resources
 import commonTR from './locales/tr/common.json';
 import blogTR from './locales/tr/blog.json';
+import pricingTR from './locales/tr/pricing.json';
+
+// Import Italian resources
+import commonIT from './locales/it/common.json';
+import blogIT from './locales/it/blog.json';
 
 // Import Hungarian resources
 import commonHU from './locales/hu/common.json';
@@ -114,10 +125,6 @@ import blogPL from './locales/pl/blog.json';
 // Import Norwegian resources
 import commonNO from './locales/no/common.json';
 import blogNO from './locales/no/blog.json';
-
-// Import Greek resources
-import commonEL from './locales/el/common.json';
-import blogEL from './locales/el/blog.json';
 
 // Create resources object with available translations - only include languages we have translations for
 const resources = {
@@ -173,7 +180,7 @@ const resources = {
   pt: {
     common: commonPT,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingPT,
     blog: blogEN,
     cms: cmsEN
   },
@@ -187,14 +194,14 @@ const resources = {
   vi: {
     common: commonVI,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingVI,
     blog: blogEN,
     cms: cmsEN
   },
   th: {
     common: commonTH,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingTH,
     blog: blogEN,
     cms: cmsEN
   },
@@ -222,14 +229,14 @@ const resources = {
   sv: {
     common: commonSV,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingSV,
     blog: blogEN,
     cms: cmsEN
   },
   "zh-TW": {
     common: commonZHTW,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingZHTW,
     blog: blogEN,
     cms: cmsEN
   },
@@ -243,7 +250,7 @@ const resources = {
   "tr": {
     common: commonTR,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingTR,
     blog: blogTR,
     cms: cmsEN
   },
@@ -271,7 +278,7 @@ const resources = {
   "el": {
     common: commonEL,
     auth: authEN,
-    pricing: pricingEN,
+    pricing: pricingEL,
     blog: blogEL,
     cms: cmsEN
   }

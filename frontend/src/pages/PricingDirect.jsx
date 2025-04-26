@@ -130,6 +130,8 @@ const PricingDirect = () => {
     if (directTranslations[lang]?.pricing) {
       console.log(`${lang} pricing title:`, directTranslations[lang].pricing.title);
       console.log(`${lang} pricing plans:`, Object.keys(directTranslations[lang].pricing.plans || {}));
+    } else {
+      console.log(`${lang} pricing translation NOT FOUND`);
     }
   });
   
