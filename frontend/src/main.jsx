@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import axios from 'axios';
 import App from './App';
 import './index.css';
+import './languageSelector.css';
+import './removeLanguageSelector';
 
 // Global variables with real Stripe keys
 window.ENV = window.ENV || {};
