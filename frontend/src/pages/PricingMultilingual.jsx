@@ -7,9 +7,6 @@ import { useTranslation } from 'react-i18next';
 // Import from mock module
 import { PRICE_IDS } from '../lib/stripe-mock.js';
 
-// Import the direct translation helper
-import { directTranslations, createTranslationHelper } from '../utils/directTranslation';
-
 // Pricing plan base structure
 const pricingPlansBase = [
   {
@@ -228,19 +225,53 @@ const PricingMultilingual = () => {
   const [yearlyBilling, setYearlyBilling] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentLanguage, setCurrentLanguage] = useState(
+    localStorage.getItem('i18nextLng') || 'en'
+  );
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
-  // Get current language for translations
-  const currentLanguage = i18n.language || localStorage.getItem('i18nextLng') || 'en';
-  
+
+  // Effect to get language from URL or localStorage and set it
   useEffect(() => {
-    console.log('Current language in PricingMultilingual:', currentLanguage);
-    // Set document title based on language
-    if (translationData[currentLanguage]) {
-      document.title = `${translationData[currentLanguage].title} - iMagenWiz`;
+    // Check for language in URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get('lang');
+    
+    // Check localStorage
+    const storedLang = localStorage.getItem('i18nextLng');
+    
+    // Determine which language to use (URL has priority)
+    const targetLang = urlLang || storedLang || 'en';
+    
+    console.log(`PricingMultilingual - URL lang: ${urlLang}, stored lang: ${storedLang}, selected: ${targetLang}`);
+    
+    // Set the language in all places
+    if (targetLang !== currentLanguage) {
+      setCurrentLanguage(targetLang);
+      localStorage.setItem('i18nextLng', targetLang);
+      document.documentElement.lang = targetLang;
+      
+      // Try to apply it to i18n as well
+      try {
+        i18n.changeLanguage(targetLang).catch(err => {
+          console.warn('Error changing i18n language:', err);
+        });
+      } catch (error) {
+        console.warn('Error with i18n:', error);
+      }
     }
-  }, [currentLanguage]);
+    
+    // Set document title based on language
+    if (translationData[targetLang]) {
+      document.title = `${translationData[targetLang].title} - iMagenWiz`;
+    } else {
+      document.title = "Choose Your Plan - iMagenWiz";
+    }
+    
+    // Log current state for debugging
+    console.log(`PricingMultilingual - Current language set to: ${targetLang}`);
+    console.log(`Available translations: ${Object.keys(translationData).join(', ')}`);
+  }, []);
   
   // Get translation text based on the current language
   const getText = (path, fallback = '') => {

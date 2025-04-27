@@ -1,16 +1,35 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// Simple component to provide direct links to pricing page in specific languages
+// Simple component to provide direct language switching
 const LangQuickSwitcher = () => {
   const { i18n } = useTranslation();
+  const [currentLang, setCurrentLang] = useState(localStorage.getItem('i18nextLng') || 'en');
+  
   const languages = [
     { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', flag: '🇹🇷' },
     { code: 'el', name: 'Greek', nativeName: 'Ελληνικά', flag: '🇬🇷' },
     { code: 'sv', name: 'Swedish', nativeName: 'Svenska', flag: '🇸🇪' },
     { code: 'zh-TW', name: 'Traditional Chinese', nativeName: '繁體中文', flag: '🇨🇳' },
   ];
+
+  useEffect(() => {
+    // Update current language when i18n language changes
+    const updateCurrentLang = () => {
+      const storedLang = localStorage.getItem('i18nextLng');
+      if (storedLang && storedLang !== currentLang) {
+        setCurrentLang(storedLang);
+      }
+    };
+    
+    // Initial check
+    updateCurrentLang();
+    
+    // Set up interval to check for changes
+    const interval = setInterval(updateCurrentLang, 1000);
+    
+    return () => clearInterval(interval);
+  }, [currentLang]);
 
   // Style for the container
   const containerStyle = {
@@ -34,34 +53,36 @@ const LangQuickSwitcher = () => {
     padding: '8px 12px',
     borderRadius: '6px',
     textDecoration: 'none',
+    border: 'none',
+    cursor: 'pointer',
     color: 'white',
     backgroundColor: isActive ? '#10b981' : '#6366f1',
     fontWeight: 'medium',
     transition: 'background-color 150ms ease',
     gap: '8px',
+    width: '100%',
   });
 
-  // Method to directly change language and reload
-  const setLanguageAndNavigate = (langCode) => {
-    console.log(`Setting language to: ${langCode}`);
+  // Direct method to change language
+  const changeLanguage = (langCode) => {
+    console.log(`Directly changing language to: ${langCode}`);
     
-    // First, set in localStorage (most important for page reload)
+    // Set in localStorage first
     localStorage.setItem('i18nextLng', langCode);
     
-    // Now change i18n language (this triggers the event listeners)
-    i18n.changeLanguage(langCode).then(() => {
-      console.log(`Language changed to: ${langCode}`);
-      
-      // Force reload to ensure everything is updated
-      setTimeout(() => {
-        window.location.href = '/pricing';
-      }, 100);
-    });
+    // Update state
+    setCurrentLang(langCode);
+    
+    // Change document language attribute directly
+    document.documentElement.lang = langCode;
+    
+    try {
+      // Force location change to refresh the page with the new language
+      window.location = `/pricing?lang=${langCode}&_=${Date.now()}`;
+    } catch (error) {
+      console.error('Error during language change:', error);
+    }
   };
-
-  // Get current language from i18n
-  const currentLanguage = i18n.language || localStorage.getItem('i18nextLng') || 'en';
-  console.log(`Current language in switcher: ${currentLanguage}`);
 
   return (
     <div style={containerStyle}>
@@ -69,12 +90,12 @@ const LangQuickSwitcher = () => {
         Language
       </h3>
       {languages.map((lang) => {
-        const isActive = currentLanguage === lang.code;
+        const isActive = currentLang === lang.code;
         return (
           <button
             key={lang.code}
             style={buttonStyle(isActive)}
-            onClick={() => setLanguageAndNavigate(lang.code)}
+            onClick={() => changeLanguage(lang.code)}
           >
             <span>{lang.flag}</span>
             <span>{lang.nativeName}</span>
