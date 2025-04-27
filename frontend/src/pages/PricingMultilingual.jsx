@@ -1,0 +1,420 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { CheckIcon, XIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+// Import from mock module
+import { PRICE_IDS } from '../lib/stripe-mock.js';
+
+// Import the direct translation helper
+import { directTranslations, createTranslationHelper } from '../utils/directTranslation';
+
+// Pricing plan base structure
+const pricingPlansBase = [
+  {
+    id: 'free',
+    key: 'free',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    monthlyCredits: 3,
+    yearlyCredits: 3,
+    mostPopular: false,
+  },
+  {
+    id: 'lite_monthly',
+    idYearly: 'lite_yearly',
+    key: 'lite',
+    monthlyPrice: 9.9,
+    yearlyPrice: 106.8,
+    monthlyCredits: 50,
+    yearlyCredits: 600,
+    monthlyPriceId: PRICE_IDS.LITE_MONTHLY,
+    yearlyPriceId: PRICE_IDS.LITE_YEARLY,
+    mostPopular: true,
+  },
+  {
+    id: 'pro_monthly',
+    idYearly: 'pro_yearly',
+    key: 'pro',
+    monthlyPrice: 24.9,
+    yearlyPrice: 262.8,
+    monthlyCredits: 250,
+    yearlyCredits: 3000,
+    monthlyPriceId: PRICE_IDS.PRO_MONTHLY,
+    yearlyPriceId: PRICE_IDS.PRO_YEARLY,
+    mostPopular: false,
+  },
+];
+
+// Direct translation data for each target language
+const translationData = {
+  'tr': {
+    title: "Planınızı Seçin",
+    subtitle: "Herkes için basit fiyatlandırma",
+    monthly: "Aylık",
+    yearly: "Yıllık",
+    yearlyDiscount: "%10 Tasarruf Edin",
+    popular: "En Popüler",
+    free: {
+      name: "Ücretsiz",
+      description: "Hizmetimizi denemek isteyen bireyler için",
+      features: [
+        "Ayda 3 ücretsiz kredi",
+        "Standart kalitede işleme",
+        "Web tabanlı düzenleyici",
+        "JPG ve PNG indirmeleri"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Düzenli ihtiyaçları olan bireyler ve küçük ekipler için",
+      features: [
+        "Ayda 50 kredi",
+        "Yüksek kalitede işleme",
+        "Web tabanlı düzenleyici",
+        "Tüm yaygın formatlar için destek",
+        "10 resme kadar toplu işleme",
+        "Öncelikli işleme"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Yüksek hacimli ihtiyaçları olan profesyoneller ve işletmeler için",
+      features: [
+        "Ayda 250 kredi",
+        "Premium kalitede işleme",
+        "Gelişmiş düzenleme araçları",
+        "TIFF dahil tüm formatlar için destek",
+        "50 resme kadar toplu işleme",
+        "API erişimi",
+        "En yüksek öncelikli işleme"
+      ]
+    }
+  },
+  'el': {
+    title: "Επιλέξτε το Πρόγραμμά Σας",
+    subtitle: "Απλή τιμολόγηση για όλους",
+    monthly: "Μηνιαίο",
+    yearly: "Ετήσιο",
+    yearlyDiscount: "Εξοικονομήστε 10%",
+    popular: "Πιο Δημοφιλές",
+    free: {
+      name: "Δωρεάν",
+      description: "Για άτομα που θέλουν να δοκιμάσουν την υπηρεσία μας",
+      features: [
+        "3 δωρεάν μονάδες ανά μήνα",
+        "Επεξεργασία τυπικής ποιότητας",
+        "Επεξεργαστής στο διαδίκτυο",
+        "Λήψεις JPG και PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Για άτομα και μικρές ομάδες με τακτικές ανάγκες",
+      features: [
+        "50 μονάδες ανά μήνα",
+        "Επεξεργασία υψηλής ποιότητας",
+        "Επεξεργαστής στο διαδίκτυο",
+        "Υποστήριξη για όλες τις κοινές μορφές",
+        "Μαζική επεξεργασία έως 10 εικόνων",
+        "Επεξεργασία με προτεραιότητα"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Για επαγγελματίες και επιχειρήσεις με ανάγκες μεγάλου όγκου",
+      features: [
+        "250 μονάδες ανά μήνα",
+        "Επεξεργασία κορυφαίας ποιότητας",
+        "Προηγμένα εργαλεία επεξεργασίας",
+        "Υποστήριξη για όλες τις μορφές, συμπεριλαμβανομένου του TIFF",
+        "Μαζική επεξεργασία έως 50 εικόνων",
+        "Πρόσβαση στο API",
+        "Επεξεργασία με κορυφαία προτεραιότητα"
+      ]
+    }
+  },
+  'sv': {
+    title: "Välj Din Plan",
+    subtitle: "Enkel prissättning för alla",
+    monthly: "Månadsvis",
+    yearly: "Årsvis",
+    yearlyDiscount: "Spara 10%",
+    popular: "Mest Populär",
+    free: {
+      name: "Gratis",
+      description: "För individer som vill prova vår tjänst",
+      features: [
+        "3 gratis krediter per månad",
+        "Standardkvalitetsbearbetning",
+        "Webbaserad redigerare",
+        "JPG och PNG nedladdningar"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "För individer och små team med regelbundna behov",
+      features: [
+        "50 krediter per månad",
+        "Högkvalitativ bearbetning",
+        "Webbaserad redigerare",
+        "Stöd för alla vanliga format",
+        "Batchbearbetning upp till 10 bilder",
+        "Prioriterad bearbetning"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "För professionella och företag med behov av hög volym",
+      features: [
+        "250 krediter per månad",
+        "Premiumkvalitetsbearbetning",
+        "Avancerade redigeringsverktyg",
+        "Stöd för alla format, inklusive TIFF",
+        "Batchbearbetning upp till 50 bilder",
+        "API-åtkomst",
+        "Högsta prioritetsbearbetning"
+      ]
+    }
+  },
+  'zh-TW': {
+    title: "選擇您的方案",
+    subtitle: "簡單明瞭的價格方案",
+    monthly: "月付",
+    yearly: "年付",
+    yearlyDiscount: "節省10%",
+    popular: "最受歡迎",
+    free: {
+      name: "免費",
+      description: "適合想要嘗試我們服務的個人",
+      features: [
+        "每月3個免費點數",
+        "標準品質處理",
+        "網頁版編輯器",
+        "JPG和PNG下載"
+      ]
+    },
+    lite: {
+      name: "輕量版",
+      description: "適合有常規需求的個人和小型團隊",
+      features: [
+        "每月50點數",
+        "高品質處理",
+        "網頁版編輯器",
+        "支持所有常見格式",
+        "批量處理最多10張圖片",
+        "優先處理"
+      ]
+    },
+    pro: {
+      name: "專業版",
+      description: "適合有大量需求的專業人士和企業",
+      features: [
+        "每月250點數",
+        "頂級品質處理",
+        "進階編輯工具",
+        "支持所有格式，包括TIFF",
+        "批量處理最多50張圖片",
+        "API訪問",
+        "最高優先處理"
+      ]
+    }
+  }
+};
+
+const PricingMultilingual = () => {
+  const { t, i18n } = useTranslation('pricing');
+  const [yearlyBilling, setYearlyBilling] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  
+  // Get current language for translations
+  const currentLanguage = i18n.language || localStorage.getItem('i18nextLng') || 'en';
+  
+  useEffect(() => {
+    console.log('Current language in PricingMultilingual:', currentLanguage);
+    // Set document title based on language
+    if (translationData[currentLanguage]) {
+      document.title = `${translationData[currentLanguage].title} - iMagenWiz`;
+    }
+  }, [currentLanguage]);
+  
+  // Get translation text based on the current language
+  const getText = (path, fallback = '') => {
+    // Split path by dots (e.g., "free.name" -> ["free", "name"])
+    const parts = path.split('.');
+    
+    // Check if we have direct translation for this language
+    if (translationData[currentLanguage]) {
+      let result = translationData[currentLanguage];
+      
+      // Navigate through the path
+      for (const part of parts) {
+        if (!result || typeof result !== 'object') {
+          return fallback;
+        }
+        result = result[part];
+      }
+      
+      return result !== undefined ? result : fallback;
+    }
+    
+    // If not found in our direct translations, use i18next
+    return t(path, fallback);
+  };
+  
+  // Function to handle purchase
+  const handlePurchase = (planId) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/pricing', plan: planId } });
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    
+    // Simulate API call
+    setTimeout(() => {
+      console.log('Purchase initiated for plan:', planId);
+      setLoading(false);
+      navigate('/checkout', { state: { plan: planId } });
+    }, 1000);
+  };
+  
+  // Create pricing plans with translations
+  const pricingPlans = pricingPlansBase.map(plan => {
+    const isYearly = yearlyBilling && plan.key !== 'free';
+    
+    // Get translated content
+    const name = getText(`${plan.key}.name`) || plan.key;
+    const description = getText(`${plan.key}.description`) || '';
+    const features = getText(`${plan.key}.features`) || [];
+    
+    // Calculate price and credits based on billing cycle
+    const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+    const credits = isYearly ? plan.yearlyCredits : plan.monthlyCredits;
+    const priceId = isYearly ? plan.yearlyPriceId : plan.monthlyPriceId;
+    
+    return {
+      ...plan,
+      name,
+      description,
+      price,
+      credits,
+      priceId,
+      features: Array.isArray(features) ? features : [],
+      isYearly
+    };
+  });
+  
+  return (
+    <div className="bg-white">
+      <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-5xl">
+            {getText('title', 'Choose Your Plan')}
+          </h1>
+          <p className="mt-4 text-lg text-gray-500">
+            {getText('subtitle', 'Simple pricing for everyone')}
+          </p>
+          
+          {/* Billing toggle */}
+          <div className="mt-8 flex justify-center">
+            <div className="relative flex items-center space-x-3">
+              <span className={`text-sm font-medium ${!yearlyBilling ? 'text-gray-900' : 'text-gray-500'}`}>
+                {getText('monthly', 'Monthly')}
+              </span>
+              <button
+                type="button"
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                  yearlyBilling ? 'bg-amber-500' : 'bg-gray-200'
+                }`}
+                onClick={() => setYearlyBilling(!yearlyBilling)}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    yearlyBilling ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+              <span className={`text-sm font-medium ${yearlyBilling ? 'text-gray-900' : 'text-gray-500'}`}>
+                {getText('yearly', 'Yearly')}
+              </span>
+              {yearlyBilling && (
+                <span className="ml-2 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+                  {getText('yearlyDiscount', 'Save 10%')}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:grid-cols-3">
+          {pricingPlans.map((plan) => (
+            <div
+              key={plan.id}
+              className={`rounded-lg shadow-lg divide-y divide-gray-200 ${
+                plan.mostPopular ? 'border-2 border-amber-500' : 'border border-gray-200'
+              }`}
+            >
+              {plan.mostPopular && (
+                <div className="bg-amber-500 text-white text-center py-2 font-medium uppercase tracking-wide">
+                  {getText('popular', 'Most Popular')}
+                </div>
+              )}
+
+              <div className="p-6">
+                <h2 className="text-2xl font-medium text-gray-900">{plan.name}</h2>
+                <p className="mt-2 text-sm text-gray-500">{plan.description}</p>
+                
+                <p className="mt-4">
+                  <span className="text-4xl font-extrabold text-gray-900">${plan.price}</span>
+                  <span className="text-base font-medium text-gray-500">
+                    {plan.key === 'free' ? ' forever' : yearlyBilling ? '/year' : '/month'}
+                  </span>
+                </p>
+                
+                <p className="mt-1">
+                  <span className="text-sm font-normal text-gray-500">
+                    {plan.credits} {plan.key === 'free' ? 'free ' : ''}credits
+                    {plan.key !== 'free' ? (yearlyBilling ? ' per year' : ' per month') : ''}
+                  </span>
+                </p>
+                
+                <button
+                  onClick={() => handlePurchase(plan.id)}
+                  disabled={loading}
+                  className={`mt-6 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                    loading ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {loading ? 'Processing...' : plan.key === 'free' ? 'Get Started' : 'Subscribe'}
+                </button>
+              </div>
+              
+              <div className="py-6 px-6 space-y-4">
+                <h3 className="text-sm font-medium text-gray-900">What's included:</h3>
+                <ul className="space-y-3">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <CheckIcon className="h-5 w-5 text-green-500" />
+                      </div>
+                      <p className="ml-3 text-sm text-gray-700">{feature}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PricingMultilingual;

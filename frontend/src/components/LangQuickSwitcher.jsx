@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 // Simple component to provide direct links to pricing page in specific languages
 const LangQuickSwitcher = () => {
+  const { i18n } = useTranslation();
   const languages = [
     { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', flag: '🇹🇷' },
     { code: 'el', name: 'Greek', nativeName: 'Ελληνικά', flag: '🇬🇷' },
@@ -26,39 +28,60 @@ const LangQuickSwitcher = () => {
   };
 
   // Style for language buttons
-  const buttonStyle = {
+  const buttonStyle = (isActive) => ({
     display: 'flex',
     alignItems: 'center',
     padding: '8px 12px',
     borderRadius: '6px',
     textDecoration: 'none',
     color: 'white',
-    backgroundColor: '#6366f1',
+    backgroundColor: isActive ? '#10b981' : '#6366f1',
     fontWeight: 'medium',
     transition: 'background-color 150ms ease',
     gap: '8px',
-  };
+  });
 
-  const changeLanguage = (langCode) => {
-    // Set localStorage first (most important for page reload)
+  // Method to directly change language and reload
+  const setLanguageAndNavigate = (langCode) => {
+    console.log(`Setting language to: ${langCode}`);
+    
+    // First, set in localStorage (most important for page reload)
     localStorage.setItem('i18nextLng', langCode);
     
-    // No need to reload as we're navigating to a new page which will load with the new language
+    // Now change i18n language (this triggers the event listeners)
+    i18n.changeLanguage(langCode).then(() => {
+      console.log(`Language changed to: ${langCode}`);
+      
+      // Force reload to ensure everything is updated
+      setTimeout(() => {
+        window.location.href = '/pricing';
+      }, 100);
+    });
   };
+
+  // Get current language from i18n
+  const currentLanguage = i18n.language || localStorage.getItem('i18nextLng') || 'en';
+  console.log(`Current language in switcher: ${currentLanguage}`);
 
   return (
     <div style={containerStyle}>
-      {languages.map((lang) => (
-        <Link
-          key={lang.code}
-          to="/pricing"
-          style={buttonStyle}
-          onClick={() => changeLanguage(lang.code)}
-        >
-          <span>{lang.flag}</span>
-          <span>{lang.nativeName}</span>
-        </Link>
-      ))}
+      <h3 style={{ margin: '0 0 8px 0', textAlign: 'center', fontSize: '14px' }}>
+        Language
+      </h3>
+      {languages.map((lang) => {
+        const isActive = currentLanguage === lang.code;
+        return (
+          <button
+            key={lang.code}
+            style={buttonStyle(isActive)}
+            onClick={() => setLanguageAndNavigate(lang.code)}
+          >
+            <span>{lang.flag}</span>
+            <span>{lang.nativeName}</span>
+            {isActive && <span style={{ marginLeft: 'auto' }}>✓</span>}
+          </button>
+        );
+      })}
     </div>
   );
 };

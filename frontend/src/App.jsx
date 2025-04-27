@@ -23,6 +23,7 @@ import HistoryDetailPage from './pages/HistoryDetailPage';
 import Pricing from './pages/Pricing';
 import PricingNew from './pages/PricingNew';
 import PricingDirect from './pages/PricingDirect';
+import PricingMultilingual from './pages/PricingMultilingual';
 import CheckoutPage from './pages/CheckoutPage';
 // Use PaymentVerifyPage as the primary page for payment verification
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
@@ -204,7 +205,8 @@ const AppContent = () => {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/pricing" element={<PricingDirect />} />
+              <Route path="/pricing" element={<PricingMultilingual />} />
+              <Route path="/pricing-direct" element={<PricingDirect />} />
               <Route path="/pricing-old" element={<PricingNew />} />
               <Route path="/pricing-legacy" element={<Pricing />} />
               
