@@ -1,0 +1,29 @@
+/* Custom styles to hide the language selector in the footer */
+[aria-label*="language"],
+[aria-label*="Language"],
+button:has(.globe-icon),
+button:has(svg[data-testid="GlobeIcon"]),
+a:has(.globe-icon),
+a:has(svg[data-testid="GlobeIcon"]),
+.language-selector,
+.language-dropdown,
+.footer-language-selector,
+div[class*="language-selector"],
+div[class*="languageSelector"],
+button[class*="language-selector"],
+button[class*="languageSelector"] {
+  display: none !important;
+}
+
+/* Hide fixed language selectors */
+div[style*="position: fixed"][style*="bottom"],
+div[style*="position:fixed"][style*="bottom"] {
+  display: none !important;
+}
+
+/* Hide any DOM element containing "English" text with a globe icon */
+div:has(svg[data-icon="globe"] + span:contains("English")),
+button:has(svg[data-icon="globe"] + span:contains("English")),
+a:has(svg[data-icon="globe"] + span:contains("English")) {
+  display: none !important;
+}
