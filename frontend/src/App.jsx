@@ -198,6 +198,7 @@ const AppContent = () => {
           {/* DynamicHead component to update favicon dynamically */}
           <DynamicHead />
           <Navbar />
+          <LangQuickSwitcher />
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
