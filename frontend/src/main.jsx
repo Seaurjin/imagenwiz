@@ -5,6 +5,38 @@ import App from './App';
 import './index.css';
 import './languageSelector.css';
 import './removeLanguageSelector';
+import './navbarLanguageDebug';
+
+// Add specific script to ensure navbar language selector visibility
+document.addEventListener('DOMContentLoaded', function() {
+  // Force navbar language selector to be visible
+  const forceNavbarLanguageSelectorVisible = () => {
+    const navSelectors = [
+      'nav .sm\\:flex.sm\\:items-center .relative',
+      'nav .relative:has(button[aria-label*="language"])',
+      '.hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center .relative',
+      '.space-x-4 > .relative'
+    ];
+    
+    navSelectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(el => {
+        if (el && el.style) {
+          el.style.display = 'flex';
+          el.style.visibility = 'visible';
+          el.style.opacity = '1';
+          console.log('🌐 Enforced navbar language selector visibility:', el);
+        }
+      });
+    });
+  };
+  
+  // Run immediately and after delays to catch all render stages
+  forceNavbarLanguageSelectorVisible();
+  setTimeout(forceNavbarLanguageSelectorVisible, 500);
+  setTimeout(forceNavbarLanguageSelectorVisible, 1000);
+  setTimeout(forceNavbarLanguageSelectorVisible, 2000);
+});
 
 // Global variables with real Stripe keys
 window.ENV = window.ENV || {};
