@@ -375,11 +375,9 @@ const PricingMultilingual = () => {
               <span className={`text-sm font-medium ${yearlyBilling ? 'text-gray-900' : 'text-gray-500'}`}>
                 {getText('yearly', 'Yearly')}
               </span>
-              {yearlyBilling && (
-                <span className="ml-2 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
-                  {getText('yearlyDiscount', 'Save 10%')}
-                </span>
-              )}
+              <span className="ml-2 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+                {getText('yearlyDiscount', 'Save 10%')}
+              </span>
             </div>
           </div>
         </div>
