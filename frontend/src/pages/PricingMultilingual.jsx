@@ -273,6 +273,45 @@ const PricingMultilingual = () => {
     console.log(`Available translations: ${Object.keys(translationData).join(', ')}`);
   }, []);
   
+  // Hardcoded English fallback features in case i18n doesn't have them
+  const englishFeatures = {
+    free: {
+      name: "Free",
+      description: "For individuals wanting to try out our service",
+      features: [
+        "3 free credits per month",
+        "Standard quality processing",
+        "Web-based editor",
+        "JPG and PNG downloads"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "For individuals and small teams with regular needs",
+      features: [
+        "50 credits per month",
+        "High quality processing",
+        "Web-based editor",
+        "Support for all common formats",
+        "Batch processing up to 10 images",
+        "Priority processing"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "For professionals and businesses with high volume needs",
+      features: [
+        "250 credits per month",
+        "Premium quality processing",
+        "Advanced editing tools",
+        "Support for all formats, including TIFF",
+        "Batch processing up to 50 images",
+        "API access",
+        "Highest priority processing"
+      ]
+    }
+  };
+  
   // Get translation text based on the current language
   const getText = (path, fallback = '') => {
     // Split path by dots (e.g., "free.name" -> ["free", "name"])
@@ -285,16 +324,63 @@ const PricingMultilingual = () => {
       // Navigate through the path
       for (const part of parts) {
         if (!result || typeof result !== 'object') {
+          // If we're looking for features and didn't find them, try the English fallback
+          if (parts.length > 1 && parts[1] === 'features') {
+            const planKey = parts[0]; // 'free', 'lite', or 'pro'
+            const englishPlan = englishFeatures[planKey];
+            if (englishPlan && englishPlan.features) {
+              return englishPlan.features;
+            }
+          }
           return fallback;
         }
         result = result[part];
       }
       
-      return result !== undefined ? result : fallback;
+      // If we found a result, return it
+      if (result !== undefined) {
+        return result;
+      }
+      
+      // If we're looking for features but didn't find them, try the English fallback
+      if (parts.length > 1 && parts[1] === 'features') {
+        const planKey = parts[0]; // 'free', 'lite', or 'pro'
+        const englishPlan = englishFeatures[planKey];
+        if (englishPlan && englishPlan.features) {
+          return englishPlan.features;
+        }
+      }
+      
+      return fallback;
     }
     
-    // If not found in our direct translations, use i18next
-    return t(path, fallback);
+    // If not in our direct translations, check if we're looking for features
+    if (parts.length > 1 && parts[1] === 'features') {
+      const planKey = parts[0]; // 'free', 'lite', or 'pro'
+      const englishPlan = englishFeatures[planKey];
+      if (englishPlan && englishPlan.features) {
+        return englishPlan.features;
+      }
+    }
+    
+    // As last resort, use i18next
+    const i18nResult = t(path, null);
+    if (i18nResult !== null) {
+      return i18nResult;
+    }
+    
+    // If i18next doesn't have it and it's a plan property, check our English fallback
+    if (parts.length > 1) {
+      const planKey = parts[0]; // 'free', 'lite', or 'pro'
+      const propKey = parts[1]; // 'name', 'description', 'features'
+      const englishPlan = englishFeatures[planKey];
+      if (englishPlan && englishPlan[propKey]) {
+        return englishPlan[propKey];
+      }
+    }
+    
+    // Ultimate fallback
+    return fallback;
   };
   
   // Function to handle purchase
