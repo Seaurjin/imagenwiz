@@ -314,76 +314,64 @@ const PricingMultilingual = () => {
   
   // Get translation text based on the current language
   const getText = (path, fallback = '') => {
-    // List of languages with direct translations in our component
-    const directTranslationLanguages = ['tr', 'el', 'sv', 'zh-TW'];
-    const isDirectTranslationLanguage = directTranslationLanguages.includes(currentLanguage);
+    // Split path by dots (e.g., "free.name" -> ["free", "name"])
+    const parts = path.split('.');
     
-    // For languages other than our special 4, try to use i18n first
-    if (!isDirectTranslationLanguage) {
-      // Check the path structure - we need to convert some paths to match i18n structure
-      let i18nPath = path;
+    // Check if we have direct translation for this language
+    if (translationData[currentLanguage]) {
+      let result = translationData[currentLanguage];
       
-      // Convert from our direct paths to i18n paths
-      if (path.includes('.')) {
-        const parts = path.split('.');
-        if (parts.length === 2 && ['free', 'lite', 'pro'].includes(parts[0]) && 
-            ['name', 'description', 'features'].includes(parts[1])) {
-          // Convert 'free.name' to 'plans.free.name'
-          i18nPath = `plans.${parts[0]}.${parts[1]}`;
-        }
-      }
-      
-      // Try to get the translation from i18n
-      const i18nResult = t(i18nPath, null);
-      
-      // If i18n has a result, use it
-      if (i18nResult !== null && i18nResult !== undefined && i18nResult !== i18nPath) {
-        return i18nResult;
-      }
-    }
-    
-    // For our 4 special languages or as fallback, use direct translations
-    if (isDirectTranslationLanguage) {
-      // Split path by dots (e.g., "free.name" -> ["free", "name"])
-      const parts = path.split('.');
-      
-      // Check if we have direct translation for this language
-      if (translationData[currentLanguage]) {
-        let result = translationData[currentLanguage];
-        
-        // Navigate through the path
-        for (const part of parts) {
-          if (!result || typeof result !== 'object') {
-            break;
+      // Navigate through the path
+      for (const part of parts) {
+        if (!result || typeof result !== 'object') {
+          // If we're looking for features and didn't find them, use the English fallback
+          if (parts.length > 1 && parts[1] === 'features') {
+            const planKey = parts[0]; // 'free', 'lite', or 'pro'
+            if (englishFeatures[planKey] && englishFeatures[planKey].features) {
+              return englishFeatures[planKey].features;
+            }
           }
-          result = result[part];
+          break;
         }
-        
-        // If we found a result, return it
-        if (result !== undefined) {
-          return result;
-        }
+        result = result[part];
+      }
+      
+      // If we found a result, return it
+      if (result !== undefined) {
+        return result;
       }
     }
     
-    // If nothing worked so far, check our hardcoded English features
-    // This is useful for special paths like 'free.features', 'lite.features', 'pro.features'
-    if (path.includes('.features')) {
-      const planKey = path.split('.')[0]; // 'free', 'lite', or 'pro'
+    // If nothing found in current language, try English
+    if (translationData.en) {
+      let result = translationData.en;
+      
+      // Navigate through the path
+      for (const part of parts) {
+        if (!result || typeof result !== 'object') break;
+        result = result[part];
+      }
+      
+      // If we found a result in English, return it
+      if (result !== undefined) {
+        return result;
+      }
+    }
+    
+    // If we're looking for features, use our hardcoded English features
+    if (parts.length > 1 && parts[1] === 'features') {
+      const planKey = parts[0]; // 'free', 'lite', or 'pro'
       if (englishFeatures[planKey] && englishFeatures[planKey].features) {
         return englishFeatures[planKey].features;
       }
     }
     
-    // As a last resort, check if it's any other plan property
-    if (path.includes('.')) {
-      const parts = path.split('.');
-      if (parts.length === 2) {
-        const planKey = parts[0]; // 'free', 'lite', or 'pro'
-        const propKey = parts[1]; // 'name', 'description', etc.
-        if (englishFeatures[planKey] && englishFeatures[planKey][propKey] !== undefined) {
-          return englishFeatures[planKey][propKey];
-        }
+    // As a last resort, check if it's any other plan property 
+    if (parts.length === 2) {
+      const planKey = parts[0]; // 'free', 'lite', or 'pro'
+      const propKey = parts[1]; // 'name', 'description', etc.
+      if (englishFeatures[planKey] && englishFeatures[planKey][propKey] !== undefined) {
+        return englishFeatures[planKey][propKey];
       }
     }
     
