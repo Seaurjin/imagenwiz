@@ -833,6 +833,182 @@ const translationData = {
         "Xử lý ưu tiên cao nhất"
       ]
     }
+  },
+  // Thai
+  'th': {
+    title: "เลือกแผนของคุณ",
+    subtitle: "ราคาที่เรียบง่ายสำหรับทุกคน",
+    monthly: "รายเดือน",
+    yearly: "รายปี",
+    yearlyDiscount: "ประหยัด 10%",
+    popular: "นิยมมากที่สุด",
+    free: {
+      name: "ฟรี",
+      description: "สำหรับบุคคลที่ต้องการทดลองใช้บริการของเรา",
+      features: [
+        "3 เครดิตฟรีต่อเดือน",
+        "การประมวลผลคุณภาพมาตรฐาน",
+        "โปรแกรมแก้ไขบนเว็บ",
+        "ดาวน์โหลดไฟล์ JPG และ PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "สำหรับบุคคลและทีมขนาดเล็กที่มีความต้องการเป็นประจำ",
+      features: [
+        "50 เครดิตต่อเดือน",
+        "การประมวลผลคุณภาพสูง",
+        "โปรแกรมแก้ไขบนเว็บ",
+        "รองรับทุกรูปแบบไฟล์ทั่วไป",
+        "ประมวลผลแบบกลุ่มสูงสุด 10 ภาพ",
+        "การประมวลผลแบบมีลำดับความสำคัญ"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "สำหรับมืออาชีพและธุรกิจที่มีความต้องการปริมาณมาก",
+      features: [
+        "250 เครดิตต่อเดือน",
+        "การประมวลผลคุณภาพพรีเมียม",
+        "เครื่องมือแก้ไขขั้นสูง",
+        "รองรับทุกรูปแบบไฟล์ รวมถึง TIFF",
+        "ประมวลผลแบบกลุ่มสูงสุด 50 ภาพ",
+        "การเข้าถึง API",
+        "การประมวลผลที่มีลำดับความสำคัญสูงสุด"
+      ]
+    }
+  },
+  // Dutch
+  'nl': {
+    title: "Kies Uw Plan",
+    subtitle: "Eenvoudige prijzen voor iedereen",
+    monthly: "Maandelijks",
+    yearly: "Jaarlijks",
+    yearlyDiscount: "Bespaar 10%",
+    popular: "Meest Populair",
+    free: {
+      name: "Gratis",
+      description: "Voor individuen die onze service willen proberen",
+      features: [
+        "3 gratis credits per maand",
+        "Standaard kwaliteitsverwerking",
+        "Web-gebaseerde editor",
+        "JPG- en PNG-downloads"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Voor individuen en kleine teams met regelmatige behoeften",
+      features: [
+        "50 credits per maand",
+        "Hoge kwaliteitsverwerking",
+        "Web-gebaseerde editor",
+        "Ondersteuning voor alle gangbare formaten",
+        "Batchverwerking tot 10 afbeeldingen",
+        "Prioriteitsverwerking"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Voor professionals en bedrijven met hoge volume behoeften",
+      features: [
+        "250 credits per maand",
+        "Premium kwaliteitsverwerking",
+        "Geavanceerde bewerkingstools",
+        "Ondersteuning voor alle formaten, inclusief TIFF",
+        "Batchverwerking tot 50 afbeeldingen",
+        "API-toegang",
+        "Hoogste prioriteitsverwerking"
+      ]
+    }
+  },
+  // Polish
+  'pl': {
+    title: "Wybierz Swój Plan",
+    subtitle: "Proste ceny dla wszystkich",
+    monthly: "Miesięcznie",
+    yearly: "Rocznie",
+    yearlyDiscount: "Zaoszczędź 10%",
+    popular: "Najpopularniejszy",
+    free: {
+      name: "Darmowy",
+      description: "Dla osób, które chcą wypróbować naszą usługę",
+      features: [
+        "3 darmowe kredyty miesięcznie",
+        "Przetwarzanie standardowej jakości",
+        "Edytor internetowy",
+        "Pobieranie w formatach JPG i PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Dla osób i małych zespołów o regularnych potrzebach",
+      features: [
+        "50 kredytów miesięcznie",
+        "Przetwarzanie wysokiej jakości",
+        "Edytor internetowy",
+        "Wsparcie dla wszystkich popularnych formatów",
+        "Przetwarzanie wsadowe do 10 obrazów",
+        "Priorytetowe przetwarzanie"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Dla profesjonalistów i firm o dużych potrzebach",
+      features: [
+        "250 kredytów miesięcznie",
+        "Przetwarzanie jakości premium",
+        "Zaawansowane narzędzia do edycji",
+        "Wsparcie dla wszystkich formatów, w tym TIFF",
+        "Przetwarzanie wsadowe do 50 obrazów",
+        "Dostęp do API",
+        "Przetwarzanie o najwyższym priorytecie"
+      ]
+    }
+  },
+  // Norwegian
+  'no': {
+    title: "Velg Din Plan",
+    subtitle: "Enkel prissetting for alle",
+    monthly: "Månedlig",
+    yearly: "Årlig",
+    yearlyDiscount: "Spar 10%",
+    popular: "Mest Populær",
+    free: {
+      name: "Gratis",
+      description: "For enkeltpersoner som ønsker å prøve tjenesten vår",
+      features: [
+        "3 gratis kreditter per måned",
+        "Behandling i standardkvalitet",
+        "Nettbasert redigering",
+        "JPG- og PNG-nedlastinger"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "For enkeltpersoner og små team med regelmessige behov",
+      features: [
+        "50 kreditter per måned",
+        "Behandling i høy kvalitet",
+        "Nettbasert redigering",
+        "Støtte for alle vanlige formater",
+        "Batch-behandling av opptil 10 bilder",
+        "Prioritert behandling"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "For profesjonelle og bedrifter med store volumbehov",
+      features: [
+        "250 kreditter per måned",
+        "Premium kvalitetsbehandling",
+        "Avanserte redigeringsverktøy",
+        "Støtte for alle formater, inkludert TIFF",
+        "Batch-behandling av opptil 50 bilder",
+        "API-tilgang",
+        "Høyeste prioritetsbehandling"
+      ]
+    }
   }
 };
 
