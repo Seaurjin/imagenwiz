@@ -1,48 +1,88 @@
-/* Custom styles to hide the language selector in the footer */
+/* Custom styles to aggressively hide the language selector in the footer */
 
-/* Hide the language selector in the footer - target it directly */
+/* ----- Global Language Selector Hiders ----- */
+/* Target all components with these CSS classes */
+.language-selector,
+[class*="languageSelector"],
+[class*="LanguageSelector"],
+[id*="language-selector"],
+[id*="languageSelector"] {
+  display: none !important;
+}
+
+/* Target elements with language-related attributes */
+[aria-label*="language"],
+[aria-label*="Language"],
+[title*="language"],
+[title*="Language"] {
+  display: none !important;
+}
+
+/* ----- Language Selectors anywhere in the DOM ----- */
+/* Target all potential language selector button patterns */
+button.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md,
+.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md,
+.relative:has(button[aria-label*="language"]),
+.relative:has(button[aria-label*="Language"]) {
+  display: none !important;
+}
+
+/* Target fixed positioned elements like LangQuickSwitcher */
+div[style*="position: fixed"][style*="bottom"],
+div[style*="position:fixed"][style*="bottom"] {
+  display: none !important;
+}
+
+/* ----- Footer-specific selectors ----- */
+/* Fix the structure of the footer */
 footer button,
 footer a {
   display: flex !important; /* Ensure other footer buttons are visible */
 }
 
-/* Only hide buttons in the footer that have the globe icon or English text */
-footer button:has(span:nth-child(1):not([class])),
-footer button:has(span:first-child + span:contains("English")),
-footer a:has(svg[viewBox*="0 0 2"]),
-button.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md[aria-label*="language"],
-button.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md[aria-label*="Language"] {
+/* Hide third div in footer if it contains flag emojis or language-related text */
+footer > div > div > div:nth-child(3):has(span:first-child[role="img"]),
+footer .py-6.flex > :last-child:not(.flex.space-x-4),
+footer .py-6 > *:last-child:not(.flex),
+/* Social media container should be last, hide any extra elements after it */
+footer .flex.space-x-4 ~ *:not(.py-4) {
   display: none !important;
 }
 
-/* Add more specific hiding for the expected footer language selector HTML structure */
-footer div.flex.space-x-4 + button,
-footer div.flex.space-x-4 + a[aria-label*="language"],
-footer div.flex.space-x-4 + div:has(button[aria-label*="language"]) {
+/* ----- Flag emoji and language text-based selectors ----- */
+/* Hide any element containing flag emojis */
+*:has(> span:contains("🇬🇧")),
+*:has(> span:contains("🇪🇸")),
+*:has(> span:contains("🇫🇷")),
+*:has(> span:contains("🇩🇪")),
+*:has(> span:contains("🇮🇹")) {
   display: none !important;
 }
 
-/* Hide specific known language selector HTML structure */
-footer div:has(> div > svg + span:contains("English")) {
+/* Hide buttons with globe icons and language text */
+button:has(svg + span:contains("English")),
+div:has(> svg + span:contains("English")),
+*:has(> span.text-lg[role="img"] + span:contains("English")) {
   display: none !important;
 }
 
-/* Target the inline style language selector specifically (as shown in the screenshot) */
-footer div.flex.items-center.gap-2.px-4.py-3.rounded-md,
-footer div.flex.justify-between.items-center button:has(span[class*="mr"]) {
+/* ----- Extended hiders for typical implementations ----- */
+/* Target typical language dropdown structures */
+.relative:has(> button:has(> span[role="img"])),
+.relative:has(> button:has(> span.text-lg)),
+div:has(> button:has(> span.text-lg[role="img"])) {
+  display: none !important; 
+}
+
+/* Specific for components we found in the codebase */
+footer .max-w-7xl > .py-6 > :last-child:not(.flex.space-x-4):not(.w-full),
+/* For the exact pattern in the recent screenshot */
+footer .max-w-7xl > .py-6.flex.flex-col.md\\:flex-row > :last-child:not(.flex.space-x-4) {
   display: none !important;
 }
 
-/* Target anything in the footer that has a flag emoji */
-footer *:has(span:contains("🇬🇧")),
-footer *:has(span:contains("🇪🇸")),
-footer *:has(span:contains("🇫🇷")),
-footer *:has(span:contains("🇩🇪")),
-footer *:has(span:contains("🇮🇹")) {
-  display: none !important;
-}
-
-/* Dynamically inject custom script to ensure removal of language selector */
+/* ----- Safety and cleanup ----- */
+/* Script to dynamically inject removal */
 @media (min-width: 1px) {
   body::after {
     content: "";
@@ -52,12 +92,8 @@ footer *:has(span:contains("🇮🇹")) {
     visibility: hidden;
   }
   
+  /* Marker for our JS solution */
   body:has(footer):not(:has(#language-selector-hidden)) {
     position: relative;
-  }
-  
-  body:has(footer):not(:has(#language-selector-hidden))::after {
-    content: "Hiding language selector in footer";
-    display: none;
   }
 }
