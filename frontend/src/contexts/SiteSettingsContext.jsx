@@ -10,8 +10,8 @@ export const useSiteSettings = () => useContext(SiteSettingsContext);
 // Provider component
 export const SiteSettingsProvider = ({ children }) => {
   const [logos, setLogos] = useState({
-    navbar: '/favicon.svg',
-    footer: '/favicon.svg',
+    navbar: '/images/imagenwiz-logo-simple.svg',
+    footer: '/images/imagenwiz-logo-simple.svg',
     favicon: '/favicon.svg'
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -26,8 +26,8 @@ export const SiteSettingsProvider = ({ children }) => {
       
       // Set default values for missing logos
       const updatedLogos = {
-        navbar: logoData.navbar || '/images/imagenwiz-logo-navbar-gradient.svg',
-        footer: logoData.footer || '/images/imagenwiz-logo-footer.svg',
+        navbar: logoData.navbar || '/images/imagenwiz-logo-simple.svg',
+        footer: logoData.footer || '/images/imagenwiz-logo-simple.svg',
         favicon: logoData.favicon || '/favicon.svg'
       };
       
