@@ -657,6 +657,182 @@ const translationData = {
         "最高優先處理"
       ]
     }
+  },
+  // Portuguese
+  'pt': {
+    title: "Escolha Seu Plano",
+    subtitle: "Preços simples para todos",
+    monthly: "Mensal",
+    yearly: "Anual",
+    yearlyDiscount: "Economize 10%",
+    popular: "Mais Popular",
+    free: {
+      name: "Gratuito",
+      description: "Para indivíduos que querem experimentar nosso serviço",
+      features: [
+        "3 créditos gratuitos por mês",
+        "Processamento de qualidade padrão",
+        "Editor baseado na web",
+        "Downloads JPG e PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Para indivíduos e pequenas equipes com necessidades regulares",
+      features: [
+        "50 créditos por mês",
+        "Processamento de alta qualidade",
+        "Editor baseado na web",
+        "Suporte para todos os formatos comuns",
+        "Processamento em lote de até 10 imagens",
+        "Processamento prioritário"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Para profissionais e empresas com necessidades de alto volume",
+      features: [
+        "250 créditos por mês",
+        "Processamento de qualidade premium",
+        "Ferramentas de edição avançadas",
+        "Suporte para todos os formatos, incluindo TIFF",
+        "Processamento em lote de até 50 imagens",
+        "Acesso à API",
+        "Processamento com prioridade máxima"
+      ]
+    }
+  },
+  // Korean
+  'ko': {
+    title: "플랜 선택",
+    subtitle: "모두를 위한 간단한 가격 책정",
+    monthly: "월간",
+    yearly: "연간",
+    yearlyDiscount: "10% 절약",
+    popular: "가장 인기",
+    free: {
+      name: "무료",
+      description: "서비스를 시도하고 싶은 개인을 위한",
+      features: [
+        "월 3개의 무료 크레딧",
+        "표준 품질 처리",
+        "웹 기반 에디터",
+        "JPG 및 PNG 다운로드"
+      ]
+    },
+    lite: {
+      name: "라이트",
+      description: "정기적인 요구가 있는 개인 및 소규모 팀을 위한",
+      features: [
+        "월 50 크레딧",
+        "고품질 처리",
+        "웹 기반 에디터",
+        "모든 일반 형식 지원",
+        "최대 10개 이미지 일괄 처리",
+        "우선 처리"
+      ]
+    },
+    pro: {
+      name: "프로",
+      description: "대용량 요구가 있는 전문가 및 기업을 위한",
+      features: [
+        "월 250 크레딧",
+        "프리미엄 품질 처리",
+        "고급 편집 도구",
+        "TIFF를 포함한 모든 형식 지원",
+        "최대 50개 이미지 일괄 처리",
+        "API 액세스",
+        "최고 우선 순위 처리"
+      ]
+    }
+  },
+  // Arabic
+  'ar': {
+    title: "اختر خطتك",
+    subtitle: "تسعير بسيط للجميع",
+    monthly: "شهري",
+    yearly: "سنوي",
+    yearlyDiscount: "وفر 10%",
+    popular: "الأكثر شعبية",
+    free: {
+      name: "مجاني",
+      description: "للأفراد الراغبين في تجربة خدمتنا",
+      features: [
+        "3 رصيد مجاني شهريًا",
+        "معالجة بجودة قياسية",
+        "محرر عبر الويب",
+        "تنزيلات بصيغة JPG وPNG"
+      ]
+    },
+    lite: {
+      name: "لايت",
+      description: "للأفراد والفرق الصغيرة ذات الاحتياجات المنتظمة",
+      features: [
+        "50 رصيد شهريًا",
+        "معالجة عالية الجودة",
+        "محرر عبر الويب",
+        "دعم لجميع التنسيقات الشائعة",
+        "معالجة دفعية تصل إلى 10 صور",
+        "معالجة ذات أولوية"
+      ]
+    },
+    pro: {
+      name: "برو",
+      description: "للمحترفين والشركات ذات احتياجات الحجم العالي",
+      features: [
+        "250 رصيد شهريًا",
+        "معالجة بجودة ممتازة",
+        "أدوات تحرير متقدمة",
+        "دعم لجميع التنسيقات بما في ذلك TIFF",
+        "معالجة دفعية تصل إلى 50 صورة",
+        "وصول API",
+        "معالجة بأعلى أولوية"
+      ]
+    }
+  },
+  // Vietnamese
+  'vi': {
+    title: "Chọn Gói Của Bạn",
+    subtitle: "Giá đơn giản cho tất cả mọi người",
+    monthly: "Hàng tháng",
+    yearly: "Hàng năm",
+    yearlyDiscount: "Tiết kiệm 10%",
+    popular: "Phổ Biến Nhất",
+    free: {
+      name: "Miễn phí",
+      description: "Dành cho những người muốn thử dịch vụ của chúng tôi",
+      features: [
+        "3 tín dụng miễn phí mỗi tháng",
+        "Xử lý chất lượng tiêu chuẩn",
+        "Trình chỉnh sửa dựa trên web",
+        "Tải xuống JPG và PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Dành cho cá nhân và nhóm nhỏ có nhu cầu thường xuyên",
+      features: [
+        "50 tín dụng mỗi tháng",
+        "Xử lý chất lượng cao",
+        "Trình chỉnh sửa dựa trên web",
+        "Hỗ trợ tất cả các định dạng phổ biến",
+        "Xử lý hàng loạt lên đến 10 hình ảnh",
+        "Xử lý ưu tiên"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Dành cho chuyên gia và doanh nghiệp có nhu cầu khối lượng lớn",
+      features: [
+        "250 tín dụng mỗi tháng",
+        "Xử lý chất lượng cao cấp",
+        "Công cụ chỉnh sửa nâng cao",
+        "Hỗ trợ tất cả các định dạng, bao gồm TIFF",
+        "Xử lý hàng loạt lên đến 50 hình ảnh",
+        "Truy cập API",
+        "Xử lý ưu tiên cao nhất"
+      ]
+    }
   }
 };
 
