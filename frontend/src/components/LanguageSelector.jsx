@@ -130,10 +130,29 @@ const LanguageSelector = ({ variant = 'default', size = 'default' }) => {
     setSearchTerm(e.target.value);
   };
 
+  // Ensure the component remains interactive in the navbar (but not footer)
+  const isInNavbar = typeof window !== 'undefined' && 
+    (document.querySelector('nav')?.contains(dropdownRef.current) || 
+     document.querySelector('.hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center')?.contains(dropdownRef.current));
+  
+  // Fix pointer events and interactivity for navbar
+  useEffect(() => {
+    if (isInNavbar && dropdownRef.current) {
+      dropdownRef.current.style.pointerEvents = 'auto';
+      const button = dropdownRef.current.querySelector('button');
+      if (button) {
+        button.style.pointerEvents = 'auto';
+        button.style.cursor = 'pointer';
+        button.removeAttribute('disabled');
+      }
+    }
+  }, [isInNavbar]);
+  
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef} style={{pointerEvents: isInNavbar ? 'auto' : ''}}>
       <button 
         onClick={() => {
+          console.log("Language selector clicked");
           if (!isChanging) {
             setIsOpen(!isOpen);
           }
@@ -142,10 +161,11 @@ const LanguageSelector = ({ variant = 'default', size = 'default' }) => {
                   ${variant === 'outline' 
                     ? 'border border-gray-300 hover:bg-gray-50 active:bg-gray-100' 
                     : 'bg-teal-500 text-white hover:bg-teal-600 active:bg-teal-700'}
-                  ${isChanging ? 'opacity-70 pointer-events-none' : ''}
+                  ${isChanging ? 'opacity-70' : ''}
                   cursor-pointer`}
+        style={{pointerEvents: isInNavbar ? 'auto' : (isChanging ? 'none' : '')}}
         aria-label={`Change language (current: ${currentLanguage.name})`}
-        disabled={isChanging}
+        disabled={isChanging && !isInNavbar}
       >
         <span className="text-lg mr-1" role="img" aria-label={currentLanguage.name}>{currentLanguage.flag}</span>
         <span className="hidden md:inline">{currentLanguage.nativeName}</span>

@@ -6,6 +6,7 @@ import './index.css';
 import './languageSelector.css';
 import './removeLanguageSelector';
 import './navbarLanguageDebug';
+import './fixLanguageSelectorClick';
 
 // Add specific script to ensure navbar language selector visibility
 document.addEventListener('DOMContentLoaded', function() {
