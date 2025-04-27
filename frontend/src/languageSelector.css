@@ -26,9 +26,9 @@ footer .relative:has(button[aria-label*="Language"]) {
   display: none !important;
 }
 
-/* Target fixed positioned elements like LangQuickSwitcher */
-div[style*="position: fixed"][style*="bottom"],
-div[style*="position:fixed"][style*="bottom"] {
+/* Target only the LangQuickSwitcher component, preserving other language selectors */
+div[style*="position: fixed"][style*="bottom"]:has(h3),
+div[style*="position:fixed"][style*="bottom"]:has(h3) {
   display: none !important;
 }
 

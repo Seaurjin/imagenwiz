@@ -23,16 +23,18 @@ function removeLanguageSelector() {
     document.body.appendChild(marker);
   }
   
-  // Target any fixed positioned elements at the bottom of the screen (like LangQuickSwitcher)
+  // Target ONLY the LangQuickSwitcher component (with h3 heading)
   const fixedElements = document.querySelectorAll('div[style*="position: fixed"][style*="bottom"]');
   fixedElements.forEach(el => {
     const text = el.textContent || '';
-    // Check if it has language-related content
-    if (text.includes('Language') || text.includes('English') || 
+    const hasHeader = el.querySelector('h3');
+    
+    // Only hide if it has both language-related content AND a header (LangQuickSwitcher has an h3)
+    if (hasHeader && (text.includes('Language') || text.includes('English') || 
         text.includes('🇬🇧') || text.includes('🇫🇷') || text.includes('🇪🇸') || 
-        text.includes('🇩🇪') || text.includes('🇮🇹')) {
+        text.includes('🇩🇪') || text.includes('🇮🇹'))) {
       el.style.display = 'none';
-      console.log('Removed fixed language selector');
+      console.log('Removed LangQuickSwitcher');
     }
   });
   
@@ -150,12 +152,21 @@ function injectImmediateStyles() {
       display: block !important;
     }
     
-    /* Hide language selectors immediately */
-    button[aria-label*="language"],
-    button[aria-label*="Language"],
-    .relative:has(button[aria-label*="language"]),
-    .relative:has(button[aria-label*="Language"]) {
+    /* Hide ONLY footer language selectors immediately */
+    footer button[aria-label*="language"],
+    footer button[aria-label*="Language"],
+    footer .relative:has(button[aria-label*="language"]),
+    footer .relative:has(button[aria-label*="Language"]) {
       display: none !important;
+    }
+    
+    /* Make sure navbar language selectors remain visible */
+    nav button[aria-label*="language"],
+    nav button[aria-label*="Language"],
+    nav .relative:has(button[aria-label*="language"]),
+    nav .relative:has(button[aria-label*="Language"]),
+    .hidden.sm\\:ml-6.sm\\:flex button[aria-label*="language"] {
+      display: flex !important;
     }
     
     /* Fixed position language quick switcher */
@@ -234,10 +245,11 @@ window.addEventListener('load', () => {
     attributeFilter: ['style', 'class']
   });
   
-  // Final cleanup - look for any LangQuickSwitcher component
+  // Final cleanup - ONLY remove LangQuickSwitcher component (with h3 heading)
   const langSwitchers = document.querySelectorAll('div[style*="position: fixed"][style*="bottom"]');
   langSwitchers.forEach(el => {
-    if ((el.textContent || '').includes('Language')) {
+    const hasHeader = el.querySelector('h3');
+    if (hasHeader && (el.textContent || '').includes('Language')) {
       el.remove();
       console.log('Removed LangQuickSwitcher component');
     }
