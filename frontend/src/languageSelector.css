@@ -34,18 +34,23 @@ div[style*="position:fixed"][style*="bottom"] {
 }
 
 /* ----- Footer-specific selectors ----- */
-/* Fix the structure of the footer */
+/* Fix the structure of the footer - ensure logo and links remain visible */
 footer button,
 footer a {
-  display: flex !important; /* Ensure other footer buttons are visible */
+  display: flex !important; /* Ensure footer buttons are visible */
 }
 
-/* Hide third div in footer if it contains flag emojis or language-related text */
+/* Ensure logo container is visible */
+footer .flex.items-center img,
+footer div.mb-4.md\\:mb-0.flex.items-center,
+footer div.mb-4.md\\:mb-0.flex.items-center img {
+  display: block !important;
+}
+
+/* Only hide language selector elements in the footer */
 footer > div > div > div:nth-child(3):has(span:first-child[role="img"]),
-footer .py-6.flex > :last-child:not(.flex.space-x-4),
-footer .py-6 > *:last-child:not(.flex),
-/* Social media container should be last, hide any extra elements after it */
-footer .flex.space-x-4 ~ *:not(.py-4) {
+footer .flex.space-x-4 ~ button:has(span[role="img"]),
+footer .flex.space-x-4 ~ div:has(button:has(span[role="img"])) {
   display: none !important;
 }
 

@@ -80,7 +80,19 @@ function removeLanguageSelector() {
       const child = children[i];
       const text = child.textContent || '';
       
-      // Look for flag emoji or language text
+      // Skip the logo container - identified by the presence of an image
+      if (child.querySelector('img')) {
+        console.log('Found logo container, skipping:', child);
+        continue;
+      }
+      
+      // Skip the social media links container
+      if (child.classList.contains('flex') && child.classList.contains('space-x-4')) {
+        console.log('Found social links container, skipping:', child);
+        continue;
+      }
+      
+      // Look for flag emoji or language text to identify language selectors
       if (text.includes('🇬🇧') || text.includes('English') || 
           text.includes('Language') || 
           (child.querySelector && child.querySelector('[aria-label*="language"]'))) {
@@ -120,10 +132,14 @@ function injectImmediateStyles() {
   const style = document.createElement('style');
   style.id = 'immediate-language-selector-style';
   style.textContent = `
+    /* Ensure logo is always visible */
+    footer div:has(> img),
+    footer div.mb-4.md\\:mb-0.flex.items-center,
+    footer div.mb-4.md\\:mb-0.flex.items-center img {
+      display: block !important;
+    }
+    
     /* Hide language selectors immediately */
-    footer button:has(span:first-child[role="img"]),
-    footer a:has(span:first-child[role="img"]),
-    div[style*="position: fixed"][style*="bottom"]:has(h3:contains("Language")),
     button[aria-label*="language"],
     button[aria-label*="Language"],
     .relative:has(button[aria-label*="language"]),
@@ -131,8 +147,19 @@ function injectImmediateStyles() {
       display: none !important;
     }
     
-    /* Target the exact structure seen in the screenshot */
-    footer .py-6.flex.flex-col.md\\:flex-row.justify-between.items-center > :last-child:not(.flex.space-x-4) {
+    /* Fixed position language quick switcher */
+    div[style*="position: fixed"][style*="bottom"]:has(h3:contains("Language")) {
+      display: none !important;
+    }
+    
+    /* Only hide buttons with flag emojis - but not in the social media container */
+    footer button:has(span:first-child[role="img"]):not(:has(span[class*="text-gray-"])),
+    footer a:has(span:first-child[role="img"]):not(:has(span[class*="text-gray-"])) {
+      display: none !important;
+    }
+    
+    /* Target the exact language selector seen in the screenshot */
+    footer .py-6.flex.flex-col.md\\:flex-row.justify-between.items-center > div:nth-child(3):not(.flex.space-x-4) {
       display: none !important;
     }
   `;
