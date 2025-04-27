@@ -310,6 +310,182 @@ const translationData = {
       ]
     }
   },
+  // Indonesian
+  'id': {
+    title: "Pilih Paket Anda",
+    subtitle: "Harga sederhana untuk semua",
+    monthly: "Bulanan",
+    yearly: "Tahunan",
+    yearlyDiscount: "Hemat 10%",
+    popular: "Paling Populer",
+    free: {
+      name: "Gratis",
+      description: "Untuk individu yang ingin mencoba layanan kami",
+      features: [
+        "3 kredit gratis per bulan",
+        "Pemrosesan kualitas standar",
+        "Editor berbasis web",
+        "Unduhan JPG dan PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Untuk individu dan tim kecil dengan kebutuhan rutin",
+      features: [
+        "50 kredit per bulan",
+        "Pemrosesan kualitas tinggi",
+        "Editor berbasis web",
+        "Dukungan untuk semua format umum",
+        "Pemrosesan batch hingga 10 gambar",
+        "Pemrosesan prioritas"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Untuk profesional dan bisnis dengan kebutuhan volume tinggi",
+      features: [
+        "250 kredit per bulan",
+        "Pemrosesan kualitas premium",
+        "Alat pengeditan lanjutan",
+        "Dukungan untuk semua format, termasuk TIFF",
+        "Pemrosesan batch hingga 50 gambar",
+        "Akses API",
+        "Pemrosesan prioritas tertinggi"
+      ]
+    }
+  },
+  // Malaysian
+  'ms': {
+    title: "Pilih Pelan Anda",
+    subtitle: "Harga mudah untuk semua",
+    monthly: "Bulanan",
+    yearly: "Tahunan",
+    yearlyDiscount: "Jimat 10%",
+    popular: "Paling Popular",
+    free: {
+      name: "Percuma",
+      description: "Untuk individu yang ingin mencuba perkhidmatan kami",
+      features: [
+        "3 kredit percuma setiap bulan",
+        "Pemprosesan kualiti standard",
+        "Editor berasaskan web",
+        "Muat turun JPG dan PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Untuk individu dan pasukan kecil dengan keperluan biasa",
+      features: [
+        "50 kredit setiap bulan",
+        "Pemprosesan berkualiti tinggi",
+        "Editor berasaskan web",
+        "Sokongan untuk semua format biasa",
+        "Pemprosesan kelompok sehingga 10 imej",
+        "Pemprosesan keutamaan"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Untuk profesional dan perniagaan dengan keperluan volum tinggi",
+      features: [
+        "250 kredit setiap bulan",
+        "Pemprosesan kualiti premium",
+        "Alat penyuntingan lanjutan",
+        "Sokongan untuk semua format, termasuk TIFF",
+        "Pemprosesan kelompok sehingga 50 imej",
+        "Akses API",
+        "Pemprosesan keutamaan tertinggi"
+      ]
+    }
+  },
+  // Italian
+  'it': {
+    title: "Scegli il Tuo Piano",
+    subtitle: "Prezzi semplici per tutti",
+    monthly: "Mensile",
+    yearly: "Annuale",
+    yearlyDiscount: "Risparmia 10%",
+    popular: "Più Popolare",
+    free: {
+      name: "Gratuito",
+      description: "Per chi vuole provare il nostro servizio",
+      features: [
+        "3 crediti gratuiti al mese",
+        "Elaborazione di qualità standard",
+        "Editor basato sul web",
+        "Download JPG e PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Per individui e piccoli team con esigenze regolari",
+      features: [
+        "50 crediti al mese",
+        "Elaborazione di alta qualità",
+        "Editor basato sul web",
+        "Supporto per tutti i formati comuni",
+        "Elaborazione in batch fino a 10 immagini",
+        "Elaborazione prioritaria"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Per professionisti e aziende con esigenze di alto volume",
+      features: [
+        "250 crediti al mese",
+        "Elaborazione di qualità premium",
+        "Strumenti di modifica avanzati",
+        "Supporto per tutti i formati, incluso TIFF",
+        "Elaborazione in batch fino a 50 immagini",
+        "Accesso API",
+        "Elaborazione con massima priorità"
+      ]
+    }
+  },
+  // Hungarian
+  'hu': {
+    title: "Válassza ki a csomagját",
+    subtitle: "Egyszerű árazás mindenkinek",
+    monthly: "Havi",
+    yearly: "Éves",
+    yearlyDiscount: "10% megtakarítás",
+    popular: "Legnépszerűbb",
+    free: {
+      name: "Ingyenes",
+      description: "Azoknak, akik szeretnék kipróbálni szolgáltatásunkat",
+      features: [
+        "3 ingyenes kredit havonta",
+        "Normál minőségű feldolgozás",
+        "Webalapú szerkesztő",
+        "JPG és PNG letöltések"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Egyéneknek és kis csapatoknak rendszeres igényekkel",
+      features: [
+        "50 kredit havonta",
+        "Kiváló minőségű feldolgozás",
+        "Webalapú szerkesztő",
+        "Támogatás minden általános formátumhoz",
+        "Kötegelt feldolgozás akár 10 képig",
+        "Elsőbbségi feldolgozás"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Szakembereknek és vállalkozásoknak nagy mennyiségi igényekkel",
+      features: [
+        "250 kredit havonta",
+        "Prémium minőségű feldolgozás",
+        "Fejlett szerkesztési eszközök",
+        "Támogatás minden formátumhoz, beleértve a TIFF-et is",
+        "Kötegelt feldolgozás akár 50 képig",
+        "API hozzáférés",
+        "Legmagasabb prioritású feldolgozás"
+      ]
+    }
+  },
   'tr': {
     title: "Planınızı Seçin",
     subtitle: "Herkes için basit fiyatlandırma",
