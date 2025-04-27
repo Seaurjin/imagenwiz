@@ -1,29 +1,28 @@
-/* Custom styles to aggressively hide the language selector in the footer */
+/* Custom styles to selectively hide the language selector in the footer only */
 
-/* ----- Global Language Selector Hiders ----- */
-/* Target all components with these CSS classes */
-.language-selector,
-[class*="languageSelector"],
-[class*="LanguageSelector"],
-[id*="language-selector"],
-[id*="languageSelector"] {
+/* ----- Footer-Specific Language Selector Hiders ----- */
+/* Target language selectors only within the footer */
+footer .language-selector,
+footer [class*="languageSelector"],
+footer [class*="LanguageSelector"],
+footer [id*="language-selector"],
+footer [id*="languageSelector"] {
   display: none !important;
 }
 
-/* Target elements with language-related attributes */
-[aria-label*="language"],
-[aria-label*="Language"],
-[title*="language"],
-[title*="Language"] {
+/* Target elements with language-related attributes only in footer */
+footer [aria-label*="language"],
+footer [aria-label*="Language"],
+footer [title*="language"],
+footer [title*="Language"] {
   display: none !important;
 }
 
-/* ----- Language Selectors anywhere in the DOM ----- */
-/* Target all potential language selector button patterns */
-button.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md,
-.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md,
-.relative:has(button[aria-label*="language"]),
-.relative:has(button[aria-label*="Language"]) {
+/* ----- Footer-specific language selector button patterns ----- */
+footer button.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md,
+footer .flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md,
+footer .relative:has(button[aria-label*="language"]),
+footer .relative:has(button[aria-label*="Language"]) {
   display: none !important;
 }
 
@@ -54,28 +53,27 @@ footer .flex.space-x-4 ~ div:has(button:has(span[role="img"])) {
   display: none !important;
 }
 
-/* ----- Flag emoji and language text-based selectors ----- */
-/* Hide any element containing flag emojis */
-*:has(> span:contains("🇬🇧")),
-*:has(> span:contains("🇪🇸")),
-*:has(> span:contains("🇫🇷")),
-*:has(> span:contains("🇩🇪")),
-*:has(> span:contains("🇮🇹")) {
+/* ----- Footer-specific flag emoji and language text-based selectors ----- */
+/* Hide footer elements containing flag emojis */
+footer :is(button, div, a):has(> span:contains("🇬🇧")),
+footer :is(button, div, a):has(> span:contains("🇪🇸")),
+footer :is(button, div, a):has(> span:contains("🇫🇷")),
+footer :is(button, div, a):has(> span:contains("🇩🇪")),
+footer :is(button, div, a):has(> span:contains("🇮🇹")):not(.flex.space-x-4 *) {
   display: none !important;
 }
 
-/* Hide buttons with globe icons and language text */
-button:has(svg + span:contains("English")),
-div:has(> svg + span:contains("English")),
-*:has(> span.text-lg[role="img"] + span:contains("English")) {
+/* Hide footer buttons with globe icons and language text */
+footer button:has(svg + span:contains("English")),
+footer div:has(> svg + span:contains("English")),
+footer *:has(> span.text-lg[role="img"] + span:contains("English")) {
   display: none !important;
 }
 
-/* ----- Extended hiders for typical implementations ----- */
-/* Target typical language dropdown structures */
-.relative:has(> button:has(> span[role="img"])),
-.relative:has(> button:has(> span.text-lg)),
-div:has(> button:has(> span.text-lg[role="img"])) {
+/* ----- Footer-specific language dropdown structures ----- */
+footer .relative:has(> button:has(> span[role="img"])),
+footer .relative:has(> button:has(> span.text-lg)),
+footer div:has(> button:has(> span.text-lg[role="img"])) {
   display: none !important; 
 }
 

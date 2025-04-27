@@ -1,10 +1,12 @@
 /**
- * Script to forcibly remove the language selector component from the footer
+ * Script to forcibly remove the language selector component from the footer ONLY
+ * This script is specifically designed to target and remove language selectors
+ * from the footer while preserving the language selector in the main navigation
  * This runs after the page loads to ensure the component is removed even if it's 
  * dynamically added later in the rendering process
  */
 
-// Function to find and remove the language selector
+// Function to find and remove only the footer language selector
 function removeLanguageSelector() {
   // Create a marker to prevent multiple runs in quick succession
   if (document.getElementById('language-selector-hidden')) {
@@ -102,11 +104,12 @@ function removeLanguageSelector() {
     }
   }
   
-  // Inject a style element to hide specific language selectors
+  // Inject a style element to hide specific language selectors ONLY IN FOOTER
   if (!document.getElementById('language-selector-style')) {
     const style = document.createElement('style');
     style.id = 'language-selector-style';
     style.textContent = `
+      /* Only target language selectors in the footer */
       footer button[aria-label*="language"],
       footer button[aria-label*="Language"],
       footer .relative button,
@@ -115,15 +118,23 @@ function removeLanguageSelector() {
         display: none !important;
       }
       
-      /* Hide MobileLanguageSelector and SimpleLanguageSelector */
-      [class*="MobileLanguageSelector"],
-      [class*="SimpleLanguageSelector"],
-      [class*="LanguageSelector"] {
+      /* Only hide language components in the footer */
+      footer [class*="MobileLanguageSelector"],
+      footer [class*="SimpleLanguageSelector"],
+      footer [class*="LanguageSelector"] {
         display: none !important;
+      }
+      
+      /* Make sure navbar language selectors remain visible */
+      nav [class*="LanguageSelector"],
+      nav button[aria-label*="language"],
+      nav button[aria-label*="Language"],
+      .hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center [class*="LanguageSelector"] {
+        display: flex !important;
       }
     `;
     document.head.appendChild(style);
-    console.log('Injected language selector hiding styles');
+    console.log('Injected footer-specific language selector hiding styles');
   }
 }
 

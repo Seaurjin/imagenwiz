@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="100" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- First rectangle: Mint green -->
+  <rect x="40" y="25" width="80" height="50" rx="5" fill="none" stroke="#6ee7b7" stroke-width="3" />
+  
+  <!-- Second rectangle: Mint purple with 50% overlap -->
+  <rect x="80" y="25" width="80" height="50" rx="5" fill="none" stroke="#c4b5fd" stroke-width="3" />
+</svg>
