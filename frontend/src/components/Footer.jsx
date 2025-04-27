@@ -158,16 +158,11 @@ const Footer = () => {
       <footer className="bg-gray-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6 flex flex-col md:flex-row justify-between items-center">
-            {/* Footer Logo only */}
+            {/* Footer Logo only - using text as in the screenshot */}
             <div className="mb-4 md:mb-0 flex items-center">
-              {/* Footer Logo */}
-              {logos.footer && (
-                <img 
-                  src={logos.footer} 
-                  alt="iMagenWiz" 
-                  className="h-8 w-auto"
-                />
-              )}
+              <div className="text-white text-xl font-semibold text-center">
+                iMagenWiz
+              </div>
             </div>
             
             {/* Social media icons */}
