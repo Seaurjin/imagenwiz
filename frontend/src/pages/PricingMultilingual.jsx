@@ -314,68 +314,76 @@ const PricingMultilingual = () => {
   
   // Get translation text based on the current language
   const getText = (path, fallback = '') => {
-    // Split path by dots (e.g., "free.name" -> ["free", "name"])
-    const parts = path.split('.');
+    // List of languages with direct translations in our component
+    const directTranslationLanguages = ['tr', 'el', 'sv', 'zh-TW'];
+    const isDirectTranslationLanguage = directTranslationLanguages.includes(currentLanguage);
     
-    // Check if we have direct translation for this language
-    if (translationData[currentLanguage]) {
-      let result = translationData[currentLanguage];
+    // For languages other than our special 4, try to use i18n first
+    if (!isDirectTranslationLanguage) {
+      // Check the path structure - we need to convert some paths to match i18n structure
+      let i18nPath = path;
       
-      // Navigate through the path
-      for (const part of parts) {
-        if (!result || typeof result !== 'object') {
-          // If we're looking for features and didn't find them, try the English fallback
-          if (parts.length > 1 && parts[1] === 'features') {
-            const planKey = parts[0]; // 'free', 'lite', or 'pro'
-            const englishPlan = englishFeatures[planKey];
-            if (englishPlan && englishPlan.features) {
-              return englishPlan.features;
-            }
+      // Convert from our direct paths to i18n paths
+      if (path.includes('.')) {
+        const parts = path.split('.');
+        if (parts.length === 2 && ['free', 'lite', 'pro'].includes(parts[0]) && 
+            ['name', 'description', 'features'].includes(parts[1])) {
+          // Convert 'free.name' to 'plans.free.name'
+          i18nPath = `plans.${parts[0]}.${parts[1]}`;
+        }
+      }
+      
+      // Try to get the translation from i18n
+      const i18nResult = t(i18nPath, null);
+      
+      // If i18n has a result, use it
+      if (i18nResult !== null && i18nResult !== undefined && i18nResult !== i18nPath) {
+        return i18nResult;
+      }
+    }
+    
+    // For our 4 special languages or as fallback, use direct translations
+    if (isDirectTranslationLanguage) {
+      // Split path by dots (e.g., "free.name" -> ["free", "name"])
+      const parts = path.split('.');
+      
+      // Check if we have direct translation for this language
+      if (translationData[currentLanguage]) {
+        let result = translationData[currentLanguage];
+        
+        // Navigate through the path
+        for (const part of parts) {
+          if (!result || typeof result !== 'object') {
+            break;
           }
-          return fallback;
+          result = result[part];
         }
-        result = result[part];
+        
+        // If we found a result, return it
+        if (result !== undefined) {
+          return result;
+        }
       }
-      
-      // If we found a result, return it
-      if (result !== undefined) {
-        return result;
+    }
+    
+    // If nothing worked so far, check our hardcoded English features
+    // This is useful for special paths like 'free.features', 'lite.features', 'pro.features'
+    if (path.includes('.features')) {
+      const planKey = path.split('.')[0]; // 'free', 'lite', or 'pro'
+      if (englishFeatures[planKey] && englishFeatures[planKey].features) {
+        return englishFeatures[planKey].features;
       }
-      
-      // If we're looking for features but didn't find them, try the English fallback
-      if (parts.length > 1 && parts[1] === 'features') {
+    }
+    
+    // As a last resort, check if it's any other plan property
+    if (path.includes('.')) {
+      const parts = path.split('.');
+      if (parts.length === 2) {
         const planKey = parts[0]; // 'free', 'lite', or 'pro'
-        const englishPlan = englishFeatures[planKey];
-        if (englishPlan && englishPlan.features) {
-          return englishPlan.features;
+        const propKey = parts[1]; // 'name', 'description', etc.
+        if (englishFeatures[planKey] && englishFeatures[planKey][propKey] !== undefined) {
+          return englishFeatures[planKey][propKey];
         }
-      }
-      
-      return fallback;
-    }
-    
-    // If not in our direct translations, check if we're looking for features
-    if (parts.length > 1 && parts[1] === 'features') {
-      const planKey = parts[0]; // 'free', 'lite', or 'pro'
-      const englishPlan = englishFeatures[planKey];
-      if (englishPlan && englishPlan.features) {
-        return englishPlan.features;
-      }
-    }
-    
-    // As last resort, use i18next
-    const i18nResult = t(path, null);
-    if (i18nResult !== null) {
-      return i18nResult;
-    }
-    
-    // If i18next doesn't have it and it's a plan property, check our English fallback
-    if (parts.length > 1) {
-      const planKey = parts[0]; // 'free', 'lite', or 'pro'
-      const propKey = parts[1]; // 'name', 'description', 'features'
-      const englishPlan = englishFeatures[planKey];
-      if (englishPlan && englishPlan[propKey]) {
-        return englishPlan[propKey];
       }
     }
     
