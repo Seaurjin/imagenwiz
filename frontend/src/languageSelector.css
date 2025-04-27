@@ -32,6 +32,25 @@ div[style*="position:fixed"][style*="bottom"]:has(h3) {
   display: none !important;
 }
 
+/* ----- Explicit navbar language selector preservation ----- */
+/* Make sure navbar language selectors remain visible */
+nav .relative:has(button),
+nav .relative button[aria-label*="language"],
+nav .relative button[aria-label*="Language"],
+.sm\\:flex.sm\\:items-center .relative:has(button),
+.sm\\:flex.sm\\:items-center button[aria-label*="language"],
+.sm\\:flex.sm\\:items-center button[aria-label*="Language"] {
+  display: flex !important;
+}
+
+/* Ensure specific navbar language selector structure always shows */
+nav button.flex.items-center.gap-2.px-4.py-3.text-sm.rounded-md,
+.sm\\:hidden + .space-x-4 button.flex.items-center.gap-2,
+.hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center .relative,
+.hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center .relative button {
+  display: flex !important;
+}
+
 /* ----- Footer-specific selectors ----- */
 /* Fix the structure of the footer - ensure logo and links remain visible */
 footer button,

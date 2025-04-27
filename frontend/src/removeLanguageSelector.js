@@ -6,6 +6,46 @@
  * dynamically added later in the rendering process
  */
 
+// Helper function to explicitly make navbar language selector visible
+function ensureNavbarLanguageSelectorVisible() {
+  // First try to find the language selector in the navbar
+  const navbar = document.querySelector('nav');
+  if (!navbar) return;
+  
+  // Find language selectors in the navbar by various selectors
+  const navbarSelectors = [
+    '.hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center .relative',
+    '.sm\\:flex.sm\\:items-center .relative:has(button[aria-label*="language"])',
+    '.sm\\:flex.sm\\:items-center .space-x-4 .relative',
+    'button[aria-label*="language"]',
+    'button[aria-label*="Language"]'
+  ];
+  
+  // Try each selector to find and make visible the language selector
+  navbarSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      if (el.closest('nav')) {
+        // Found navbar language selector - ensure it's visible
+        el.style.display = 'flex';
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
+        
+        // Also ensure parent containers are visible
+        let parent = el.parentElement;
+        while (parent && parent !== document.body) {
+          parent.style.display = '';
+          parent.style.visibility = 'visible';
+          parent.style.opacity = '1';
+          parent = parent.parentElement;
+        }
+        
+        console.log('✅ Explicitly made navbar language selector visible:', el);
+      }
+    });
+  });
+}
+
 // Function to find and remove only the footer language selector
 function removeLanguageSelector() {
   // Create a marker to prevent multiple runs in quick succession
@@ -22,6 +62,9 @@ function removeLanguageSelector() {
     marker.style.display = 'none';
     document.body.appendChild(marker);
   }
+  
+  // First make sure navbar language selector is visible
+  ensureNavbarLanguageSelectorVisible();
   
   // Target ONLY the LangQuickSwitcher component (with h3 heading)
   const fixedElements = document.querySelectorAll('div[style*="position: fixed"][style*="bottom"]');
@@ -42,9 +85,14 @@ function removeLanguageSelector() {
   const footer = document.querySelector('footer');
   if (!footer) return;
   
-  // Remove any language buttons from the footer
+  // Remove any language buttons ONLY from the footer (not from navbar)
   const footerElements = footer.querySelectorAll('*');
   footerElements.forEach(el => {
+    // Skip everything if it's inside a nav element
+    if (el.closest('nav')) {
+      return;
+    }
+    
     const elType = el.tagName.toLowerCase();
     const text = el.textContent || '';
     const ariaLabel = (el.getAttribute('aria-label') || '').toLowerCase();
@@ -54,6 +102,32 @@ function removeLanguageSelector() {
         (text.includes('🇬🇧') || text.includes('🇫🇷') || text.includes('🇪🇸') || 
          text.includes('🇩🇪') || text.includes('🇮🇹') || text.includes('English') ||
          ariaLabel.includes('language'))) {
+      
+      // Skip if it's in the main navigation area (determined by class proximity)
+      const isInNavigation = 
+        el.closest('.sm\\:flex.sm\\:items-center') || 
+        el.closest('.sm\\:ml-6') || 
+        el.closest('.hidden.sm\\:ml-6.sm\\:flex');
+      
+      if (isInNavigation) {
+        console.log('Preserved navigation language selector:', el);
+        // Actually ensure navbar language selectors are visible
+        if (el.style) {
+          el.style.display = '';
+          el.style.visibility = 'visible';
+          el.style.opacity = '1';
+        }
+        
+        // Also ensure its parent container is visible
+        let parent = el.parentNode;
+        if (parent && parent.style) {
+          parent.style.display = '';
+          parent.style.visibility = 'visible';
+          parent.style.opacity = '1';
+        }
+        
+        return;
+      }
       
       // If it's a button or link directly in the footer, hide it
       el.style.display = 'none';
@@ -75,7 +149,7 @@ function removeLanguageSelector() {
     }
   });
   
-  // Specifically target the known structure from screenshots
+  // Specifically target the known structure from screenshots - ONLY in footer
   const footerRow = footer.querySelector('.py-6.flex.flex-col.md\\:flex-row.justify-between.items-center');
   if (footerRow) {
     const children = footerRow.children;
@@ -83,6 +157,13 @@ function removeLanguageSelector() {
     for (let i = children.length - 1; i >= 0; i--) {
       const child = children[i];
       const text = child.textContent || '';
+      
+      // Check if it's in the navbar - if so, skip it entirely
+      if (child.closest('nav') || child.closest('.sm\\:flex.sm\\:items-center') || 
+          child.closest('.hidden.sm\\:ml-6.sm\\:flex')) {
+        console.log('Found navbar element, preserving:', child);
+        continue;
+      }
       
       // Skip the logo container - identified by the presence of an image
       if (child.querySelector('img')) {
@@ -160,13 +241,25 @@ function injectImmediateStyles() {
       display: none !important;
     }
     
-    /* Make sure navbar language selectors remain visible */
+    /* Make sure navbar language selectors remain visible with higher specificity */
     nav button[aria-label*="language"],
     nav button[aria-label*="Language"],
     nav .relative:has(button[aria-label*="language"]),
     nav .relative:has(button[aria-label*="Language"]),
-    .hidden.sm\\:ml-6.sm\\:flex button[aria-label*="language"] {
+    .hidden.sm\\:ml-6.sm\\:flex button[aria-label*="language"],
+    .hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center .relative {
       display: flex !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    
+    /* Explicitly target the navbar language selector structure */
+    .flex.justify-between .hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center .relative,
+    .flex.justify-between .hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center button[aria-label*="language"],
+    .sm\\:flex.sm\\:items-center .space-x-4 > .relative {
+      display: flex !important;
+      opacity: 1 !important;
+      visibility: visible !important;
     }
     
     /* Fixed position language quick switcher */
@@ -205,10 +298,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Also run when the page is fully loaded
 window.addEventListener('load', () => {
+  // First explicitly ensure navbar language selector is visible
+  ensureNavbarLanguageSelectorVisible();
+  
+  // Then run the removal function for footer
   removeLanguageSelector();
   
   // Run one final time after everything has settled
-  setTimeout(removeLanguageSelector, 1000);
+  setTimeout(() => {
+    ensureNavbarLanguageSelectorVisible();
+    removeLanguageSelector();
+  }, 1000);
   
   // Set up a mutation observer to detect if language selectors are added dynamically
   const observer = new MutationObserver((mutations) => {
@@ -233,6 +333,9 @@ window.addEventListener('load', () => {
     }
     
     if (shouldRun) {
+      // Always ensure navbar language selector is visible first
+      ensureNavbarLanguageSelectorVisible();
+      // Then remove footer language selectors
       removeLanguageSelector();
     }
   });
