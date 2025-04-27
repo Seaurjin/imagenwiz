@@ -44,8 +44,272 @@ const pricingPlansBase = [
   },
 ];
 
-// Direct translation data for each target language
+// Direct translation data for all languages
 const translationData = {
+  // English (default)
+  'en': {
+    title: "Choose Your Plan",
+    subtitle: "Simple pricing for everyone",
+    monthly: "Monthly",
+    yearly: "Yearly",
+    yearlyDiscount: "Save 10%",
+    popular: "Most Popular",
+    free: {
+      name: "Free",
+      description: "For individuals wanting to try our service",
+      features: [
+        "3 free credits per month",
+        "Standard quality processing",
+        "Web-based editor",
+        "JPG and PNG downloads"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "For individuals and small teams with regular needs",
+      features: [
+        "50 credits per month",
+        "High quality processing",
+        "Web-based editor",
+        "Support for all common formats",
+        "Batch processing up to 10 images",
+        "Priority processing"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "For professionals and businesses with high volume needs",
+      features: [
+        "250 credits per month",
+        "Premium quality processing",
+        "Advanced editing tools",
+        "Support for all formats, including TIFF",
+        "Batch processing up to 50 images",
+        "API access",
+        "Highest priority processing"
+      ]
+    }
+  },
+  // German
+  'de': {
+    title: "Wählen Sie Ihren Plan",
+    subtitle: "Einfache Preisgestaltung für alle",
+    monthly: "Monatlich",
+    yearly: "Jährlich",
+    yearlyDiscount: "Sparen Sie 10%",
+    popular: "Am beliebtesten",
+    free: {
+      name: "Kostenlos",
+      description: "Für Personen, die unseren Service ausprobieren möchten",
+      features: [
+        "3 kostenlose Credits pro Monat",
+        "Standardqualitätsverarbeitung",
+        "Webbasierter Editor",
+        "JPG- und PNG-Downloads"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Für Einzelpersonen und kleine Teams mit regelmäßigem Bedarf",
+      features: [
+        "50 Credits pro Monat",
+        "Hochwertige Verarbeitung",
+        "Webbasierter Editor",
+        "Unterstützung für alle gängigen Formate",
+        "Batch-Verarbeitung von bis zu 10 Bildern",
+        "Prioritätsverarbeitung"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Für Profis und Unternehmen mit hohem Volumen",
+      features: [
+        "250 Credits pro Monat",
+        "Premium-Qualitätsverarbeitung",
+        "Erweiterte Bearbeitungswerkzeuge",
+        "Unterstützung für alle Formate, einschließlich TIFF",
+        "Batch-Verarbeitung von bis zu 50 Bildern",
+        "API-Zugriff",
+        "Höchste Prioritätsverarbeitung"
+      ]
+    }
+  },
+  // Spanish
+  'es': {
+    title: "Elige Tu Plan",
+    subtitle: "Precios simples para todos",
+    monthly: "Mensual",
+    yearly: "Anual",
+    yearlyDiscount: "Ahorra 10%",
+    popular: "Más Popular",
+    free: {
+      name: "Gratis",
+      description: "Para personas que desean probar nuestro servicio",
+      features: [
+        "3 créditos gratis al mes",
+        "Procesamiento de calidad estándar",
+        "Editor basado en web",
+        "Descargas JPG y PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Para individuos y equipos pequeños con necesidades regulares",
+      features: [
+        "50 créditos al mes",
+        "Procesamiento de alta calidad",
+        "Editor basado en web",
+        "Soporte para todos los formatos comunes",
+        "Procesamiento por lotes de hasta 10 imágenes",
+        "Procesamiento prioritario"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Para profesionales y empresas con necesidades de alto volumen",
+      features: [
+        "250 créditos al mes",
+        "Procesamiento de calidad premium",
+        "Herramientas de edición avanzadas",
+        "Soporte para todos los formatos, incluido TIFF",
+        "Procesamiento por lotes de hasta 50 imágenes",
+        "Acceso API",
+        "Procesamiento de máxima prioridad"
+      ]
+    }
+  },
+  // French
+  'fr': {
+    title: "Choisissez Votre Plan",
+    subtitle: "Tarification simple pour tous",
+    monthly: "Mensuel",
+    yearly: "Annuel",
+    yearlyDiscount: "Économisez 10%",
+    popular: "Le Plus Populaire",
+    free: {
+      name: "Gratuit",
+      description: "Pour les personnes qui souhaitent essayer notre service",
+      features: [
+        "3 crédits gratuits par mois",
+        "Traitement de qualité standard",
+        "Éditeur web",
+        "Téléchargements JPG et PNG"
+      ]
+    },
+    lite: {
+      name: "Lite",
+      description: "Pour les individus et les petites équipes avec des besoins réguliers",
+      features: [
+        "50 crédits par mois",
+        "Traitement de haute qualité",
+        "Éditeur web",
+        "Support pour tous les formats courants",
+        "Traitement par lots jusqu'à 10 images",
+        "Traitement prioritaire"
+      ]
+    },
+    pro: {
+      name: "Pro",
+      description: "Pour les professionnels et les entreprises avec des besoins de volume élevé",
+      features: [
+        "250 crédits par mois",
+        "Traitement de qualité premium",
+        "Outils d'édition avancés",
+        "Support pour tous les formats, y compris TIFF",
+        "Traitement par lots jusqu'à 50 images",
+        "Accès API",
+        "Traitement de la plus haute priorité"
+      ]
+    }
+  },
+  // Japanese
+  'ja': {
+    title: "プランを選択",
+    subtitle: "シンプルな価格設定",
+    monthly: "毎月",
+    yearly: "毎年",
+    yearlyDiscount: "10%節約",
+    popular: "人気",
+    free: {
+      name: "無料",
+      description: "サービスを試したい個人向け",
+      features: [
+        "月に3つの無料クレジット",
+        "標準品質の処理",
+        "Webベースのエディタ",
+        "JPGとPNGのダウンロード"
+      ]
+    },
+    lite: {
+      name: "ライト",
+      description: "定期的なニーズを持つ個人や小さなチーム向け",
+      features: [
+        "月に50クレジット",
+        "高品質の処理",
+        "Webベースのエディタ",
+        "すべての一般的なフォーマットをサポート",
+        "最大10画像のバッチ処理",
+        "優先処理"
+      ]
+    },
+    pro: {
+      name: "プロ",
+      description: "大量のニーズを持つプロフェッショナルや企業向け",
+      features: [
+        "月に250クレジット",
+        "プレミアム品質の処理",
+        "高度な編集ツール",
+        "TIFFを含むすべてのフォーマットをサポート",
+        "最大50画像のバッチ処理",
+        "APIアクセス",
+        "最高優先度の処理"
+      ]
+    }
+  },
+  // Russian
+  'ru': {
+    title: "Выберите Свой План",
+    subtitle: "Простое ценообразование для всех",
+    monthly: "Ежемесячно",
+    yearly: "Ежегодно",
+    yearlyDiscount: "Сэкономьте 10%",
+    popular: "Самый Популярный",
+    free: {
+      name: "Бесплатный",
+      description: "Для людей, желающих попробовать наш сервис",
+      features: [
+        "3 бесплатных кредита в месяц",
+        "Обработка стандартного качества",
+        "Веб-редактор",
+        "Загрузки в JPG и PNG"
+      ]
+    },
+    lite: {
+      name: "Лайт",
+      description: "Для частных лиц и небольших команд с регулярными потребностями",
+      features: [
+        "50 кредитов в месяц",
+        "Обработка высокого качества",
+        "Веб-редактор",
+        "Поддержка всех распространенных форматов",
+        "Пакетная обработка до 10 изображений",
+        "Приоритетная обработка"
+      ]
+    },
+    pro: {
+      name: "Про",
+      description: "Для профессионалов и компаний с большими объемами",
+      features: [
+        "250 кредитов в месяц",
+        "Обработка премиум-качества",
+        "Расширенные инструменты редактирования",
+        "Поддержка всех форматов, включая TIFF",
+        "Пакетная обработка до 50 изображений",
+        "Доступ к API",
+        "Обработка с наивысшим приоритетом"
+      ]
+    }
+  },
   'tr': {
     title: "Planınızı Seçin",
     subtitle: "Herkes için basit fiyatlandırma",
