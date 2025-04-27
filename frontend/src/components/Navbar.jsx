@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
@@ -12,6 +12,7 @@ const Navbar = () => {
   const { t, i18n } = useTranslation('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(i18n.language);
+  const languageSelectorRef = useRef(null);
 
   // Listen for language changes from anywhere in the app
   useEffect(() => {
@@ -33,6 +34,38 @@ const Navbar = () => {
       i18n.off('languageChanged', onLanguageChanged);
     };
   }, [i18n]);
+  
+  // Effect to ensure language selector is visible
+  useEffect(() => {
+    // Function to ensure language selector visibility
+    const ensureLanguageSelectorVisible = () => {
+      if (languageSelectorRef.current) {
+        // Set explicit visibility styles
+        languageSelectorRef.current.style.display = 'flex';
+        languageSelectorRef.current.style.visibility = 'visible';
+        languageSelectorRef.current.style.opacity = '1';
+        languageSelectorRef.current.style.pointerEvents = 'auto';
+        console.log('✅ Language selector visibility enforced');
+      }
+    };
+    
+    // Run immediately and after a delay to ensure it catches any style changes
+    ensureLanguageSelectorVisible();
+    const timers = [
+      setTimeout(ensureLanguageSelectorVisible, 500),
+      setTimeout(ensureLanguageSelectorVisible, 1000),
+      setTimeout(ensureLanguageSelectorVisible, 2000)
+    ];
+    
+    // Also run on window resize which can trigger layout changes
+    window.addEventListener('resize', ensureLanguageSelectorVisible);
+    
+    // Cleanup
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+      window.removeEventListener('resize', ensureLanguageSelectorVisible);
+    };
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
