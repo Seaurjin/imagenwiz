@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" }) => {
@@ -12,19 +12,20 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
     setIsDragging(true);
   };
 
-  const handleTouchStart = () => {
+  const handleTouchStart = (e) => {
+    e.preventDefault();
     setIsDragging(true);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
-  const handleMove = (clientX) => {
+  const handleMove = useCallback((clientX) => {
     if (!isDragging || !sliderRef.current) return;
     
     const sliderRect = sliderRef.current.getBoundingClientRect();
@@ -32,29 +33,54 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
     const newPercentage = (newPosition / sliderRect.width) * 100;
     
     setPosition(newPercentage);
-  };
+  }, [isDragging]);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     handleMove(e.clientX);
-  };
+  }, [handleMove]);
 
-  const handleTouchMove = (e) => {
-    handleMove(e.touches[0].clientX);
+  const handleTouchMove = useCallback((e) => {
+    e.preventDefault(); // Prevent scrolling while dragging
+    if (e.touches && e.touches[0]) {
+      handleMove(e.touches[0].clientX);
+    }
+  }, [handleMove]);
+
+  // Update slider position when clicking anywhere on the slider
+  const handleSliderClick = (e) => {
+    const sliderRect = sliderRef.current.getBoundingClientRect();
+    const newPosition = Math.max(0, Math.min(e.clientX - sliderRect.left, sliderRect.width));
+    const newPercentage = (newPosition / sliderRect.width) * 100;
+    setPosition(newPercentage);
   };
 
   useEffect(() => {
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchend', handleTouchEnd);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    const currentSliderRef = sliderRef.current;
+    
+    // Add click handler to slider for direct positioning
+    if (currentSliderRef) {
+      currentSliderRef.addEventListener('click', handleSliderClick);
+    }
+    
+    // Only add document-level handlers when dragging
+    if (isDragging) {
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    }
 
     return () => {
+      if (currentSliderRef) {
+        currentSliderRef.removeEventListener('click', handleSliderClick);
+      }
+      
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isDragging]);
+  }, [isDragging, handleMouseUp, handleTouchEnd, handleMouseMove, handleTouchMove]);
 
   return (
     <div className="comparison-slider-container w-full h-full mx-auto relative rounded-xl overflow-hidden shadow-xl">
@@ -103,11 +129,18 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
         >
-          <div className="handle-circle w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
-            <div className="handle-arrows flex items-center text-xs select-none">
-              <span className="mr-0.5">◀</span>
+          <div className={`handle-circle w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-xl border-2 border-white transition-all duration-150 ${isDragging ? 'scale-110' : 'animate-pulse'}`}>
+            <div className="handle-arrows flex items-center text-sm select-none">
+              <span className="mr-1">◀</span>
               <span>▶</span>
             </div>
+          </div>
+        </div>
+        
+        {/* Helper instruction overlay on first load */}
+        <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center pointer-events-none z-5 animate-fadeOut">
+          <div className="bg-white bg-opacity-80 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 shadow-lg">
+            {t('comparison.dragPrompt', 'Drag to compare')}
           </div>
         </div>
       </div>
