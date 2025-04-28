@@ -1,81 +1,48 @@
 #!/bin/bash
-# iMagenWiz Startup Script
-# This script starts the full application stack with optimized settings for Replit
 
-# Define colors for prettier output
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+echo "Starting iMagenWiz - AI Background Removal Application..."
+echo "=================================================="
 
-echo -e "${BLUE}╔════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║       ${GREEN}iMagenWiz${BLUE} Application Startup Script       ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════════════╝${NC}"
+# Default environment variables
+export PORT=5000
+export NODE_ENV=development
+export EXPRESS_FALLBACK=true
+export SKIP_FLASK_CHECK=true
+export DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/postgres}
 
-# Get Replit domain
-REPLIT_DOMAIN=$(echo $REPL_SLUG.$REPL_OWNER.repl.co)
-echo -e "${GREEN}Replit domain: ${YELLOW}$REPLIT_DOMAIN${NC}"
-
-# Create a logs directory if it doesn't exist
-mkdir -p logs
-
-# Start the minimal placeholder server on port 5000 to satisfy Replit
-# This will then automatically start the main application
-echo -e "${GREEN}Starting application...${NC}"
-echo -e "${YELLOW}This may take a moment. Please be patient.${NC}"
-
-# Check if port 5000 is already in use
-if nc -z localhost 5000 >/dev/null 2>&1; then
-  echo -e "${YELLOW}Port 5000 is already in use. Starting without placeholder server.${NC}"
-else
-  # Start placeholder server in the background
-  echo -e "${GREEN}Starting placeholder server on port 5000...${NC}"
-  node ultraminimal.js > logs/placeholder-server.log 2>&1 &
-  PLACEHOLDER_PID=$!
-  echo -e "${GREEN}Placeholder server started with PID $PLACEHOLDER_PID${NC}"
+# Load environment variables from .env files
+if [ -f ".env" ]; then
+  echo "✅ Found .env file, loading environment variables"
+  source .env
 fi
 
-# Set environment variables for the application
-export REPLIT_DOMAIN=$REPLIT_DOMAIN
-export EXPRESS_PORT=3000
-export FLASK_PORT=5001
-export FLASK_URL=https://$REPLIT_DOMAIN
-export FLASK_ENV=development
-export FLASK_DEBUG=1
-export DB_USER=root
-export DB_PASSWORD="Ir%86241992"
-export DB_HOST=8.130.113.102
-export DB_NAME=mat_db
-export DB_PORT=3306
-export SKIP_MIGRATIONS=true
+if [ -f ".env.local" ]; then
+  echo "✅ Found .env.local file, loading local environment variables"
+  source .env.local
+fi
 
-# Start Flask backend in the background
-echo -e "${GREEN}Starting Flask backend...${NC}"
-python backend/run.py > logs/flask-backend.log 2>&1 &
-FLASK_PID=$!
-echo -e "${GREEN}Flask backend started with PID $FLASK_PID${NC}"
+# Override specific variables for this application
+export NODE_ENV=development
+export PORT=5000  # Ensure Express uses port 5000
 
-# Give Flask a moment to initialize before starting Express
-sleep 3
+# Check if frontend build directory exists
+if [ ! -d "./frontend/dist" ]; then
+  echo "❌ Frontend build directory not found!"
+  echo "📦 Checking for available frontend..."
+  
+  if [ -d "./frontend/src" ]; then
+    echo "✅ Found frontend source directory"
+  else
+    echo "❌ Could not find frontend source directory!"
+    exit 1
+  fi
+fi
 
-# Start Express frontend
-echo -e "${GREEN}Starting Express frontend...${NC}"
+# Start the application
+echo "🚀 Starting Express server with React frontend..."
+echo "📱 Application will be available at: http://localhost:5000"
+echo "🔗 Access your app at: ${REPL_SLUG}.${REPL_OWNER}.repl.co (if running on Replit)"
+echo "=================================================="
+
+# Run the application
 npm run dev
-
-# If we reach here, the Express process has terminated
-echo -e "${YELLOW}Express frontend terminated. Stopping other processes...${NC}"
-
-# Kill background processes if they exist
-if [ -n "$FLASK_PID" ] && ps -p $FLASK_PID > /dev/null; then
-  echo -e "${YELLOW}Stopping Flask backend (PID $FLASK_PID)...${NC}"
-  kill $FLASK_PID
-fi
-
-if [ -n "$PLACEHOLDER_PID" ] && ps -p $PLACEHOLDER_PID > /dev/null; then
-  echo -e "${YELLOW}Stopping placeholder server (PID $PLACEHOLDER_PID)...${NC}"
-  kill $PLACEHOLDER_PID
-fi
-
-echo -e "${GREEN}All processes stopped. Exiting...${NC}"
-exit 0
