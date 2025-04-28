@@ -5,7 +5,6 @@ import { UserProvider } from './contexts/UserContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DynamicHead from './components/DynamicHead';
-import LangQuickSwitcher from './components/LangQuickSwitcher';
 import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
