@@ -1,6 +1,7 @@
 #!/bin/bash
 
-echo "Starting iMagenWiz - AI Background Removal Application..."
+echo "=================================================="
+echo "🖌️ iMagenWiz - AI Background Removal 🖌️"
 echo "=================================================="
 
 # Default environment variables
@@ -25,6 +26,15 @@ fi
 export NODE_ENV=development
 export PORT=5000  # Ensure Express uses port 5000
 
+# Check the status of the database
+echo "🔍 Checking database connection..."
+if [ -n "$DATABASE_URL" ]; then
+  echo "✅ Database URL is set"
+else
+  echo "⚠️ DATABASE_URL is not set! Using default connection."
+  export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"
+fi
+
 # Check if frontend build directory exists
 if [ ! -d "./frontend/dist" ]; then
   echo "❌ Frontend build directory not found!"
@@ -41,8 +51,10 @@ fi
 # Start the application
 echo "🚀 Starting Express server with React frontend..."
 echo "📱 Application will be available at: http://localhost:5000"
-echo "🔗 Access your app at: ${REPL_SLUG}.${REPL_OWNER}.repl.co (if running on Replit)"
+if [ -n "$REPL_SLUG" ] && [ -n "$REPL_OWNER" ]; then
+  echo "🔗 Access your app at: ${REPL_SLUG}.${REPL_OWNER}.repl.co"
+fi
 echo "=================================================="
 
-# Run the application
+# Run the application through npm script
 npm run dev
