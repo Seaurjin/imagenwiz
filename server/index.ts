@@ -84,6 +84,23 @@ if (frontendPath) {
   app.use(express.static(frontendPath));
   
   // Handle SPA routing
+  app.get('/', (req, res) => {
+    // For main app route, serve the React app
+    console.log(`🌟 Serving React app for main route`);
+    
+    // Check if the app.html exists and serve it preferentially
+    const appHtmlPath = path.join(frontendPath, 'app.html');
+    if (fs.existsSync(appHtmlPath)) {
+      console.log(`📄 Using app.html as entry point`);
+      res.sendFile(appHtmlPath);
+    } else {
+      // Fall back to index.html
+      console.log(`📄 Falling back to index.html`);
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
+  
+  // Handle all other routes
   app.get('*', (req, res) => {
     // API routes are handled by the router
     if (req.path.startsWith('/api/')) {
@@ -92,7 +109,7 @@ if (frontendPath) {
     
     // For all other routes, serve the SPA
     console.log(`🌟 Serving React app for route: ${req.path}`);
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    res.sendFile(path.join(frontendPath, 'app.html'));
   });
 } else {
   console.log('⚠️ No frontend build directory found. API server only.');
