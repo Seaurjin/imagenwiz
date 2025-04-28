@@ -1,73 +1,19 @@
-// Fix for duplicate language selectors
+// Fix for duplicate language selectors (consolidated fix)
 document.addEventListener("DOMContentLoaded", function() {
   const script = document.createElement("script");
   script.src = "/removeSecondLanguageSelector.js";
   document.body.appendChild(script);
+  console.log('🔧 Added language selector fix script');
 });
 
 import React from 'react';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
-
 import ReactDOM from 'react-dom/client';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
-
 import axios from 'axios';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
-
 import App from './App';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
-
 import './index.css';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
-
 import './languageSelector.css';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
-
 import './removeLanguageSelector';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
-
 import './navbarLanguageDebug';
-// Fix for duplicate language selectors
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-});
 
 import './fixLanguageSelectorClick';
 
