@@ -93,10 +93,9 @@ if (frontendPath) {
   // Route for test page
   app.get('/test-language', (req, res) => {
     console.log(`📄 Serving language selector test page`);
-    // Check if the app.html exists and serve it as the test page
-    const appHtmlPath = path.join(frontendPath, 'app.html');
-    if (fs.existsSync(appHtmlPath)) {
-      res.sendFile(appHtmlPath);
+    const testHtmlPath = path.join(frontendPath, 'test-selector.html');
+    if (fs.existsSync(testHtmlPath)) {
+      res.sendFile(testHtmlPath);
     } else {
       res.sendFile(path.join(frontendPath, 'index.html'));
     }
