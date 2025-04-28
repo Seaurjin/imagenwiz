@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import ImageComparisonSlider from '../components/ImageComparisonSlider';
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -71,17 +72,14 @@ const Home = () => {
             
             {/* Image content - Takes 6 columns on large screens */}
             <div className="lg:col-span-6 relative">
-              <div className="relative overflow-hidden rounded-xl shadow-xl transform transition-transform duration-300 hover:scale-[1.02] mx-auto max-w-lg lg:max-w-none">
-                <img
-                  src="/images/hero-image.svg"
-                  alt="AI Background Removal Demo"
-                  className="w-full h-auto object-cover"
-                  onError={(e) => {
-                    console.error("Failed to load hero image:", e);
-                    e.target.onerror = null;
-                    e.target.src = 'https://via.placeholder.com/600x400?text=iMagenWiz+Demo';
-                  }}
+              <div className="relative overflow-hidden mx-auto max-w-lg lg:max-w-none">
+                {/* Image Comparison Slider */}
+                <ImageComparisonSlider 
+                  beforeImage="/images/comparison/dog-with-background.jpg"
+                  afterImage="/images/comparison/dog-no-background.png"
+                  aspectRatio="133.33%"
                 />
+                
                 {/* Floating sparkle elements for visual interest */}
                 <div className="absolute top-0 right-0 w-4 h-4 rounded-full bg-teal-400 animate-pulse"></div>
                 <div className="absolute bottom-10 left-6 w-3 h-3 rounded-full bg-teal-500 animate-ping"></div>
@@ -89,7 +87,7 @@ const Home = () => {
               </div>
               {/* Caption for the image with visual emphasis */}
               <div className="absolute -bottom-4 right-8 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg text-xs text-teal-700 font-medium border border-teal-100">
-                {t('home.hero.imageCaption', 'Real-time AI processing')}
+                {t('home.hero.imageCaption', 'Try sliding to see the difference!')}
               </div>
             </div>
           </div>
