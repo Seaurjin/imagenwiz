@@ -54,7 +54,8 @@ console.log('__dirname:', __dirname);
 
 // Frontend build paths to check
 const potentialPaths = [
-  path.join(process.cwd(), 'frontend/dist'),
+  path.join(process.cwd(), 'dist/public'),     // Vite built app
+  path.join(process.cwd(), 'frontend/dist'),   // Main frontend path
   path.join(process.cwd(), 'client/build'),
   path.join(process.cwd(), 'frontend/build'),
   path.join(process.cwd(), 'dist'),
