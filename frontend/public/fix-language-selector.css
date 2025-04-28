@@ -1,0 +1,32 @@
+/* Fix for duplicate language selectors in navbar */
+
+/* Always make THE FIRST navbar language selector visible */
+nav .relative:has(button[aria-label*="language"]):first-of-type,
+.hidden.sm\:ml-6.sm\:flex.sm\:items-center .relative:has(button):first-of-type,
+.hidden.sm\:ml-6.sm\:flex.sm\:items-center button:has(span[role="img"]):first-of-type {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Hide any duplicate language selectors - including the "Language" text button */
+nav button.flex.items-center:has(span:only-child:contains("Language")),
+.hidden.sm\:ml-6.sm\:flex.sm\:items-center .space-x-4 button:has(span:contains("Language")),
+nav .space-x-4 .relative:has(button span:contains("Language")),
+.space-x-4 > div:nth-child(3):has(button:contains("Language")) {
+  display: none !important;
+}
+
+/* Hide the standalone floating language selector */
+div[style*="position: fixed"][style*="bottom"][style*="right"],
+button.flex.items-center:has(span:contains("Language")):not(nav *),
+div[style*="fixed"] div:has(h3:contains("Language")) {
+  display: none !important;
+}
+
+/* Hide duplicate language selectors by position in navbar (rightmost one) */
+.hidden.sm\:ml-6.sm\:flex.sm\:items-center > .space-x-4 > *:last-child:has(button),
+.sm\:flex.sm\:items-center button[aria-haspopup="true"]:last-of-type {
+  display: none !important;
+}
