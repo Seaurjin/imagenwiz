@@ -147,79 +147,83 @@ const Navbar = () => {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-700">
-                  {t('common.credits')}: {user?.credits || 0}
-                </span>
-                <div className="relative group">
-                  <button className="bg-white p-1 rounded-full text-gray-600 hover:text-gray-800 focus:outline-none flex items-center">
-                    <span>{user?.username}</span>
-                    {user?.is_admin ? <span className="ml-1 text-green-600">(Admin)</span> : null}
-                    <svg className="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      {t('nav.account')}
-                    </Link>
-                    
-                    {user?.is_admin && (
-                      <>
-                        <Link
-                          to="/admin/settings"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          {t('nav.settings', 'Admin Settings')}
-                        </Link>
-                        <Link
-                          to="/admin/translations"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <span className="text-teal-600">✓</span> Blog Translations
-                        </Link>
-                        <Link
-                          to="/cms"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          {t('nav.editor', 'CMS Dashboard')}
-                        </Link>
-                      </>
-                    )}
-                    
-                    <button
-                      onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      {t('nav.logout')}
+            <div className="flex items-center space-x-4">
+              {/* Language selector is placed outside of the conditional rendering */}
+              <div ref={languageSelectorRef} className="mr-4">
+                <LanguageSelector variant="outline" />
+              </div>
+              
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-gray-700">
+                    {t('common.credits')}: {user?.credits || 0}
+                  </span>
+                  <div className="relative group">
+                    <button className="bg-white p-1 rounded-full text-gray-600 hover:text-gray-800 focus:outline-none flex items-center">
+                      <span>{user?.username}</span>
+                      {user?.is_admin ? <span className="ml-1 text-green-600">(Admin)</span> : null}
+                      <svg className="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
                     </button>
+                    
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        {t('nav.account')}
+                      </Link>
+                      
+                      {user?.is_admin && (
+                        <>
+                          <Link
+                            to="/admin/settings"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            {t('nav.settings', 'Admin Settings')}
+                          </Link>
+                          <Link
+                            to="/admin/translations"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <span className="text-teal-600">✓</span> Blog Translations
+                          </Link>
+                          <Link
+                            to="/cms"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            {t('nav.editor', 'CMS Dashboard')}
+                          </Link>
+                        </>
+                      )}
+                      
+                      <button
+                        onClick={logout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        {t('nav.logout')}
+                      </button>
+                    </div>
                   </div>
                 </div>
-                
-                <LanguageSelector variant="outline" />
-              </div>
-            ) : (
-              <div className="space-x-4">
-                <Link
-                  to="/login"
-                  className="text-gray-600 hover:text-teal-500 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  {t('nav.login')}
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  {t('nav.register')}
-                </Link>
-                <LanguageSelector variant="outline" />
-              </div>
-            )}
+              ) : (
+                <div className="flex items-center space-x-4">
+                  <Link
+                    to="/login"
+                    className="text-gray-600 hover:text-teal-500 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    {t('nav.login')}
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    {t('nav.register')}
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
           <div className="-mr-2 flex items-center sm:hidden">
             <button
@@ -342,6 +346,11 @@ const Navbar = () => {
             )}
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">
+            {/* Language selector placed above authentication options in mobile view */}
+            <div className="px-3 py-2 mb-2 border-b border-gray-100">
+              <MobileLanguageSelector />
+            </div>
+            
             {isAuthenticated ? (
               <div className="space-y-1">
                 <div className="pl-3 pr-4 py-2 text-gray-700">
@@ -359,9 +368,6 @@ const Navbar = () => {
                 >
                   {t('nav.logout')}
                 </button>
-                <div className="pl-3 pr-4 py-2">
-                  <MobileLanguageSelector />
-                </div>
               </div>
             ) : (
               <div className="space-y-1">
@@ -377,9 +383,6 @@ const Navbar = () => {
                 >
                   {t('nav.register')}
                 </Link>
-                <div className="pl-3 pr-4 py-2">
-                  <MobileLanguageSelector />
-                </div>
               </div>
             )}
           </div>
