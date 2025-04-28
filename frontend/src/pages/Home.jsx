@@ -75,8 +75,8 @@ const Home = () => {
               <div className="relative w-full h-full overflow-hidden mx-auto rounded-xl">
                 {/* Image Comparison Slider */}
                 <ImageComparisonSlider 
-                  beforeImage="/images/comparison/original-dog-final-v2.jpg"
-                  afterImage="/images/comparison/dog-no-background.png"
+                  beforeImage="/images/comparison/border-collie-original.jpg"
+                  afterImage="/images/comparison/border-collie-transparent.png"
                   aspectRatio="75%"
                 />
                 

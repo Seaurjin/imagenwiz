@@ -81,10 +81,10 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
           className="comparison-overlay absolute top-0 bottom-0 left-0 overflow-hidden"
           style={{ 
             right: `${100 - position}%`, 
-            backgroundImage: `linear-gradient(45deg, #e4f7f2 25%, #ffffff 25%), 
-                             linear-gradient(-45deg, #e4f7f2 25%, #ffffff 25%), 
-                             linear-gradient(45deg, #ffffff 75%, #e4f7f2 75%), 
-                             linear-gradient(-45deg, #ffffff 75%, #e4f7f2 75%)`,
+            backgroundImage: `linear-gradient(45deg, #5eead4 25%, #a7f3d0 25%), 
+                             linear-gradient(-45deg, #5eead4 25%, #a7f3d0 25%), 
+                             linear-gradient(45deg, #a7f3d0 75%, #5eead4 75%), 
+                             linear-gradient(-45deg, #a7f3d0 75%, #5eead4 75%)`,
             backgroundSize: '20px 20px',
             backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
           }}
