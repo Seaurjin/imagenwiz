@@ -1,0 +1,1 @@
+{"type":"blank","command":"./start-imagenwiz.sh"}

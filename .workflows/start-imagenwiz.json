@@ -1,0 +1,10 @@
+{
+  "name": "Start iMagenWiz",
+  "command": "./start-imagenwiz.sh",
+  "environment": {
+    "PORT": "5000",
+    "NODE_ENV": "development",
+    "EXPRESS_FALLBACK": "true",
+    "SKIP_FLASK_CHECK": "true"
+  }
+}

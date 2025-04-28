@@ -1,4 +1,4 @@
 name = "Start application" 
-command = "node pure-5000.js"
-watchPattern = ["server/*.ts", "backend/**/*.py", "*.js"]
+command = "./start-imagenwiz.sh"
+watchPattern = ["server/*.ts", "frontend/**/*.jsx", "frontend/**/*.js", "*.js", "*.sh"]
 waitForPort = 5000
