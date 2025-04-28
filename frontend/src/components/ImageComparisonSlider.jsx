@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "133.33%" }) => {
+const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" }) => {
   const { t } = useTranslation(['common']);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState(50);
@@ -57,7 +57,7 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "133.33%
   }, [isDragging]);
 
   return (
-    <div className="comparison-slider-container w-full max-w-full mx-auto relative rounded-xl overflow-hidden shadow-xl transform transition-transform duration-300 hover:scale-[1.02]">
+    <div className="comparison-slider-container w-full h-full mx-auto relative rounded-xl overflow-hidden shadow-xl">
       <div 
         ref={sliderRef}
         className="comparison-slider relative w-full h-0 overflow-hidden rounded-xl"
@@ -72,7 +72,7 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "133.33%
         
         {/* Vertical separator line */}
         <div 
-          className="comparison-separator absolute top-0 bottom-0 w-1 bg-teal-500 transform -translate-x-1/2 z-10"
+          className="comparison-separator absolute top-0 bottom-0 w-0.5 bg-white transform -translate-x-1/2 z-10"
           style={{ left: `${position}%` }}
         />
         
@@ -95,9 +95,9 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "133.33%
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
         >
-          <div className="handle-circle w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-lg">
+          <div className="handle-circle w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
             <div className="handle-arrows flex items-center text-xs select-none">
-              <span className="mr-1">◀</span>
+              <span className="mr-0.5">◀</span>
               <span>▶</span>
             </div>
           </div>
@@ -105,11 +105,11 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "133.33%
       </div>
       
       {/* Labels */}
-      <div className="comparison-labels flex justify-between mt-4 font-medium">
-        <div className="label-before px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+      <div className="comparison-labels flex justify-between mt-2 font-medium">
+        <div className="label-before px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
           {t('comparison.before', 'Before')}
         </div>
-        <div className="label-after px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+        <div className="label-after px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
           {t('comparison.after', 'After')}
         </div>
       </div>

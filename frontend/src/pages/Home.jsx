@@ -72,16 +72,16 @@ const Home = () => {
             
             {/* Image content - Takes 6 columns on large screens */}
             <div className="lg:col-span-6 relative">
-              <div className="relative overflow-hidden mx-auto max-w-lg lg:max-w-none">
+              <div className="relative w-full h-full overflow-hidden mx-auto rounded-xl">
                 {/* Image Comparison Slider */}
                 <ImageComparisonSlider 
                   beforeImage="/images/comparison/dog-with-background.jpg"
                   afterImage="/images/comparison/dog-no-background.png"
-                  aspectRatio="133.33%"
+                  aspectRatio="75%"
                 />
                 
                 {/* Floating sparkle elements for visual interest */}
-                <div className="absolute top-0 right-0 w-4 h-4 rounded-full bg-teal-400 animate-pulse"></div>
+                <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-teal-400 animate-pulse"></div>
                 <div className="absolute bottom-10 left-6 w-3 h-3 rounded-full bg-teal-500 animate-ping"></div>
                 <div className="absolute top-1/3 right-8 w-2 h-2 rounded-full bg-teal-300 animate-pulse"></div>
               </div>
