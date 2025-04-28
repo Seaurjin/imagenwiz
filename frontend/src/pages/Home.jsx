@@ -94,24 +94,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Mobile Comparison Section */}
-      <section className="py-12 bg-white md:hidden">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            {t('home.comparison.title', 'See the Difference with Background Removal')}
-          </h2>
-          <div className="max-w-sm mx-auto">
-            <ImageComparisonSlider 
-              beforeImage="/images/comparison/original-dog-final-v2.jpg"
-              afterImage="/images/comparison/dog-no-background.png"
-              aspectRatio="100%"
-            />
-            <p className="text-center text-gray-600 mt-4 text-sm">
-              {t('home.comparison.subtitle', 'Slide to compare original and processed images')}
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Mobile Comparison Section removed as requested */}
 
       {/* Features Section */}
       <section className="py-20 bg-white relative overflow-hidden">
