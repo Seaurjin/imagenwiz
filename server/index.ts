@@ -54,6 +54,7 @@ console.log('__dirname:', __dirname);
 
 // Frontend build paths to check
 const potentialPaths = [
+  path.join(process.cwd(), 'frontend/dist'),   // Compiled frontend build with proper MIME types
   path.join(process.cwd(), 'frontend'),        // Main frontend path with index.html
   path.join(process.cwd(), 'build')
 ];
@@ -116,14 +117,9 @@ if (frontendPath) {
       return res.status(404).json({ error: 'API endpoint not found' });
     }
     
-    // For all other routes, serve the demo page for now
-    console.log(`🌟 Serving demo page for route: ${req.path}`);
-    const demoPath = path.join(frontendPath, 'demo.html');
-    if (fs.existsSync(demoPath)) {
-      res.sendFile(demoPath);
-    } else {
-      res.sendFile(path.join(frontendPath, 'index.html'));
-    }
+    // For all other routes in SPA, always serve the main index.html
+    console.log(`🌟 Serving main SPA for route: ${req.path}`);
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 } else {
   console.log('⚠️ No frontend build directory found. API server only.');
