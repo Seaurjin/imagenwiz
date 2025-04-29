@@ -1,279 +1,247 @@
-// Coordinated startup script for iMagenWiz
-// This script ensures both Flask and Express start correctly
-// and handles Replit's requirement for port 5000 to be available quickly
+#!/usr/bin/env node
 
-import { spawn } from 'child_process';
+// Coordinated startup script for iMagenWiz
+// Starts both Express server on port 5000 and the port 3000 proxy
+
 import http from 'http';
+import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-// Get current directory
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// ANSI color codes for pretty console output
+const RESET = '\x1b[0m';
+const GREEN = '\x1b[32m';
+const YELLOW = '\x1b[33m';
+const BLUE = '\x1b[34m';
+const RED = '\x1b[31m';
+const CYAN = '\x1b[36m';
 
-// Configuration
-const config = {
-  flaskPort: 5001,
-  expressPort: 3000,
-  placeholderPort: 5000,
-  flaskStartTimeout: 10000, // 10 seconds
-  maxRetries: 5,
-  // Use Replit domain if available
-  backendUrl: process.env.REPLIT_DOMAIN ? 
-    `https://${process.env.REPLIT_DOMAIN}` : 
-    'http://localhost:5001'
-};
-
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+function log(message, color = RESET) {
+  const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  console.log(`${color}[${timestamp}] ${message}${RESET}`);
 }
 
-// Create log streams
-const flaskLogStream = fs.createWriteStream(path.join(logsDir, 'flask.log'), { flags: 'a' });
-const expressLogStream = fs.createWriteStream(path.join(logsDir, 'express.log'), { flags: 'a' });
-
-// Add timestamp to log entries
-function timestamp() {
-  return `[${new Date().toISOString()}] `;
-}
-
-// Log to console and file
-function log(message, stream = null) {
-  const logMessage = timestamp() + message;
-  console.log(logMessage);
-  if (stream) {
-    stream.write(logMessage + '\n');
-  }
-}
-
-// 1. Start a simple placeholder server on port 5000 immediately
-// This satisfies Replit's requirement for a fast startup
+// Start a placeholder server to handle early requests
 function startPlaceholderServer() {
   return new Promise((resolve) => {
+    log('Starting placeholder server on port 3000...', YELLOW);
+    
     const server = http.createServer((req, res) => {
-      res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end('iMagenWiz is starting, please wait...');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>iMagenWiz - Starting Up</title>
+            <meta http-equiv="refresh" content="5">
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 2rem; line-height: 1.5; }
+              h1 { color: #0070f3; }
+              .loader { border: 5px solid #f3f3f3; border-top: 5px solid #0070f3; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 2rem 0; }
+              @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            </style>
+          </head>
+          <body>
+            <h1>iMagenWiz</h1>
+            <p>The application is starting up. This page will automatically refresh when ready.</p>
+            <div class="loader"></div>
+            <p>Starting server components...</p>
+          </body>
+        </html>
+      `);
     });
     
-    server.listen(config.placeholderPort, '0.0.0.0', () => {
-      log(`✅ Placeholder server started on port ${config.placeholderPort}`);
+    server.listen(3000, () => {
+      log('Placeholder server running on port 3000', GREEN);
       resolve(server);
     });
   });
 }
 
-// 2. Start the Flask backend on port 5001
+// Start the Flask backend
 function startFlaskBackend() {
-  log('🐍 Starting Flask backend...', flaskLogStream);
-  
-  // Check if backend directory exists - this is optional now
-  const backendDir = path.join(__dirname, 'backend');
-  if (fs.existsSync(backendDir)) {
-    log(`✅ Found backend directory: ${backendDir}`, flaskLogStream);
-  } else {
-    log(`⚠️ WARNING: backend directory not found at ${backendDir}, will try alternative locations`, flaskLogStream);
-  }
-  
-  // Check for multiple possible Python entry points
-  let flaskEntrypoint = '';
-  const possibleEntrypoints = [
-    path.join(__dirname, 'backend', 'run.py'),
-    path.join(__dirname, 'run.py'),
-    path.join(__dirname, 'backend', 'app.py')
-  ];
-  
-  for (const entrypoint of possibleEntrypoints) {
-    log(`Checking for Flask entrypoint: ${entrypoint}`, flaskLogStream);
-    if (fs.existsSync(entrypoint)) {
-      flaskEntrypoint = entrypoint;
-      log(`✅ Found Flask entrypoint: ${flaskEntrypoint}`, flaskLogStream);
-      break;
-    }
-  }
-  
-  if (!flaskEntrypoint) {
-    log(`❌ ERROR: No Flask entrypoint found! Checked: ${possibleEntrypoints.join(', ')}`, flaskLogStream);
-    process.exit(1);
-  }
-  
-  // Set environment variables for Flask
-  const flaskEnv = {
-    ...process.env,
-    FLASK_ENV: 'development',
-    FLASK_DEBUG: '1',
-    PORT: config.flaskPort.toString()
-  };
-  
-  // Start Flask process
-  const flask = spawn('python3', [flaskEntrypoint], {
-    env: flaskEnv,
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
-  
-  // Log Flask output
-  flask.stdout.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`🐍 [Flask] ${message}`, flaskLogStream);
-  });
-  
-  flask.stderr.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`🐍 [Flask Error] ${message}`, flaskLogStream);
-  });
-  
-  // Handle Flask exit
-  flask.on('exit', (code) => {
-    log(`❌ Flask backend exited with code ${code}`, flaskLogStream);
-  });
-  
-  return flask;
-}
-
-// 3. Check if Flask is responding to health checks
-async function checkFlaskHealth(retries = 0, pathIndex = 0) {
-  if (retries >= config.maxRetries) {
-    log('⚠️ Maximum retries reached waiting for Flask to start');
-    log('⚠️ Continuing anyway, as Express can run in fallback mode');
-    return false;
-  }
-  
-  // List of endpoints to try in order
-  const healthCheckPaths = ['/api/health-check', '/api/health', '/health-check', '/health'];
-  
-  // If we've tried all paths, increment the retry counter and start over with the first path
-  if (pathIndex >= healthCheckPaths.length) {
-    // Wait between full cycles of paths
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    return checkFlaskHealth(retries + 1, 0);
-  }
-  
-  try {
-    log(`🔍 Checking Flask health (attempt ${retries + 1}/${config.maxRetries}, path ${pathIndex + 1}/${healthCheckPaths.length})...`);
+  return new Promise((resolve) => {
+    log('Starting Express backend...', YELLOW);
     
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    
-    // If running locally, use localhost; otherwise use the Replit domain
-    const baseUrl = process.env.REPLIT_DOMAIN 
-      ? `https://${process.env.REPLIT_DOMAIN}`
-      : `http://localhost:${config.flaskPort}`;
-    
-    const currentPath = healthCheckPaths[pathIndex];
-    const healthCheckUrl = `${baseUrl}${currentPath}`;
-      
-    log(`Checking health at: ${healthCheckUrl}`);
-    
-    const response = await fetch(healthCheckUrl, {
-      signal: controller.signal
+    const expressProcess = spawn('npm', ['run', 'dev'], {
+      stdio: ['ignore', 'pipe', 'pipe']
     });
     
-    clearTimeout(timeout);
+    let expressReady = false;
     
-    if (response.ok) {
-      log(`✅ Flask backend is healthy and responding at ${currentPath}`);
-      return true;
-    } else {
-      log(`⚠️ Health check failed at ${currentPath} with status ${response.status}`);
-      // Try the next path in the list
-      return checkFlaskHealth(retries, pathIndex + 1);
-    }
-  } catch (error) {
-    log(`⚠️ Flask not responding at ${healthCheckPaths[pathIndex]}: ${error.message}`);
-    
-    // Try the next path in the list
-    return checkFlaskHealth(retries, pathIndex + 1);
-  }
-}
-
-// 4. Start Express frontend on port 3000
-function startExpressFrontend() {
-  log('🚀 Starting Express frontend...', expressLogStream);
-  
-  // Set environment variables for Express
-  const expressEnv = {
-    ...process.env,
-    NODE_ENV: 'production',
-    PORT: config.expressPort.toString(),
-    FLASK_PORT: config.flaskPort.toString(),
-    FLASK_AVAILABLE: 'true',
-    // For Replit, use the full domain name instead of localhost
-    FLASK_URL: process.env.REPLIT_DOMAIN ? 
-      `https://${process.env.REPLIT_DOMAIN}` : 
-      `http://localhost:${config.flaskPort}`,
-    // Provide the Replit domain for Express to use in proxying
-    REPLIT_DOMAIN: process.env.REPLIT_DOMAIN || ''
-  };
-  
-  // Start Express process
-  const express = spawn('npx', ['tsx', 'server/index.ts'], {
-    env: expressEnv,
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
-  
-  // Log Express output
-  express.stdout.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`🚀 [Express] ${message}`, expressLogStream);
-  });
-  
-  express.stderr.on('data', (data) => {
-    const message = data.toString().trim();
-    log(`🚀 [Express Error] ${message}`, expressLogStream);
-  });
-  
-  // Handle Express exit
-  express.on('exit', (code) => {
-    log(`❌ Express frontend exited with code ${code}`, expressLogStream);
-    process.exit(code || 0);
-  });
-  
-  return express;
-}
-
-// Main orchestration function
-async function startApplication() {
-  try {
-    log('🔥 Starting iMagenWiz application...');
-    
-    // Check if placeholder server is already running (from placeholder-server-only.mjs)
-    let placeholder = null;
-    if (process.env.PLACEHOLDER_RUNNING === 'true') {
-      log('Placeholder server is already running, skipping initialization');
-    } else {
-      // 1. Start placeholder server immediately to satisfy Replit
-      placeholder = await startPlaceholderServer();
-    }
-    
-    // 2. Start Flask backend
-    const flask = startFlaskBackend();
-    
-    // 3. Wait for Flask to initialize (but don't block Express startup)
-    setTimeout(async () => {
-      await checkFlaskHealth();
-    }, config.flaskStartTimeout);
-    
-    // 4. Start Express frontend after a short delay
-    setTimeout(() => {
-      const express = startExpressFrontend();
-      
-      // When the process is terminated, clean up
-      process.on('SIGINT', () => {
-        log('Received SIGINT. Shutting down...');
-        if (placeholder) {
-          placeholder.close();
+    expressProcess.stdout.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) {
+        log(`[Express] ${output}`, BLUE);
+        
+        // Check for server ready message
+        if (!expressReady && (
+            output.includes('Server running at') ||
+            output.includes('ready to accept connections')
+        )) {
+          expressReady = true;
+          log('Express backend is ready!', GREEN);
+          resolve(expressProcess);
         }
-        flask.kill();
-        express.kill();
-        process.exit(0);
+      }
+    });
+    
+    expressProcess.stderr.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) {
+        log(`[Express ERROR] ${output}`, RED);
+      }
+    });
+    
+    expressProcess.on('error', (error) => {
+      log(`Express backend startup error: ${error.message}`, RED);
+    });
+    
+    // Resolve after timeout if we haven't already detected the ready message
+    setTimeout(() => {
+      if (!expressReady) {
+        log('Express backend timeout - assuming ready', YELLOW);
+        resolve(expressProcess);
+      }
+    }, 30000);
+  });
+}
+
+// Start the port redirection proxy
+function startPortRedirectionProxy() {
+  return new Promise((resolve) => {
+    log('Starting port 3000 redirection proxy...', YELLOW);
+    
+    // Look for the script file
+    const scriptPaths = [
+      './pure-5000.cjs',
+      './port-redirect-simple.cjs',
+      './port-3000-proxy.cjs',
+      './mini.cjs'
+    ];
+    
+    let scriptPath = null;
+    for (const path of scriptPaths) {
+      if (fs.existsSync(path)) {
+        scriptPath = path;
+        break;
+      }
+    }
+    
+    if (!scriptPath) {
+      log('No proxy script found, using built-in proxy', RED);
+      
+      // Create a simple proxy server
+      const server = http.createServer((req, res) => {
+        const options = {
+          hostname: 'localhost',
+          port: 5000,
+          path: req.url,
+          method: req.method,
+          headers: req.headers
+        };
+        
+        const proxyReq = http.request(options, (proxyRes) => {
+          res.writeHead(proxyRes.statusCode, proxyRes.headers);
+          proxyRes.pipe(res);
+        });
+        
+        proxyReq.on('error', (e) => {
+          console.error('Proxy error:', e.message);
+          if (!res.headersSent) {
+            res.writeHead(502);
+            res.end('Proxy error');
+          }
+        });
+        
+        req.pipe(proxyReq);
       });
+      
+      server.listen(3000, '0.0.0.0', () => {
+        log('Built-in proxy running on port 3000 -> 5000', GREEN);
+        resolve(server);
+      });
+      
+      return;
+    }
+    
+    log(`Using proxy script: ${scriptPath}`, BLUE);
+    
+    // Start the proxy in a child process
+    const proxyProcess = spawn('node', [scriptPath], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    
+    proxyProcess.stdout.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) {
+        log(`[Proxy] ${output}`, CYAN);
+      }
+    });
+    
+    proxyProcess.stderr.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) {
+        log(`[Proxy ERROR] ${output}`, RED);
+      }
+    });
+    
+    proxyProcess.on('error', (error) => {
+      log(`Proxy startup error: ${error.message}`, RED);
+    });
+    
+    // Assume the proxy is ready after a short delay
+    setTimeout(() => {
+      log('Port redirection proxy is ready!', GREEN);
+      resolve(proxyProcess);
     }, 2000);
-  } catch (error) {
-    log(`❌ Error starting application: ${error.message}`);
-    process.exit(1);
-  }
+  });
+}
+
+// Main function to start everything
+async function startApplication() {
+  log('=== Starting iMagenWiz Application ===', GREEN);
+  
+  // Start a placeholder server to handle requests during startup
+  const placeholderServer = await startPlaceholderServer();
+  
+  // Start the Flask backend
+  const expressBackend = await startFlaskBackend();
+  
+  // Close the placeholder server
+  log('Closing placeholder server...', YELLOW);
+  placeholderServer.close();
+  
+  // Start the port redirection proxy
+  const proxy = await startPortRedirectionProxy();
+  
+  // Get Replit domain if available
+  const replitDomain = process.env.REPL_SLUG ? 
+    `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : 
+    'http://localhost:3000';
+  
+  log('=== iMagenWiz Application Started ===', GREEN);
+  log(`Access your app at: ${replitDomain}`, GREEN);
+  
+  // Handle process termination
+  process.on('SIGINT', () => {
+    log('Shutting down application...', YELLOW);
+    
+    // Clean up processes
+    if (expressBackend && expressBackend.kill) {
+      expressBackend.kill();
+    }
+    
+    if (proxy && proxy.kill) {
+      proxy.kill();
+    }
+    
+    process.exit(0);
+  });
 }
 
 // Start the application
-startApplication();
+startApplication().catch((error) => {
+  log(`Application startup error: ${error.message}`, RED);
+  process.exit(1);
+});
