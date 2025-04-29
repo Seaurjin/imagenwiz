@@ -14,7 +14,7 @@ import './i18n/i18n';
 import { isRTL } from './i18n/i18n';
 
 // Pages
-import Home from './pages/Home';
+import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardPage from './pages/DashboardPage';
@@ -201,7 +201,7 @@ const AppContent = () => {
           <Navbar />
           <main className="flex-grow">
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/pricing" element={<PricingMultilingual />} />
