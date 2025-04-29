@@ -155,8 +155,27 @@ const startServer = async () => {
     
     // Start the server - make sure port is properly typed
     const serverPort = typeof PORT === 'string' ? parseInt(PORT, 10) : PORT;
-    app.listen(serverPort, '0.0.0.0', () => {
+    const server = app.listen(serverPort, '0.0.0.0', () => {
       console.log(`Server running at http://0.0.0.0:${PORT}`);
+      
+      // Also start a duplicate server on port 3000 to ensure we can access via both ports
+      if (serverPort !== 3000) {
+        try {
+          const altApp = express();
+          // This server just redirects everything to the main server
+          altApp.all('*', (req, res) => {
+            const targetUrl = `http://localhost:${serverPort}${req.url}`;
+            res.redirect(targetUrl);
+          });
+          
+          altApp.listen(3000, '0.0.0.0', () => {
+            console.log(`🔄 Redirect server running at http://0.0.0.0:3000 → ${PORT}`);
+          });
+        } catch (altError) {
+          console.error(`⚠️ Could not start redirect server on port 3000:`, altError.message);
+        }
+      }
+      
       const domainName = process.env.REPL_SLUG && process.env.REPL_OWNER
         ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
         : 'localhost';

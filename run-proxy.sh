@@ -1,23 +1,27 @@
 #!/bin/bash
 
-# Simple script to start the port 3000 -> 5000 proxy
-# To use: ./run-proxy.sh
+# Simple script to run the port 3000 proxy
+# Kill any existing proxy processes
+pkill -f "node port-redirect-simple.cjs" || true
 
-echo "🚀 Starting port 3000 proxy..."
-
-# Kill any existing proxies first
-pkill -f 'node pure-5000.cjs' 2>/dev/null
-sleep 1
-
-# Start the pure-5000.cjs proxy in the background
-nohup node pure-5000.cjs > /dev/null 2>&1 &
+# Start the proxy in the background
+node port-redirect-simple.cjs > proxy.log 2>&1 &
 PROXY_PID=$!
 
-# Check if process started
+# Save the PID for later
+echo $PROXY_PID > proxy.pid
+
+echo "Proxy started with PID: $PROXY_PID"
+echo "Logs available in: proxy.log"
+
+# Wait a moment for startup
+sleep 1
+
+# Check if the proxy is running
 if ps -p $PROXY_PID > /dev/null; then
-  echo "✅ Proxy started with PID: $PROXY_PID"
-  echo "✅ App available at: http://localhost:3000"
+  echo "Proxy is running successfully"
+  echo "You can now access the app at http://localhost:3000/"
 else
-  echo "❌ Failed to start proxy process"
+  echo "Failed to start proxy. Check proxy.log for details."
   exit 1
 fi

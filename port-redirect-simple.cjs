@@ -1,91 +1,90 @@
-/**
- * Simple port redirect module for iMagenWiz
- * Redirects traffic from port 3000 to port 5000
- * Compatible with both ESM and CommonJS
- */
-
+// Extremely simple port 3000 -> 5000 redirector - CJS version
 const http = require('http');
 
-// Configuration
-const PROXY_PORT = 3000;
-const TARGET_PORT = 5000;
-const TARGET_HOST = 'localhost';
+// Color constants for console output
+const GREEN = '\x1b[32m';
+const RED = '\x1b[31m';
+const YELLOW = '\x1b[33m';
+const RESET = '\x1b[0m';
 
-// Create the proxy server
-function createProxyServer() {
-  const server = http.createServer((clientReq, clientRes) => {
-    // Proxy configuration
-    const options = {
-      hostname: TARGET_HOST,
-      port: TARGET_PORT,
-      path: clientReq.url,
-      method: clientReq.method,
-      headers: clientReq.headers
-    };
-    
-    // Log the request (if not favicon or other common resources)
-    if (!clientReq.url.includes('favicon.ico')) {
-      console.log(`Proxy: ${clientReq.method} ${clientReq.url} -> ${TARGET_HOST}:${TARGET_PORT}`);
+// For debugging
+console.log(`${YELLOW}Starting proxy server - port 3000 → 5000${RESET}`);
+console.log(`${YELLOW}Process ID: ${process.pid}${RESET}`);
+
+// Create the most basic proxy server possible
+const server = http.createServer((req, res) => {
+  const proxyReq = http.request(
+    {
+      host: 'localhost',
+      port: 5000,
+      path: req.url,
+      method: req.method,
+      headers: req.headers
+    },
+    (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
     }
-    
-    // Create proxied request
-    const proxyReq = http.request(options, (proxyRes) => {
-      // Copy headers and status code
-      clientRes.writeHead(proxyRes.statusCode, proxyRes.headers);
-      
-      // Stream response data back to client
-      proxyRes.pipe(clientRes, { end: true });
-    });
-    
-    // Handle proxy errors
-    proxyReq.on('error', (error) => {
-      console.error(`Proxy error: ${error.message}`);
-      
-      if (!clientRes.headersSent) {
-        clientRes.writeHead(502, { 'Content-Type': 'text/plain' });
-        clientRes.end(`Proxy Error: ${error.message}`);
+  );
+  
+  proxyReq.on('error', (err) => {
+    console.error(`${RED}Proxy request error:${RESET}`, err);
+    try {
+      if (!res.headersSent) {
+        res.writeHead(502);
+        res.end('Proxy error: ' + err.message);
       }
-    });
-    
-    // Stream client request to proxy
-    clientReq.pipe(proxyReq, { end: true });
-  });
-  
-  return server;
-}
-
-// Start the server
-function startProxyServer() {
-  const server = createProxyServer();
-  
-  // Handle server errors
-  server.on('error', (error) => {
-    if (error.code === 'EADDRINUSE') {
-      console.error(`Error: Port ${PROXY_PORT} is already in use`);
-    } else {
-      console.error(`Server error: ${error.message}`);
+    } catch (responseErr) {
+      console.error(`${RED}Failed to send error response:${RESET}`, responseErr);
     }
-    process.exit(1);
   });
   
-  // Start listening
-  server.listen(PROXY_PORT, '0.0.0.0', () => {
-    console.log(`
-🔄 Port Redirector
-🚀 Listening on port ${PROXY_PORT}
-🌐 Forwarding requests to ${TARGET_HOST}:${TARGET_PORT}
-    `);
+  // Add timeout handling
+  proxyReq.setTimeout(10000, () => {
+    console.error(`${RED}Proxy request timed out${RESET}`);
+    try {
+      if (!res.headersSent) {
+        res.writeHead(504);
+        res.end('Proxy timeout: Server at port 5000 took too long to respond');
+      }
+    } catch (responseErr) {
+      console.error(`${RED}Failed to send timeout response:${RESET}`, responseErr);
+    }
   });
   
-  return server;
-}
+  req.pipe(proxyReq);
+});
 
-// Export functions for module usage
-exports.createProxyServer = createProxyServer;
-exports.startProxyServer = startProxyServer;
+// Start the server on port 3000
+server.listen(3000, '0.0.0.0', () => {
+  console.log(`${GREEN}Port 3000 → 5000 redirection active${RESET}`);
+  console.log(`${GREEN}App available at: http://localhost:3000/${RESET}`);
+});
 
-// Auto-start if this is the main module
-if (require.main === module) {
-  console.log('Starting port redirector from direct execution');
-  startProxyServer();
-}
+// Error handler
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`${RED}Port 3000 is already in use${RESET}`);
+    console.log(`${YELLOW}Attempting to close existing server...${RESET}`);
+    // Try again in 3 seconds
+    setTimeout(() => {
+      console.log(`${YELLOW}Retrying to bind to port 3000...${RESET}`);
+      server.close();
+      server.listen(3000, '0.0.0.0');
+    }, 3000);
+  } else {
+    console.error(`${RED}Proxy server error:${RESET}`, err);
+  }
+});
+
+// Handle process termination
+process.on('SIGINT', () => {
+  console.log(`${YELLOW}Shutting down proxy server...${RESET}`);
+  server.close(() => {
+    console.log(`${GREEN}Proxy server shut down gracefully${RESET}`);
+    process.exit(0);
+  });
+});
+
+// Keep alive
+console.log(`${YELLOW}Proxy server process running with PID ${process.pid}${RESET}`);
