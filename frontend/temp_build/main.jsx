@@ -39,7 +39,7 @@ function ImageComparisonSlider() {
     >
       <img 
         ref={beforeImageRef}
-        src="/images/comparison/original-dog-final-v2.jpg" 
+        src="/images/comparison/original-dog-final-v2.svg" 
         alt="Original" 
         style={{
           position: 'absolute',
@@ -52,7 +52,7 @@ function ImageComparisonSlider() {
       />
       <img 
         ref={afterImageRef}
-        src="/images/comparison/dog-no-background.png" 
+        src="/images/comparison/dog-no-background.svg" 
         alt="Processed" 
         style={{
           position: 'absolute',
