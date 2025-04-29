@@ -6,7 +6,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DynamicHead from './components/DynamicHead';
 import LangQuickSwitcher from './components/LangQuickSwitcher';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // Initialize i18n with helper functions
@@ -195,11 +195,11 @@ const AppContent = () => {
     <Router>
       {/* Use the language code as a key to force remount when language changes */}
       <div className="flex flex-col min-h-screen" key={i18n.language}>
-        <Suspense fallback={<Loader />}>
-          {/* DynamicHead component to update favicon dynamically */}
-          <DynamicHead />
-          <Navbar />
-          <main className="flex-grow">
+        {/* DynamicHead component to update favicon dynamically - outside Suspense for immediate loading */}
+        <DynamicHead />
+        <Navbar />
+        <main className="flex-grow">
+          <Suspense fallback={<Loader />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<Login />} />
@@ -320,9 +320,9 @@ const AppContent = () => {
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </main>
+          </Suspense>
           <Footer />
-        </Suspense>
+        </main>
       </div>
     </Router>
   );

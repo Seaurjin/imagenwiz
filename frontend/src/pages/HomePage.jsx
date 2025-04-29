@@ -51,6 +51,9 @@ export default function HomePage() {
                       src="/sample-before-after.jpg" 
                       alt="Before and after background removal" 
                       className="object-cover w-full h-full"
+                      loading="eager" 
+                      decoding="async"
+                      fetchpriority="high"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = 'https://via.placeholder.com/800x450?text=Before+and+After';

@@ -18,7 +18,7 @@ const Footer = () => {
               <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-4">
                 {t('footer.learnMore', 'Learn more')}
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-3 footer-links">
                 <li>
                   <Link to="/magic-brush" className="text-gray-500 hover:text-teal-600 text-sm">
                     {t('footer.magicBrush', 'Magic Brush')}
@@ -77,7 +77,7 @@ const Footer = () => {
               <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-4">
                 {t('footer.support', 'Support')}
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-3 footer-links">
                 <li>
                   <Link to="/help" className="text-gray-500 hover:text-teal-600 text-sm">
                     {t('footer.helpAndFaqs', 'Help & FAQs')}
@@ -110,7 +110,7 @@ const Footer = () => {
               <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-4">
                 {t('footer.company', 'Company')}
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-3 footer-links">
                 <li>
                   <Link to="/blog" className="text-gray-500 hover:text-teal-600 text-sm">
                     {t('footer.blog', 'Blog')}

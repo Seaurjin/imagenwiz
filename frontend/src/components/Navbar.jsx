@@ -93,7 +93,7 @@ const Navbar = () => {
                 <Logo />
               </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-8 nav-links">
               <Link
                 to="/"
                 className="border-transparent text-gray-500 hover:border-teal-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
@@ -283,7 +283,7 @@ const Navbar = () => {
             )}
             <span className="font-bold text-teal-600 text-xl">iMagenWiz</span>
           </div>
-          <div className="pt-2 pb-3 space-y-1">
+          <div className="pt-2 pb-3 space-y-1 nav-links">
             <Link
               to="/"
               className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
