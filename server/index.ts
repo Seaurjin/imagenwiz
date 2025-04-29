@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 
 // Create Express app
 const app = express();
+// Server port - prioritize environment variable, then use 3000 if run through our script, fallback to 5000
 const PORT = process.env.PORT || 5000;
 
 // Middleware

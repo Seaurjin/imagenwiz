@@ -1,40 +1,32 @@
-// Ultra-minimal HTTP server that just opens port 5000 immediately
-const http = require('http');
-const { spawn } = require('child_process');
+// Simple port 3000 HTTP server that forwards requests to port 5000
+import http from 'http';
 
-// Create the simplest possible HTTP server
 const server = http.createServer((req, res) => {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('iMagenWiz startup server');
+  const options = {
+    hostname: 'localhost',
+    port: 5000,
+    path: req.url,
+    method: req.method,
+    headers: req.headers
+  };
+
+  const proxy = http.request(options, function(proxyRes) {
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+  
+  req.pipe(proxy);
+
+  proxy.on('error', (e) => {
+    console.error('Proxy error:', e.message);
+    if (!res.headersSent) {
+      res.writeHead(502);
+      res.end('Proxy error');
+    }
+  });
 });
 
-// Immediately listen on port 5000
-server.listen(5000, '0.0.0.0', () => {
-  console.log('Simple startup server running on port 5000');
-  
-  // Start Express in the background with all necessary environment variables
-  const env = {
-    ...process.env,
-    FLASK_AVAILABLE: 'false',
-    EXPRESS_FALLBACK: 'true',
-    SKIP_FLASK_CHECK: 'true',
-    NODE_ENV: 'production',
-    PORT: '3000'
-  };
-  
-  // Use spawn to keep the main process running
-  const expressApp = spawn('npm', ['run', 'dev'], {
-    env,
-    stdio: 'inherit'
-  });
-  
-  // Handle errors and exit events
-  expressApp.on('error', (err) => {
-    console.error('Failed to start Express:', err);
-  });
-  
-  expressApp.on('exit', (code) => {
-    console.log(`Express exited with code ${code}`);
-    process.exit(code);
-  });
+server.listen(3000, '0.0.0.0', () => {
+  console.log('Proxy server running on port 3000');
+  console.log('Forwarding requests to port 5000');
 });

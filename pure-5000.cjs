@@ -1,17 +1,7 @@
 // Simple port 3000 HTTP server that forwards requests to port 5000
-// Compatible with both ESM and CommonJS
+// Pure CommonJS version
 
-// Check environment
-const isESM = typeof require === 'undefined';
-
-// Import modules based on environment
-let http;
-if (isESM) {
-  const module = await import('http');
-  http = module.default;
-} else {
-  http = require('http');
-}
+const http = require('http');
 
 // Create server
 const server = http.createServer((req, res) => {
@@ -50,6 +40,4 @@ server.listen(3000, '0.0.0.0', () => {
 });
 
 // Export for potential module usage
-if (!isESM) {
-  module.exports = server;
-}
+module.exports = server;
