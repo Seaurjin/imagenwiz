@@ -97,7 +97,6 @@
     "react-router-dom": "^7.4.1",
     "react-toastify": "^11.0.5",
     "recharts": "^2.13.0",
-    "sharp": "^0.34.1",
     "stripe": "^17.7.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",

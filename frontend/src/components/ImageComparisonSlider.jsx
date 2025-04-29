@@ -1,30 +1,65 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" }) => {
   const { t } = useTranslation(['common']);
+  const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState(50);
-  
-  // Direct slider movement implementation
-  const handleSliderInput = (e) => {
-    setPosition(parseInt(e.target.value, 10));
+  const sliderRef = useRef(null);
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
   };
 
-  // Component visibility hook for showing hints
-  const [isVisible, setIsVisible] = useState(true);
-  
-  useEffect(() => {
-    // Hide the hint after a few seconds
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 3000);
+  const handleTouchStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleMove = (clientX) => {
+    if (!isDragging || !sliderRef.current) return;
     
-    return () => clearTimeout(timer);
-  }, []);
+    const sliderRect = sliderRef.current.getBoundingClientRect();
+    const newPosition = Math.max(0, Math.min(clientX - sliderRect.left, sliderRect.width));
+    const newPercentage = (newPosition / sliderRect.width) * 100;
+    
+    setPosition(newPercentage);
+  };
+
+  const handleMouseMove = (e) => {
+    handleMove(e.clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    handleMove(e.touches[0].clientX);
+  };
+
+  useEffect(() => {
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isDragging]);
 
   return (
     <div className="comparison-slider-container w-full h-full mx-auto relative rounded-xl overflow-hidden shadow-xl">
       <div 
+        ref={sliderRef}
         className="comparison-slider relative w-full h-0 overflow-hidden rounded-xl"
         style={{ paddingBottom: aspectRatio }}
       >
@@ -35,15 +70,21 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
           className="comparison-image original absolute top-0 left-0 w-full h-full object-cover"
         />
         
+        {/* Vertical separator line */}
+        <div 
+          className="comparison-separator absolute top-0 bottom-0 w-0.5 bg-white transform -translate-x-1/2 z-10"
+          style={{ left: `${position}%` }}
+        />
+        
         {/* Image with background removed */}
         <div 
           className="comparison-overlay absolute top-0 bottom-0 left-0 overflow-hidden"
           style={{ 
-            width: `${position}%`,
+            right: `${100 - position}%`, 
             backgroundImage: `linear-gradient(45deg, #10b981 25%, #5eead4 25%), 
-                              linear-gradient(-45deg, #10b981 25%, #5eead4 25%), 
-                              linear-gradient(45deg, #5eead4 75%, #10b981 75%), 
-                              linear-gradient(-45deg, #5eead4 75%, #10b981 75%)`,
+                             linear-gradient(-45deg, #10b981 25%, #5eead4 25%), 
+                             linear-gradient(45deg, #5eead4 75%, #10b981 75%), 
+                             linear-gradient(-45deg, #5eead4 75%, #10b981 75%)`,
             backgroundSize: '12px 12px',
             backgroundPosition: '0 0, 0 6px, 6px -6px, -6px 0px'
           }}
@@ -55,39 +96,20 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
           />
         </div>
         
-        {/* Vertical separator line */}
+        {/* Draggable handle */}
         <div 
-          className="comparison-separator absolute top-0 bottom-0 w-1 bg-white z-10"
-          style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+          className="comparison-handle absolute top-1/2 transform -translate-y-1/2 z-20 cursor-ew-resize"
+          style={{ left: `${position}%` }}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
         >
-          {/* Draggable handle */}
-          <div className="handle-circle absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-xl border-2 border-white z-30 animate-pulse">
-            <div className="handle-arrows flex items-center text-sm select-none">
-              <span className="mr-1">◀</span>
+          <div className="handle-circle w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
+            <div className="handle-arrows flex items-center text-xs select-none">
+              <span className="mr-0.5">◀</span>
               <span>▶</span>
             </div>
           </div>
         </div>
-        
-        {/* HTML input range slider - the real interactive element */}
-        <input
-          type="range"
-          min="1"
-          max="99"
-          value={position}
-          onChange={handleSliderInput}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
-          aria-label={t('comparison.dragPrompt', 'Drag slider to compare images')}
-        />
-        
-        {/* Helper instruction overlay */}
-        {isVisible && (
-          <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center pointer-events-none z-5">
-            <div className="bg-white bg-opacity-90 rounded-lg px-4 py-2 text-sm font-bold text-gray-700 shadow-lg animate-bounce">
-              {t('comparison.dragPrompt', 'Drag to compare')} →
-            </div>
-          </div>
-        )}
       </div>
       
       {/* Labels */}
