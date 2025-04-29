@@ -1,0 +1,2 @@
+[32m[2025-04-29 12:12:21] Proxy server process started with PID: 8606[0m
+[31m[2025-04-29 12:12:21] Port 3000 is already in use. Proxy not started.[0m

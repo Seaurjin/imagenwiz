@@ -1,27 +1,32 @@
 #!/bin/bash
 
-# Simple script to run the port 3000 proxy
 # Kill any existing proxy processes
-pkill -f "node port-redirect-simple.cjs" || true
+pkill -f "node port-3000" || true
 
-# Start the proxy in the background
-node port-redirect-simple.cjs > proxy.log 2>&1 &
+# Start the proxy server
+node port-3000-standalone.js > proxy-log.txt 2>&1 &
 PROXY_PID=$!
 
-# Save the PID for later
-echo $PROXY_PID > proxy.pid
+# Print info
+echo "Started proxy server with PID: $PROXY_PID"
+echo "Logs are being written to proxy-log.txt"
+echo "To stop the proxy, run: bash stop-proxy.sh"
 
-echo "Proxy started with PID: $PROXY_PID"
-echo "Logs available in: proxy.log"
+# Create the stop script
+cat > stop-proxy.sh << 'EOF'
+#!/bin/bash
+echo "Stopping proxy server..."
+pkill -f "node port-3000" || echo "No proxy server was running"
+echo "Proxy server stopped"
+EOF
 
-# Wait a moment for startup
-sleep 1
+chmod +x stop-proxy.sh
 
-# Check if the proxy is running
+# Verify the proxy is running
+sleep 2
 if ps -p $PROXY_PID > /dev/null; then
-  echo "Proxy is running successfully"
-  echo "You can now access the app at http://localhost:3000/"
+    echo "✅ Proxy server is running successfully"
 else
-  echo "Failed to start proxy. Check proxy.log for details."
-  exit 1
+    echo "❌ Failed to start proxy server"
+    cat proxy-log.txt
 fi
