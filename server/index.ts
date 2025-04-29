@@ -54,11 +54,7 @@ console.log('__dirname:', __dirname);
 
 // Frontend build paths to check
 const potentialPaths = [
-  path.join(process.cwd(), 'frontend'),        // Main frontend path
-  path.join(process.cwd(), 'dist/public'),     // Alternative path
-  path.join(process.cwd(), 'client/build'),
-  path.join(process.cwd(), 'frontend/build'),
-  path.join(process.cwd(), 'dist'),
+  path.join(process.cwd(), 'frontend'),        // Main frontend path with index.html
   path.join(process.cwd(), 'build')
 ];
 
