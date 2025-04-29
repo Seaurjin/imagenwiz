@@ -1,11 +1,3 @@
-// Fix for duplicate language selectors (consolidated fix)
-document.addEventListener("DOMContentLoaded", function() {
-  const script = document.createElement("script");
-  script.src = "/removeSecondLanguageSelector.js";
-  document.body.appendChild(script);
-  console.log('🔧 Added language selector fix script');
-});
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import axios from 'axios';
@@ -14,7 +6,6 @@ import './index.css';
 import './languageSelector.css';
 import './removeLanguageSelector';
 import './navbarLanguageDebug';
-
 import './fixLanguageSelectorClick';
 
 // Add specific script to ensure navbar language selector visibility
