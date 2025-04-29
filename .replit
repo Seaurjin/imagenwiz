@@ -20,6 +20,7 @@ localPort = 5050
 externalPort = 3000
 
 [workflows]
+runButton = "Start Frontend"
 
 [[workflows.workflow]]
 name = "Project"
@@ -61,3 +62,12 @@ args = "cd ../backend && pip install -r requirements.txt"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python run.py"
+
+[[workflows.workflow]]
+name = "Start Frontend"
+author = 23226289
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm run dev"
