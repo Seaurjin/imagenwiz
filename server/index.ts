@@ -86,9 +86,9 @@ if (frontendPath) {
   
   // Handle SPA routing
   app.get('/', (req, res) => {
-    // For main app route, serve the main React app
-    console.log(`🌟 Serving React app for main route`);
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    // For main app route, redirect to demo page for now
+    console.log(`🌟 Redirecting to demo page`);
+    res.redirect('/demo');
   });
   
   // Route for test page
