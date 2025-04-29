@@ -41,10 +41,27 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 );
 EOL
 
+# Create an index.html for the test build
+cat > temp_build/index.html <<EOL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iMagenWiz Test</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="./main.jsx"></script>
+</body>
+</html>
+EOL
+
 # Create a simple Vite config for the test build
 cat > temp_build/vite.config.js <<EOL
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
@@ -52,6 +69,7 @@ export default defineConfig({
     outDir: '../dist/assets',
     emptyOutDir: false,
     rollupOptions: {
+      input: resolve(__dirname, 'index.html'),
       output: {
         entryFileNames: 'main.js',
         assetFileNames: '[name].[ext]'
