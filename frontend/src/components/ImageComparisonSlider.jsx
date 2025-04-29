@@ -76,19 +76,20 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
           style={{ left: `${position}%` }}
         />
         
-        {/* Image with background removed */}
+        {/* Image with background removed - with teal checkered pattern as in screenshot */}
         <div 
           className="comparison-overlay absolute top-0 bottom-0 left-0 overflow-hidden"
-          style={{ 
-            right: `${100 - position}%`, 
-            backgroundImage: `linear-gradient(45deg, #10b981 25%, #5eead4 25%), 
-                             linear-gradient(-45deg, #10b981 25%, #5eead4 25%), 
-                             linear-gradient(45deg, #5eead4 75%, #10b981 75%), 
-                             linear-gradient(-45deg, #5eead4 75%, #10b981 75%)`,
-            backgroundSize: '12px 12px',
-            backgroundPosition: '0 0, 0 6px, 6px -6px, -6px 0px'
-          }}
+          style={{ right: `${100 - position}%` }}
         >
+          {/* Checkered background pattern */}
+          <div className="absolute inset-0" style={{ 
+            backgroundColor: '#0FF0C3',
+            backgroundImage: 'linear-gradient(45deg, #10b8a6 25%, transparent 25%), linear-gradient(-45deg, #10b8a6 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #10b8a6 75%), linear-gradient(-45deg, transparent 75%, #10b8a6 75%)',
+            backgroundSize: '20px 20px',
+            backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+            opacity: 0.3
+          }}/>
+          
           <img 
             src={afterImage} 
             alt="Image with background removed" 
@@ -96,7 +97,7 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
           />
         </div>
         
-        {/* Draggable handle */}
+        {/* Draggable handle - circle with arrows */}
         <div 
           className="comparison-handle absolute top-1/2 transform -translate-y-1/2 z-20 cursor-ew-resize"
           style={{ left: `${position}%` }}
@@ -110,15 +111,15 @@ const ImageComparisonSlider = ({ beforeImage, afterImage, aspectRatio = "75%" })
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Labels */}
-      <div className="comparison-labels flex justify-between mt-2 font-medium">
-        <div className="label-before px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
-          {t('comparison.before', 'Before')}
-        </div>
-        <div className="label-after px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
-          {t('comparison.after', 'After')}
+        
+        {/* Before/After labels at the bottom of the image */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-between px-4">
+          <div className="px-2 py-1 bg-white/80 backdrop-blur-sm rounded-full text-xs text-gray-700 font-medium">
+            {t('comparison.before', 'Before')}
+          </div>
+          <div className="px-2 py-1 bg-white/80 backdrop-blur-sm rounded-full text-xs text-gray-700 font-medium">
+            {t('comparison.after', 'After')}
+          </div>
         </div>
       </div>
     </div>

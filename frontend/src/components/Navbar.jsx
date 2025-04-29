@@ -6,6 +6,18 @@ import { useTranslation } from 'react-i18next';
 import LanguageSelector from './LanguageSelector';
 import MobileLanguageSelector from './MobileLanguageSelector';
 
+// Logo component that matches the screenshot
+const Logo = () => (
+  <div className="flex items-center">
+    <div className="flex border border-gray-200 p-1 mr-2">
+      <div className="w-4 h-4 bg-teal-500 mr-0.5"></div>
+      <div className="w-4 h-4 bg-teal-300 mr-0.5"></div>
+      <div className="w-4 h-4 bg-teal-100"></div>
+    </div>
+    <span className="text-teal-500 font-semibold text-xl">iMagenWiz</span>
+  </div>
+);
+
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { logos, isLoading: logosLoading } = useSiteSettings();
@@ -78,18 +90,7 @@ const Navbar = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center">
-                {logos.navbar && (
-                  <img 
-                    src={logos.navbar} 
-                    alt="Logo" 
-                    className="h-10 w-auto" 
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                )}
-                <span className="ml-2 font-bold text-teal-600 text-xl">iMagenWiz</span>
+                <Logo />
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

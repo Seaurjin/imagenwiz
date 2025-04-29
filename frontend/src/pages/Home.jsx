@@ -9,37 +9,36 @@ const Home = () => {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-white via-teal-50 to-cyan-50 overflow-hidden relative">
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
-          <div className="absolute top-1/4 left-1/6 w-64 h-64 rounded-full bg-gradient-to-br from-teal-200 to-teal-100 blur-3xl"></div>
-          <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-gradient-to-tl from-cyan-200 to-blue-50 blur-3xl transform -rotate-12"></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 lg:py-24 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Text content - Takes 6 columns on large screens */}
-            <div className="lg:col-span-6 lg:pr-8">
-              <div className="mb-5 flex items-center">
+      {/* Hero Section - Simplified design to match screenshot */}
+      <section className="bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Text content */}
+            <div>
+              <div className="mb-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                   </svg>
                   {t('home.hero.tag', 'New AI Technology')}
                 </span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-5 leading-tight">
-                {t('home.hero.title', 'Remove Image')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-600">{t('home.hero.titleHighlight', 'Backgrounds')}</span> {t('home.hero.titleEnd', 'in Seconds')}
+              
+              <h1 className="text-4xl font-bold text-gray-900 mb-6">
+                {t('home.hero.title', 'Remove')} <span className="text-teal-500">{t('home.hero.titleHighlight', 'Backgrounds')}</span> {t('home.hero.titleMiddle', 'with')} 
+                <br />
+                <span className="text-teal-500">{t('home.hero.titleAI', 'AI')}</span> {t('home.hero.titleBack', 'Backgrounds')} {t('home.hero.titleEnd', 'in Seconds')}
               </h1>
-              <p className="text-lg text-gray-700 mb-8 leading-relaxed max-w-xl">
-                {t('home.hero.subtitle', 'Our AI-powered technology makes background removal fast, easy, and precise. Perfect for e-commerce, marketing, or personal projects.')}
+              
+              <p className="text-lg text-gray-700 mb-8">
+                {t('home.hero.subtitle', 'Fast, easy, and accurate background removal powered by advanced AI technology')}
               </p>
-              <div className="flex flex-wrap gap-4 mb-8">
+              
+              <div className="flex flex-wrap gap-4 mb-6">
                 {isAuthenticated ? (
                   <Link
                     to="/dashboard"
-                    className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 transform hover:-translate-y-1"
+                    className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg shadow-md"
                   >
                     {t('nav.dashboard', 'Go to Dashboard')}
                   </Link>
@@ -47,13 +46,13 @@ const Home = () => {
                   <>
                     <Link
                       to="/register"
-                      className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 transform hover:-translate-y-1"
+                      className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg shadow-md"
                     >
                       {t('home.hero.getStarted', 'Get Started Free')}
                     </Link>
                     <Link
                       to="/login"
-                      className="bg-white hover:bg-gray-50 text-teal-600 font-bold py-3 px-8 rounded-lg shadow-lg border border-teal-200 transition duration-300 hover:border-teal-400"
+                      className="bg-white text-teal-500 border border-teal-300 font-bold py-3 px-6 rounded-lg shadow-md"
                     >
                       {t('nav.login', 'Login')}
                     </Link>
@@ -61,32 +60,24 @@ const Home = () => {
                 )}
               </div>
               
-              {/* Trust indicators */}
-              <div className="pt-5 border-t border-gray-200 flex items-center text-sm text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              {/* Trust indicator */}
+              <div className="flex items-center text-sm text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 {t('home.hero.trust', 'Trusted by over 10,000 users worldwide')}
               </div>
             </div>
             
-            {/* Image content - Takes 6 columns on large screens */}
-            <div className="lg:col-span-6 relative">
-              <div className="relative w-full h-full overflow-hidden mx-auto rounded-xl">
-                {/* Image Comparison Slider */}
-                <ImageComparisonSlider 
-                  beforeImage="/images/comparison/original-dog-final-v2.jpg"
-                  afterImage="/images/comparison/dog-no-background.png"
-                  aspectRatio="75%"
-                />
-                
-                {/* Floating sparkle elements for visual interest */}
-                <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-teal-400 animate-pulse"></div>
-                <div className="absolute bottom-10 left-6 w-3 h-3 rounded-full bg-teal-500 animate-ping"></div>
-                <div className="absolute top-1/3 right-8 w-2 h-2 rounded-full bg-teal-300 animate-pulse"></div>
-              </div>
-              {/* Caption for the image with visual emphasis */}
-              <div className="absolute -bottom-4 right-8 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg text-xs text-teal-700 font-medium border border-teal-100">
+            {/* Image Comparison Slider */}
+            <div className="relative mx-auto">
+              <ImageComparisonSlider 
+                beforeImage="/images/comparison/border-collie-original.jpg"
+                afterImage="/images/comparison/border-collie-transparent.png"
+                aspectRatio="75%"
+              />
+              {/* Caption */}
+              <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs text-teal-700 font-medium shadow border border-teal-100">
                 {t('home.hero.imageCaption', 'Try sliding to see the difference!')}
               </div>
             </div>
