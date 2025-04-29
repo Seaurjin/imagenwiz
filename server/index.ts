@@ -102,6 +102,17 @@ if (frontendPath) {
     }
   });
   
+  // Special route for demo page
+  app.get('/demo', (req, res) => {
+    console.log('📄 Serving demo page');
+    const demoPath = path.join(frontendPath, 'demo.html');
+    if (fs.existsSync(demoPath)) {
+      res.sendFile(demoPath);
+    } else {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
+  
   // Handle all other routes
   app.get('*', (req, res) => {
     // API routes are handled by the router
@@ -109,9 +120,14 @@ if (frontendPath) {
       return res.status(404).json({ error: 'API endpoint not found' });
     }
     
-    // For all other routes, serve the SPA
-    console.log(`🌟 Serving React app for route: ${req.path}`);
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    // For all other routes, serve the demo page for now
+    console.log(`🌟 Serving demo page for route: ${req.path}`);
+    const demoPath = path.join(frontendPath, 'demo.html');
+    if (fs.existsSync(demoPath)) {
+      res.sendFile(demoPath);
+    } else {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
   });
 } else {
   console.log('⚠️ No frontend build directory found. API server only.');
