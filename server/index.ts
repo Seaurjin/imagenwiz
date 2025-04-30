@@ -33,7 +33,6 @@ app.use((req, res, next) => {
   
   // Set headers for performance debugging
   res.setHeader('X-Request-ID', requestId);
-  res.setHeader('Server-Timing', 'total;dur=0');
   
   // Log when the response is sent
   res.on('finish', () => {
@@ -45,9 +44,6 @@ app.use((req, res, next) => {
     } else {
       console.log(`📤 ${req.method} ${req.url} - ${res.statusCode} - ${duration}ms [${requestId}]`);
     }
-    
-    // Update Server-Timing header with actual duration
-    res.setHeader('Server-Timing', `total;dur=${duration}`);
   });
   
   next();
