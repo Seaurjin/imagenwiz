@@ -26,14 +26,28 @@ app.use(express.urlencoded({ extended: true }));
 // Request logger middleware
 app.use((req, res, next) => {
   const start = Date.now();
+  const requestId = Math.random().toString(36).substring(2, 8);
   
   // Log when the request is received
-  console.log(`📥 ${req.method} ${req.url} - ${new Date().toISOString()}`);
+  console.log(`📥 ${req.method} ${req.url} - ${new Date().toISOString()} [${requestId}]`);
+  
+  // Set headers for performance debugging
+  res.setHeader('X-Request-ID', requestId);
+  res.setHeader('Server-Timing', 'total;dur=0');
   
   // Log when the response is sent
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(`📤 ${req.method} ${req.url} - ${res.statusCode} - ${duration}ms`);
+    
+    // Add detailed logging for slow requests
+    if (duration > 500) {
+      console.log(`⚠️ SLOW REQUEST: ${req.method} ${req.url} - ${res.statusCode} - ${duration}ms [${requestId}]`);
+    } else {
+      console.log(`📤 ${req.method} ${req.url} - ${res.statusCode} - ${duration}ms [${requestId}]`);
+    }
+    
+    // Update Server-Timing header with actual duration
+    res.setHeader('Server-Timing', `total;dur=${duration}`);
   });
   
   next();
@@ -59,51 +73,6 @@ app.get('/api/ping', async (req, res) => {
   } catch (error) {
     console.error('Database connection error:', error);
     res.status(500).json({ status: 'error', message: 'Database connection failed' });
-  }
-});
-
-// Health check endpoint
-app.get('/api/health', async (req, res) => {
-  try {
-    const health: {
-      status: string;
-      timestamp: string;
-      uptime: number;
-      memory: NodeJS.MemoryUsage;
-      environment: {
-        nodeVersion: string;
-        platform: string;
-        arch: string;
-      };
-      database?: {
-        status: string;
-        message?: string;
-      };
-    } = {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      memory: process.memoryUsage(),
-      environment: {
-        nodeVersion: process.version,
-        platform: process.platform,
-        arch: process.arch
-      }
-    };
-    
-    // Check database status
-    try {
-      await db.execute(sql`SELECT 1`);
-      health.database = { status: 'connected' };
-    } catch (dbError: unknown) {
-      const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown database error';
-      health.database = { status: 'error', message: errorMessage };
-    }
-    
-    res.status(200).json(health);
-  } catch (error) {
-    console.error('Health check error:', error);
-    res.status(500).json({ status: 'error', message: 'Health check failed' });
   }
 });
 
@@ -142,18 +111,28 @@ if (frontendPath) {
   console.log(`Files in ${frontendPath}: ${JSON.stringify(files, null, 2)}`);
   
   console.log(`🌐 Setting up static file serving from: ${frontendPath}`);
-  app.use(express.static(frontendPath));
+  
+  // Improved static file serving with caching and compression
+  app.use(express.static(frontendPath, {
+    etag: true,
+    lastModified: true,
+    maxAge: 60 * 60 * 1000, // Cache for 1 hour for better performance
+    setHeaders: (res, path) => {
+      // Add additional performance headers
+      if (path.endsWith('.js')) {
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+      } else if (path.endsWith('.css')) {
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+      } else if (path.match(/\.(jpg|jpeg|png|gif|svg|webp)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hours for images
+      }
+    }
+  }));
   
   // Handle SPA routing
   app.get('/', (req, res) => {
-    // For main app route, serve the welcome page
-    console.log(`🌟 Serving welcome page`);
-    res.sendFile(path.join(frontendPath, 'welcome.html'));
-  });
-  
-  // Route for main React app
-  app.get('/app', (req, res) => {
-    console.log(`🌟 Serving main React app`);
+    // For main app route, serve the main index.html
+    console.log(`🌟 Serving main page`);
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
   
@@ -194,6 +173,17 @@ if (frontendPath) {
   app.get('/test-simple', (req, res) => {
     console.log('📄 Serving simple test page');
     const testPath = path.join(frontendPath, 'test-simple.html');
+    if (fs.existsSync(testPath)) {
+      res.sendFile(testPath);
+    } else {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
+  
+  // Route for router test page
+  app.get('/test-router', (req, res) => {
+    console.log('📄 Serving router test page');
+    const testPath = path.join(frontendPath, 'test-router.html');
     if (fs.existsSync(testPath)) {
       res.sendFile(testPath);
     } else {
