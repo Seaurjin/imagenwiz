@@ -9,6 +9,7 @@ from flask import Blueprint, request, jsonify, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.models import User, RechargeHistory
 from app import db
+from app.credits.utils import log_credit_change
 
 order_bp = Blueprint('order_confirmation', __name__, url_prefix='/order-confirmation')
 
@@ -220,12 +221,25 @@ def fulfill_checkout(session_id):
             db.session.begin_nested()  # Use savepoint to provide rollback capability
             
             # First, update user credits (highest priority)
-            original_balance = user.credits
-            user.credits += credits
+            # This is now handled by log_credit_change
+            # original_balance = user.credits 
+            # user.credits += credits
             
-            # Force an immediate flush of the user credits update
-            db.session.flush()
-            print(f"✅ User credits updated to {user.credits} (pending commit)")
+            # Log the credit change - this will also update user.credits
+            credit_log_entry = log_credit_change(
+                user_id=user.id,
+                change_amount=credits,
+                source_type='plan_purchase',
+                description=f"Purchase: {package_name}",
+                source_details=json.dumps({"stripe_session_id": session_id, "package_id": package_id, "price_paid": price})
+            )
+
+            if not credit_log_entry:
+                raise Exception("Failed to log credit change") # This will trigger rollback
+            
+            # Force an immediate flush of the user credits update (done by log_credit_change if it modifies user directly)
+            # db.session.flush()
+            # print(f"✅ User credits updated to {user.credits} (pending commit)")
             
             # Now try to record the payment
             try:
@@ -261,7 +275,7 @@ def fulfill_checkout(session_id):
             # Commit the transaction - this will commit the user credits update even if payment record failed
             db.session.commit()
             print(f"✅ Transaction committed successfully")
-            print(f"✅ User {user.username} credit balance is now {user.credits}")
+            print(f"✅ User {user.username} credit balance is now {user.credits}") # user.credits is updated by log_credit_change
             print(f"✅ User {user.username} recharged {credits} credits for ${price}")
             
         except Exception as e:
@@ -275,20 +289,31 @@ def fulfill_checkout(session_id):
                 # Refetch user to get a fresh state
                 fresh_user = User.query.get(user_id)
                 if fresh_user:
-                    fresh_user.credits += credits
-                    db.session.commit()
-                    print(f"✅ Fallback successful - User credits updated to {fresh_user.credits}")
-                    return {
-                        "status": "success",
-                        "user": fresh_user.to_dict(),
-                        "credits_added": credits,
-                        "original_balance": original_balance,
-                        "new_balance": fresh_user.credits,
-                        "amount_paid": price,
-                        "package_name": package_name,
-                        "is_yearly": is_yearly,
-                        "note": "Payment record may be incomplete but credits were added successfully"
-                    }
+                    # Fallback: Log credit change directly if the main transaction failed
+                    fallback_log = log_credit_change(
+                        user_id=fresh_user.id,
+                        change_amount=credits, # Ensure credits variable is in scope
+                        source_type='plan_purchase_fallback',
+                        description=f"Purchase (Fallback): {package_name}", # Ensure package_name is in scope
+                        source_details=json.dumps({"stripe_session_id": session_id, "package_id": package_id, "price_paid": price}) # Ensure these are in scope
+                    )
+                    if fallback_log:
+                        db.session.commit()
+                        print(f"✅ Fallback successful - User credits updated to {fresh_user.credits}")
+                        return {
+                            "status": "success",
+                            "user": fresh_user.to_dict(),
+                            "credits_added": credits,
+                            "original_balance": fresh_user.credits - credits, # Approximate original
+                            "new_balance": fresh_user.credits,
+                            "amount_paid": price,
+                            "package_name": package_name,
+                            "is_yearly": is_yearly, # Ensure is_yearly is in scope
+                            "note": "Payment record may be incomplete but credits were added successfully (fallback)"
+                        }
+                    else:
+                        print(f"❌ Fallback credit logging also failed.")
+                        db.session.rollback()
                 else:
                     print(f"❌ Fallback failed - User {user_id} not found on refresh")
             except Exception as fallback_error:
@@ -307,7 +332,7 @@ def fulfill_checkout(session_id):
             "status": "success",
             "user": user.to_dict(),
             "credits_added": credits,
-            "original_balance": original_balance,
+            "original_balance": user.credits - credits, # Approximate original balance after log_credit_change
             "new_balance": user.credits,
             "amount_paid": price,
             "package_name": package_name,

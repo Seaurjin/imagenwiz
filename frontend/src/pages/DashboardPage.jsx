@@ -99,6 +99,12 @@ const DashboardPage = () => {
             >
               Payment History
             </Link>
+            <Link 
+              to="/dashboard/credit-history"
+              className="ml-2 text-white border border-white px-4 py-2 rounded font-medium hover:bg-teal-600 transition-colors inline-block"
+            >
+              Credit History
+            </Link>
           </div>
         </div>
       </div>

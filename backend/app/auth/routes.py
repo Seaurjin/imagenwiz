@@ -4,6 +4,7 @@ from app.models.models import User
 from app import db
 from . import bp
 import requests
+from app.credits.utils import log_credit_change
 
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
 
@@ -12,38 +13,69 @@ GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
 def register():
     """Register a new user"""
     data = request.get_json()
-    # Check if required fields are provided
-    if not data or not data.get('username') or not data.get('password') or not data.get("googleToken"):
+    
+    # Username and password are always required
+    if not data or not data.get('username') or not data.get('password'):
         return jsonify({"error": "Missing username or password"}), 400
-    
-    token = data.get("googleToken")
-    userinfo_response = requests.get(
-            GOOGLE_USERINFO_URL,
-            headers={"Authorization": f"Bearer {token}"}
-        )
-    if userinfo_response.status_code != 200:
-        return jsonify({"error": "Invalid Google token"}), 400
 
-    userinfo = userinfo_response.json()
-    email = userinfo.get("email")
+    google_token = data.get("googleToken")
+    email_from_payload = data.get("email") # Email can be sent directly or from Google
+    final_email = None
 
-    # Check if username already exists
-    existing_user = User.query.filter_by(email=email).first()
-    if existing_user:
-        return jsonify({"error": "Username already exists"}), 400
-    
-    # Create new user
+    if google_token:
+        userinfo_response = requests.get(
+                GOOGLE_USERINFO_URL,
+                headers={"Authorization": f"Bearer {google_token}"}
+            )
+        if userinfo_response.status_code != 200:
+            return jsonify({"error": "Invalid Google token"}), 400
+        userinfo = userinfo_response.json()
+        email_from_google = userinfo.get("email")
+        if not email_from_google:
+            return jsonify({"error": "Email not found in Google token. Cannot register."}), 400
+        final_email = email_from_google
+    elif email_from_payload:
+        final_email = email_from_payload
+    else:
+        # Email is required either from Google Token or direct payload
+        return jsonify({"error": "Missing email address for registration."}), 400
+
+    # Check if email already exists (primary unique identifier now)
+    existing_user_by_email = User.query.filter_by(email=final_email).first()
+    if existing_user_by_email:
+        return jsonify({"error": "An account with this email already exists. Please login or use a different email."}), 400
+
+    # Also check if username is taken, as it's also unique
+    existing_user_by_username = User.query.filter_by(username=data['username']).first()
+    if existing_user_by_username:
+        return jsonify({"error": "This username is already taken. Please choose a different one."}), 400
+
+    initial_credits = 3
     new_user = User(
         username=data['username'],
-        credits=3,  # New users start with 0 credits
-        email=email,
-        credit_balance=3
+        email=final_email, # email is now guaranteed to be present
+        credits=initial_credits,
+        credit_balance=initial_credits 
     )
     new_user.set_password(data['password'])
     
     # Save user to database
     db.session.add(new_user)
-    db.session.commit()
+    try:
+        db.session.commit()
+
+        # Log the initial credit grant
+        log_credit_change(
+            user_id=new_user.id,
+            change_amount=initial_credits,
+            source_type='initial_grant',
+            description='Initial credits upon registration',
+        )
+        db.session.commit()
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to register user or log initial credits", "message": str(e)}), 500
     
     # Generate access token - ensure identity is a string
     # Converting new_user.id to string to fix the "Subject must be a string" error

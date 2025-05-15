@@ -33,6 +33,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import PaymentVerifyPage from './pages/PaymentVerifyPage';
 import PaymentHistoryPage from './pages/PaymentHistoryPage';
+import CreditHistoryPage from './pages/CreditHistoryPage';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 
@@ -296,6 +297,14 @@ const AppContent = () => {
                 element={
                   <ProtectedRoute>
                     <PaymentHistoryPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/credit-history"
+                element={
+                  <ProtectedRoute>
+                    <CreditHistoryPage />
                   </ProtectedRoute>
                 }
               />

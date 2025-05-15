@@ -6,12 +6,17 @@ echo "Starting iMagenWiz services..."
 # Kill any existing services that might be running
 echo "Aggressively stopping any existing services (just in case)..."
 
-PORTS_TO_CLEAR=(3000 3002 3003 4002 5000 5001)
+# Remove old log files for a fresh start
+rm -f proxy.log api_access.log api_error.log frontend.log blog-proxy.log ai_content_module.log
 
-# Specific kill for Vite to ensure it dies before we check its port
+PORTS_TO_CLEAR=(3000 3001 3002 3003 4002 5000 5001)
+
+# Specific kill for Vite and our specific proxy server
 echo "Attempting to kill any running Vite processes by pattern..."
-pkill -f "vite" 2>/dev/null && echo "Killed Vite instances by name pattern."
-sleep 1 # Give Vite a moment to die
+pkill -9 -f "vite" 2>/dev/null && echo "Killed Vite instances by name pattern."
+echo "Attempting to kill any running proxy-server.cjs by pattern..."
+pkill -9 -f "node proxy-server.cjs" 2>/dev/null && echo "Killed proxy-server.cjs by name pattern."
+sleep 1 # Give processes a moment to die
 
 for port_to_clear in "${PORTS_TO_CLEAR[@]}"; do
   echo "Ensuring port $port_to_clear is free..."
@@ -68,6 +73,14 @@ API_PID=$!
 cd ..
 echo "Python API server (Gunicorn) commanded to start with PID: $API_PID (Target: http://localhost:$BACKEND_PORT_VALUE)"
 
+# Start our main API proxy server (proxy-server.cjs on port 3001)
+MAIN_PROXY_PORT=3001
+echo "Starting main API proxy server on port $MAIN_PROXY_PORT..."
+sleep 1 # Small delay before starting proxy, after other pkills
+node proxy-server.cjs > proxy.log 2>&1 &
+MAIN_PROXY_PID=$!
+echo "Main API proxy (proxy-server.cjs) started with PID: $MAIN_PROXY_PID (Target: http://localhost:$MAIN_PROXY_PORT, Proxies to Python API on $BACKEND_PORT_VALUE)"
+
 # Start blog proxy service on port 4002 (handles /api/cms)
 BLOG_PROXY_PORT_VALUE=$(grep BLOG_PROXY_PORT .env | cut -d= -f2)
 echo "Starting blog proxy service on port $BLOG_PROXY_PORT_VALUE..."
@@ -93,11 +106,13 @@ echo "All services have been commanded to start."
 echo "Check individual logs for confirmation and status."
 echo ""
 echo "Services configured for targets:"
+echo "- Main API Proxy (Node, for general API):  http://localhost:$MAIN_PROXY_PORT"
 echo "- API Server (Python/Gunicorn, incl. Auth): http://localhost:$BACKEND_PORT_VALUE"
 echo "- Blog Proxy (Node, for CMS):              http://localhost:$BLOG_PROXY_PORT_VALUE"
 echo "- Frontend (Vite):                         http://localhost:$FRONTEND_PORT_VALUE"
 echo ""
 echo "To check service logs:"
+echo "- Main API Proxy: tail -f proxy.log"
 echo "- API Server: tail -f api_error.log (Gunicorn errors), api_access.log (Gunicorn access), ai_content_module.log (AI logic)"
 echo "- Blog Proxy: tail -f blog-proxy.log"
 echo "- Frontend:   tail -f frontend.log"

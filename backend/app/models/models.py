@@ -28,6 +28,7 @@ class User(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     credits = db.Column(db.Integer, default=0, nullable=False)
     credit_balance = db.Column(db.Integer, default=0, nullable=False)
@@ -37,6 +38,7 @@ class User(db.Model):
     # Relationships
     recharge_history = db.relationship('RechargeHistory', backref='user', lazy=True)
     matting_history = db.relationship('MattingHistory', backref='user', lazy=True)
+    credit_logs = db.relationship('CreditLog', backref='user', lazy=True)
     
     def set_password(self, password):
         """Hash password before storing"""
@@ -51,6 +53,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'username': self.username,
+            'email': self.email,
             'credits': self.credits,  # Updated for consistency
             'created_at': self.created_at.isoformat(),
             'is_admin': self.is_admin
@@ -121,4 +124,29 @@ class MattingHistory(db.Model):
             'processed_image_url': self.processed_image_url,
             'credit_spent': self.credit_spent,
             'created_at': self.created_at.isoformat()
+        }
+
+# New CreditLog model
+class CreditLog(db.Model):
+    __tablename__ = 'credit_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    change_amount = db.Column(db.Integer, nullable=False)
+    balance_after_change = db.Column(db.Integer, nullable=False)
+    source_type = db.Column(db.String(50), nullable=False)  # e.g., plan_purchase, image_processing, manual_adjustment
+    source_details = db.Column(db.Text, nullable=True) # Can store JSON as string or simple text
+    description = db.Column(db.String(255), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'timestamp': self.timestamp.isoformat(),
+            'change_amount': self.change_amount,
+            'balance_after_change': self.balance_after_change,
+            'source_type': self.source_type,
+            'source_details': self.source_details,
+            'description': self.description
         }

@@ -8,6 +8,7 @@ from app import db
 from . import bp
 from .service import process_image, generate_unique_filename
 from datetime import datetime, timedelta
+from app.credits.utils import log_credit_change
 
 # Ensure we have access to os.path functions
 from os import path
@@ -94,18 +95,41 @@ def process_matting():
     processed_url = f"{host}/api/processed/{unique_processed}"
     
     # Deduct credit from user
-    user.credits -= 1
+    # This will be handled by log_credit_change now
+    # user.credits -= 1 
+    credit_deducted = 1
     
     # Record the matting history
     history = MattingHistory(
         user_id=user.id,
         original_image_url=original_url,
         processed_image_url=processed_url,
-        credit_spent=1
+        credit_spent=credit_deducted
     )
-    
-    db.session.add(history)
-    db.session.commit()
+    db.session.add(history) # Add history first
+
+    # Log the credit change
+    log_entry = log_credit_change(
+        user_id=user.id,
+        change_amount=-credit_deducted,
+        source_type='image_processing',
+        description=f'Processed image: {original_filename}', # Use original_filename for clarity
+        source_details=json.dumps({'matting_history_id': history.id, 'original_image_url': original_url, 'processed_image_url': processed_url})
+    )
+
+    if not log_entry:
+        # If logging fails, we might want to roll back the credit deduction and history, 
+        # or at least log a critical error. For now, we proceed but this is a point of consideration.
+        # db.session.rollback() # Example: Rollback if credit logging is absolutely critical to be atomic with deduction
+        current_app.logger.error(f"CRITICAL: Failed to log credit change for image processing. User ID: {user.id}, Image: {original_filename}")
+        # Potentially return an error to the user or mark the transaction for review
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error during commit for image processing: {e}. User ID: {user.id}, Image: {original_filename}")
+        return jsonify({"error": "Failed to finalize image processing transaction"}), 500
     
     return jsonify({
         "message": "Image processed successfully",

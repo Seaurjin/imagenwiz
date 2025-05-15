@@ -197,9 +197,14 @@ def create_app():
         app.register_blueprint(api_order_confirmation_bp)
         app.logger.info("Order confirmation blueprints registered.")
         
-        # from .settings import bp as settings_bp # Settings might be okay
-        # app.register_blueprint(settings_bp)
-        # app.logger.info("Settings blueprint SKIPPED (temporarily). ")
+        from .settings import bp as settings_bp # Settings might be okay
+        app.register_blueprint(settings_bp)
+        app.logger.info("Settings blueprint registered.")
+
+        # Register Credits blueprint
+        from .credits import bp as credits_bp
+        app.register_blueprint(credits_bp)
+        app.logger.info("Credits blueprint registered.")
 
         # Static file routes
         @app.route('/api/uploads/<filename>')
