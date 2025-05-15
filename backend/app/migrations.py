@@ -3,13 +3,38 @@ Database migration scripts for the application
 """
 import logging
 from sqlalchemy import text, exc
+import sys
+import os
 
-from app import db
+def check_migration_applied(migration_name):
+    """Check if a migration has already been applied."""
+    try:
+        result = db.session.execute(text("SELECT 1 FROM migrations WHERE name = :name"), {"name": migration_name})
+        return result.rowcount > 0
+    except Exception as e:
+        logging.error(f"Error checking migration status for {migration_name}: {e}")
+        return False
+
+
+def mark_migration_applied(migration_name):
+    """Mark a migration as applied."""
+    try:
+        db.session.execute(text("INSERT INTO migrations (name) VALUES (:name)"), {"name": migration_name})
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error marking migration {migration_name} as applied: {e}")
+
 
 def run_recharge_history_migration():
     """
     Add is_yearly and package_id columns to recharge_history table if they don't exist
     """
+    migration_name = "recharge_history_migration"
+    if check_migration_applied(migration_name):
+        print(f"Migration {migration_name} already applied.")
+        return
+
     print("Running recharge_history table migration to add is_yearly and package_id columns...")
     
     try:
@@ -38,6 +63,7 @@ def run_recharge_history_migration():
                 print(f"Added column: package_id")
             
             db.session.commit()
+            mark_migration_applied(migration_name)
             print(f"Migration completed successfully")
         else:
             print(f"No migration needed, all columns already exist.")
@@ -170,3 +196,35 @@ def run_cms_language_flags_migration():
     except Exception as e:
         db.session.rollback()
         logging.error(f"CMS language flags migration failed: {e}")
+
+def create_migrations_table():
+    """Create the migrations table if it doesn't exist."""
+    try:
+        db.session.execute(text("""
+            CREATE TABLE IF NOT EXISTS migrations (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) UNIQUE NOT NULL
+            )
+        """))
+        db.session.commit()
+        logging.info("Migrations table created or already exists.")
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error creating migrations table: {e}")
+
+def run_all_migrations():
+    create_migrations_table()
+    run_recharge_history_migration()
+    run_user_credits_migration()
+    run_cms_translation_field_migration()
+    run_cms_tags_description_migration()
+    run_cms_language_flags_migration()
+
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from app import create_app, db
+    app = create_app()
+    with app.app_context():
+        print("Running all migrations...")
+        run_all_migrations()
+        print("All migrations completed.")

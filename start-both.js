@@ -1,11 +1,10 @@
-// Start both Express and Flask with proper configuration
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000;
+const FLASK_PORT = process.env.FLASK_PORT || 5000;
+const PLACEHOLDER_PORT = process.env.PLACEHOLDER_PORT || 5000;
 const http = require('http');
 const { spawn } = require('child_process');
-
-// Constants for better readability
-const EXPRESS_PORT = 3000;
-const FLASK_PORT = 5000;
-const PLACEHOLDER_PORT = 5000;
 
 // ANSI color codes for prettier console output
 const RESET = '\x1b[0m';

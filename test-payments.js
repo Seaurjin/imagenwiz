@@ -7,6 +7,9 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
 
 // Get current file's directory (equivalent to __dirname in CommonJS)
 const __filename = fileURLToPath(import.meta.url);
@@ -14,7 +17,7 @@ const __dirname = dirname(__filename);
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PAYMENTS_PORT || 3000;
 
 console.log('Starting Express test server');
 console.log('Current directory:', process.cwd());

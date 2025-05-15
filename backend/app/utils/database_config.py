@@ -15,12 +15,17 @@ PG_DATABASE = os.environ.get('PGDATABASE')
 PG_USER = os.environ.get('PGUSER')
 PG_PASSWORD = os.environ.get('PGPASSWORD')
 
-# MySQL connection details from environment
-MYSQL_HOST = os.environ.get('DB_HOST', '8.130.113.102')  # Default to known host
+# MySQL connection details from environment with local fallbacks
+# Changed to prefer local development database if remote one is not accessible
+MYSQL_HOST = os.environ.get('DB_HOST', 'localhost')  # Default to localhost for development
 MYSQL_PORT = int(os.environ.get('DB_PORT', 3306))
 MYSQL_DATABASE = os.environ.get('DB_NAME', 'mat_db')
 MYSQL_USER = os.environ.get('DB_USER', 'root')
-MYSQL_PASSWORD = os.environ.get('DB_PASSWORD', 'Ir%86241992')  # Use environment or fallback
+MYSQL_PASSWORD = os.environ.get('DB_PASSWORD', '')  # Most local MySQL instances use empty password for root
+
+# Remote fallback settings (moved from being the defaults)
+REMOTE_MYSQL_HOST = '8.130.113.102'
+REMOTE_MYSQL_PASSWORD = 'Ir%86241992'
 
 def get_pg_connection_params():
     """Get PostgreSQL connection parameters as a dictionary"""
@@ -50,6 +55,11 @@ def get_mysql_connection_string():
 def get_pg_connection_string():
     """Get PostgreSQL connection string"""
     return f'postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST}:{PG_PORT}/{PG_DATABASE}'
+
+def get_remote_mysql_connection_string():
+    """Get remote MySQL connection string as fallback"""
+    password = quote_plus(REMOTE_MYSQL_PASSWORD) if REMOTE_MYSQL_PASSWORD else ''
+    return f'mysql+pymysql://{MYSQL_USER}:{password}@{REMOTE_MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
 
 def print_connection_info(include_passwords=False):
     """Print connection information for debugging"""

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SiteSettingsProvider } from './contexts/SiteSettingsContext';
 import { UserProvider } from './contexts/UserContext';
@@ -6,12 +6,16 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DynamicHead from './components/DynamicHead';
 import LangQuickSwitcher from './components/LangQuickSwitcher';
+import DebugPanel from './components/DebugPanel';
 import { Suspense, useEffect, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
+import ReactGA from 'react-ga4';
 
 // Initialize i18n with helper functions
 import './i18n/i18n';
 import { isRTL } from './i18n/i18n';
+
+const TRACKING_ID = "G-MRT4F2CSF1"; // Moved TRACKING_ID to module scope
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -82,6 +86,26 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// Component to handle scrolling to top on navigation
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  
+  return null;
+};
+
+// Component to track page views
+function TrackPageViews() {
+  const location = useLocation();
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+  }, [location]);
+  return null;
+}
+
 // Main App component
 const AppContent = () => {
   const { i18n } = useTranslation();
@@ -96,12 +120,8 @@ const AppContent = () => {
     // URL parameter takes precedence over localStorage
     const targetLang = langParam || storedLang || 'en';
     
-    console.log(`App initialization - storedLang: ${storedLang}, URL lang: ${langParam}, current i18n: ${i18n.language}`);
-    
     // If we need to change language
     if (targetLang && targetLang !== i18n.language) {
-      console.log(`Language mismatch detected, changing to: ${targetLang}`);
-      
       // Update localStorage if needed
       if (targetLang !== storedLang) {
         localStorage.setItem('i18nextLng', targetLang);
@@ -109,7 +129,6 @@ const AppContent = () => {
       
       // Apply language change
       i18n.changeLanguage(targetLang)
-        .then(() => console.log(`Successfully changed language to ${targetLang}`))
         .catch(err => console.error(`Error changing language to ${targetLang}:`, err));
       
       // Clean up URL if it had a lang parameter
@@ -140,9 +159,6 @@ const AppContent = () => {
       document.body.classList.add('ltr-layout');
       document.body.classList.remove('rtl-layout');
     }
-    
-    console.log(`App.jsx: Set language to ${i18n.language}, direction: ${rtl ? 'rtl' : 'ltr'}`);
-    
     
     // Add a global stylesheet for RTL/LTR fixes
     let styleEl = document.getElementById('direction-style');
@@ -191,15 +207,26 @@ const AppContent = () => {
     </div>
   );
   
+  useEffect(() => {
+    if (TRACKING_ID) {
+      ReactGA.initialize(TRACKING_ID);
+      // Send initial pageview - this might be redundant if TrackPageViews catches the initial load,
+      // but safe to have for the very first load.
+      ReactGA.send({ hitType: "pageview", page: window.location.pathname + window.location.search });
+    }
+  }, []);
+  
   return (
     <Router>
       {/* Use the language code as a key to force remount when language changes */}
       <div className="flex flex-col min-h-screen" key={i18n.language}>
         {/* DynamicHead component to update favicon dynamically - outside Suspense for immediate loading */}
         <DynamicHead />
+        <ScrollToTop />
         <Navbar />
         <main className="flex-grow">
           <Suspense fallback={<Loader />}>
+            <TrackPageViews />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<Login />} />
@@ -321,8 +348,10 @@ const AppContent = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-          <Footer />
         </main>
+        <Footer />
+        {/* Debug panel only visible in development mode */}
+        <DebugPanel />
       </div>
     </Router>
   );

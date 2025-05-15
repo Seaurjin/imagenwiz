@@ -3,6 +3,10 @@ const http = require('http');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000;
+const FLASK_PORT = process.env.FLASK_PORT || 5000;
 
 // ANSI color codes for prettier console output
 const RESET = '\x1b[0m';
@@ -27,7 +31,7 @@ function startPlaceholderServer() {
   });
   
   return new Promise((resolve, reject) => {
-    server.listen(5000, '0.0.0.0', () => {
+    server.listen(FLASK_PORT, '0.0.0.0', () => {
       log('✅ Placeholder server running on port 5000', GREEN);
       resolve(server);
     });
@@ -54,7 +58,7 @@ function startFlaskBackend() {
       ...process.env,
       FLASK_ENV: 'development',
       FLASK_DEBUG: '1',
-      PORT: '5000'  // Use port 5000 for Flask
+      PORT: FLASK_PORT  // Use port 5000 for Flask
     },
     stdio: 'inherit'
   });
@@ -104,7 +108,7 @@ function startExpressFrontend(replitDomain) {
   const express = spawn('npm', ['run', 'dev'], {
     env: {
       ...process.env,
-      FLASK_PORT: '5000',  // Tell Express to connect to Flask on port 5000
+      FLASK_PORT: FLASK_PORT,  // Tell Express to connect to Flask on port 5000
       FLASK_URL: 'http://localhost:5000'
     },
     stdio: 'inherit'
@@ -154,7 +158,7 @@ async function startApplication() {
     log(`📊 Services running:`, MAGENTA);
     log(`   - Placeholder server: port 5000`, MAGENTA);
     log(`   - Flask backend: port 5000`, MAGENTA);
-    log(`   - Express frontend: port 3000`, MAGENTA);
+    log(`   - Express frontend: port ${EXPRESS_PORT}`, MAGENTA);
     
     // Access URLs
     const replitDomain = process.env.REPL_SLUG ? 
@@ -164,7 +168,7 @@ async function startApplication() {
     if (replitDomain) {
       log(`🌐 Access your app at: ${replitDomain}`, GREEN);
     } else {
-      log(`🌐 Access your app at: http://localhost:3000`, GREEN);
+      log(`🌐 Access your app at: http://localhost:${EXPRESS_PORT}`, GREEN);
     }
     
   } catch (error) {

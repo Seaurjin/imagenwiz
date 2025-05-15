@@ -1,48 +1,63 @@
 #!/bin/bash
 
-echo "Starting iMagenWiz - AI Background Removal Application..."
-echo "=================================================="
+echo "🚀 Starting iMagenWiz application..."
 
-# Default environment variables
-export PORT=5000
-export NODE_ENV=development
-export EXPRESS_FALLBACK=true
-export SKIP_FLASK_CHECK=true
-export DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/postgres}
+# Check if the .env file exists
+if [ ! -f .env ]; then
+  echo "❌ Error: .env file is missing. Creating a default one..."
+  cat > .env << EOL
+# Database configuration
+DATABASE_URL=postgresql://mock:mock@localhost:5432/mockdb
 
-# Load environment variables from .env files
-if [ -f ".env" ]; then
-  echo "✅ Found .env file, loading environment variables"
-  source .env
+# Application settings
+FLASK_AVAILABLE=false
+EXPRESS_FALLBACK=true
+FLASK_PORT=5000
+SKIP_FLASK_CHECK=true
+NODE_ENV=development
+PORT=3000
+
+# Stripe keys
+STRIPE_SECRET_KEY=sk_test_51Q38qCAGgrMJnivhY2kRf3qYDlzfCQACMXg2A431cKit7KRgqtDxiC5jYJPrbe4aFbkaVzamc33QY8woZmKBINVP008lLQooRN
+STRIPE_PUBLISHABLE_KEY=pk_test_51Q38qCAGgrMJnivhKhP3M0pG1Z6omOTWZgJcOxHwLql8i7raQ1IuDhTDk4SOHHjjKmijuyO5gTRkT6JhUw3kHDF600BjMLjeRz
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_51Q38qCAGgrMJnivhKhP3M0pG1Z6omOTWZgJcOxHwLql8i7raQ1IuDhTDk4SOHHjjKmijuyO5gTRkT6JhUw3kHDF600BjMLjeRz
+
+# JWT Secret
+JWT_SECRET_KEY=e8f9a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8
+SESSION_SECRET=imagenwiz-secret-session-key
+EOL
+
+  echo "✅ Created default .env file with mock database settings."
+  echo "⚠️ Note: For full functionality, you should set up a real PostgreSQL database."
+  echo "   Run ./setup-postgres.sh to set up a local database."
+else
+  echo "✅ Found .env file."
 fi
 
-if [ -f ".env.local" ]; then
-  echo "✅ Found .env.local file, loading local environment variables"
-  source .env.local
+# Check if node_modules exists
+if [ ! -d "node_modules" ]; then
+  echo "📦 Installing npm dependencies..."
+  npm install
+else
+  echo "✅ Found node_modules."
 fi
 
-# Override specific variables for this application
-export NODE_ENV=development
-export PORT=5000  # Ensure Express uses port 5000
+# Check if frontend/node_modules exists
+if [ ! -d "frontend/node_modules" ]; then
+  echo "📦 Installing frontend dependencies..."
+  cd frontend && npm install && cd ..
+else
+  echo "✅ Found frontend/node_modules."
+fi
 
-# Check if frontend build directory exists
-if [ ! -d "./frontend/dist" ]; then
-  echo "❌ Frontend build directory not found!"
-  echo "📦 Checking for available frontend..."
-  
-  if [ -d "./frontend/src" ]; then
-    echo "✅ Found frontend source directory"
-  else
-    echo "❌ Could not find frontend source directory!"
-    exit 1
-  fi
+# Build the frontend if it hasn't been built yet
+if [ ! -d "frontend/dist" ]; then
+  echo "🔨 Building frontend..."
+  cd frontend && npm run build && cd ..
+else
+  echo "✅ Found frontend build."
 fi
 
 # Start the application
-echo "🚀 Starting Express server with React frontend..."
-echo "📱 Application will be available at: http://localhost:5000"
-echo "🔗 Access your app at: ${REPL_SLUG}.${REPL_OWNER}.repl.co (if running on Replit)"
-echo "=================================================="
-
-# Run the application
+echo "🌐 Starting application in development mode..."
 npm run dev

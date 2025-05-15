@@ -5,6 +5,10 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000;
+const FLASK_PORT = process.env.FLASK_PORT || 5000;
 
 console.log('=== Starting iMagenWiz Application ===');
 
@@ -13,18 +17,18 @@ const expressProcess = spawn('npm', ['run', 'dev'], {
   stdio: 'inherit',
   env: {
     ...process.env,
-    PORT: '5000'
+    PORT: FLASK_PORT
   }
 });
 
-console.log('Express server started on port 5000');
+console.log('Express server started on port ' + FLASK_PORT);
 
 // Start the proxy server
 const proxyProcess = spawn('node', ['simple-proxy.js'], {
   stdio: 'inherit'
 });
 
-console.log('Proxy server started on port 3000 -> 5000');
+console.log('Proxy server started on port ' + EXPRESS_PORT + ' -> ' + FLASK_PORT);
 
 // Handle process termination
 process.on('SIGINT', () => {

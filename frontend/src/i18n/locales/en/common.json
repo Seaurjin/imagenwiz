@@ -118,6 +118,15 @@
     "networkError": "Network error. Please check your connection.",
     "fileTooBig": "File is too big. Maximum size is {{size}}MB",
     "fileTypeNotSupported": "File type not supported. Please upload {{types}}",
-    "unexpectedError": "An unexpected error occurred"
+    "unexpectedError": "An unexpected error occurred",
+    "generic": "An error occurred",
+    "loading": "Error loading data. Please try again."
+  },
+  "comparison": {
+    "before": "Before",
+    "after": "After",
+    "dragToCompare": "Drag to compare",
+    "original": "Original",
+    "transparent": "Background Removed"
   }
 }

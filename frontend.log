@@ -1,0 +1,47 @@
+
+> imagenwiz-frontend@0.1.0 dev
+> vite --port 3000 --strictPort
+
+
+  VITE v4.5.10  ready in 1385 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
+[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
+[Vite Proxy] Auth request: POST /api/auth/login?t=1747278880931 -> /api/auth/login?t=1747278880931
+[Vite Proxy] Auth request: GET /api/auth/user?t=1747278882964 -> /api/auth/user?t=1747278882964
+[Vite Proxy] Auth request: GET /api/auth/user?forceRefresh=1747278882964 -> /api/auth/user?forceRefresh=1747278882964
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/matting/history -> /api/matting/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/matting/history -> /api/matting/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Auth request: GET /api/auth/user?t=1747278907286 -> /api/auth/user?t=1747278907286
+[Vite Proxy] Auth request: GET /api/auth/user?t=1747278907287 -> /api/auth/user?t=1747278907287
+[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
+[Vite Proxy] Generic API request: POST /api/payment/create-checkout-session -> /api/payment/create-checkout-session
+[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
+[Vite Proxy] Auth request: GET /api/auth/user?t=1747278927238 -> /api/auth/user?t=1747278927238
+[Vite Proxy] Auth request: GET /api/auth/user?t=1747278927239 -> /api/auth/user?t=1747278927239
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278927237 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278927237
+[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278927238 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278927238
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278928850 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278928850
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278930473 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278930473
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278933475 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278933475
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278936475 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278936475
+[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
+[Vite Proxy] Auth request: GET /api/auth/user?forceRefresh=1747278937179 -> /api/auth/user?forceRefresh=1747278937179
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278939475 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278939475
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278940742 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278940742
+[Vite Proxy] Generic API request: GET /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278943743 -> /api/payment/verify?session_id=cs_test_a1pLy4cYkQwgD4nOsNGOya8plZzWXtaa2D8Dx6u1sh2X8gQBeO25MnDhlI&t=1747278943743
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history

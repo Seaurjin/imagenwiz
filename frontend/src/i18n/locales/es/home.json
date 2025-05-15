@@ -1,0 +1,102 @@
+{
+  "hero": {
+    "title": "Transforma tus imágenes con eliminación de fondos impulsada por IA",
+    "subtitle": "Fondos de imágenes de calidad profesional eliminados en segundos. Nuestra tecnología de IA de precisión ofrece resultados impecables para profesionales de comercio electrónico, marketing y diseño.",
+    "startCreating": "Empezar a crear",
+    "getStarted": "Comenzar gratis",
+    "viewPlans": "Ver planes"
+  },
+  "trustedBy": {
+    "title": "CONFIADO POR EMPRESAS DE TODO EL MUNDO"
+  },
+  "howItWorks": {
+    "title": "Cómo funciona",
+    "subtitle": "Tres pasos simples para una eliminación perfecta del fondo",
+    "step1": {
+      "title": "Sube tu imagen",
+      "description": "Selecciona y sube cualquier imagen desde tu dispositivo. Soportamos todos los formatos populares, incluyendo JPG, PNG y WebP."
+    },
+    "step2": {
+      "title": "Procesamiento IA",
+      "description": "Nuestros algoritmos avanzados de IA detectan y eliminan automáticamente los fondos con precisión y detalle fino."
+    },
+    "step3": {
+      "title": "Descarga el resultado",
+      "description": "Descarga tu imagen editada con un fondo transparente, lista para usar en tus proyectos."
+    }
+  },
+  "features": {
+    "title": "Funciones potentes",
+    "subtitle": "Todo lo que necesitas para edición profesional de imágenes",
+    "feature1": {
+      "title": "Súper rápido",
+      "description": "Procesa imágenes en segundos con nuestra tecnología IA optimizada. No más esperas para ediciones manuales."
+    },
+    "feature2": {
+      "title": "Resultados perfectos",
+      "description": "Nuestra IA detecta con precisión bordes, cabello y detalles finos con excepcional exactitud."
+    },
+    "feature3": {
+      "title": "Soporte de alta resolución",
+      "description": "Procesa imágenes de alta resolución manteniendo la calidad para aplicaciones profesionales."
+    },
+    "feature4": {
+      "title": "Procesamiento por lotes",
+      "description": "Sube y procesa múltiples imágenes simultáneamente para ahorrar tiempo en proyectos grandes."
+    },
+    "feature5": {
+      "title": "Controles avanzados",
+      "description": "Ajusta tus resultados con herramientas de edición intuitivas para un resultado perfecto cada vez."
+    },
+    "feature6": {
+      "title": "Historial y almacenamiento",
+      "description": "Accede a tus imágenes procesadas en tu cuenta segura para referencia futura y reutilización."
+    }
+  },
+  "useCases": {
+    "title": "Perfecto para",
+    "subtitle": "Profesionales de la industria que exigen resultados de calidad",
+    "ecommerce": {
+      "title": "E-commerce",
+      "description": "Fotos de productos que convierten"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "description": "Contenido visual impresionante"
+    },
+    "designers": {
+      "title": "Diseñadores",
+      "description": "Proceso creativo fluido"
+    },
+    "developers": {
+      "title": "Desarrolladores",
+      "description": "Integración API para aplicaciones"
+    }
+  },
+  "testimonials": {
+    "title": "Lo que dicen nuestros usuarios",
+    "subtitle": "Confiado por miles de profesionales en todo el mundo",
+    "person1": {
+      "name": "Sarah Johnson",
+      "position": "Gerente de E-commerce",
+      "quote": "iMagenWiz ha transformado nuestro flujo de trabajo de fotografía de productos. Lo que solía tomar horas ahora toma segundos, ¡con mejores resultados!"
+    },
+    "person2": {
+      "name": "Michael Chen",
+      "position": "Diseñador Gráfico",
+      "quote": "La precisión es increíble, especialmente con cabello y objetos transparentes. Por mucho, la mejor herramienta de eliminación de fondos por IA que he usado."
+    },
+    "person3": {
+      "name": "Emma Rodriguez",
+      "position": "Directora de Marketing",
+      "quote": "Procesamos cientos de imágenes semanalmente para nuestras campañas, e iMagenWiz ofrece calidad consistente cada vez. Un cambio revolucionario para nuestro equipo."
+    }
+  },
+  "cta": {
+    "title": "¿Listo para transformar tus imágenes?",
+    "subtitle": "Únete a miles de profesionales que confían en iMagenWiz para sus necesidades de procesamiento de imágenes.",
+    "startCreating": "Empieza a crear ahora",
+    "createAccount": "Crear cuenta gratuita",
+    "viewPricing": "Ver planes de precios"
+  }
+} 

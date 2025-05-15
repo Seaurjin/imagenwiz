@@ -22,9 +22,9 @@ import {
   uploadMedia,
   getPostMedia,
   deleteTranslation,
-  autoTranslatePost,
   generateAIContent,
-  getWebsiteLanguages
+  getWebsiteLanguages,
+  getAuthToken // Corrected import name
 } from '../../lib/cms-service';
 import TranslationModal from './TranslationModal';
 
@@ -220,6 +220,7 @@ const SimpleHtmlEditor = ({ value, onChange, languageCode }) => {
 const PostEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  // isLoading is for general page loading, isSaving for the save button
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -229,8 +230,10 @@ const PostEditor = () => {
   const [media, setMedia] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [isTranslateModalOpen, setIsTranslateModalOpen] = useState(false);
+  // isTranslating is specifically for the translation process
   const [isTranslating, setIsTranslating] = useState(false);
   const [isGeneratingAIContent, setIsGeneratingAIContent] = useState(false);
+  const [abortController, setAbortController] = useState(null);
   
   // Helper function to check if a language is RTL
   const isRTL = (langCode) => ['ar', 'he', 'ur', 'fa'].includes(langCode);
@@ -278,116 +281,6 @@ const PostEditor = () => {
       setError(`AI content generation failed: ${err.message || 'Unknown error'}`);
     } finally {
       setIsGeneratingAIContent(false);
-    }
-  };
-
-  // Function to handle translation with specific language selection
-  const handleTranslate = async (selectedLanguages) => {
-    if (!id) {
-      setError("You need to save the post first before translating");
-      return;
-    }
-    
-    setIsTranslating(true);
-    setError(null);
-    
-    try {
-      console.log('Starting translation for languages:', selectedLanguages);
-      // Display initial progress message
-      setSuccess(`Translating to ${selectedLanguages.length} languages... This may take a moment.`);
-      
-      // Call API with selected languages - force_translate ensures we update even existing translations
-      const response = await autoTranslatePost(id, { 
-        target_languages: selectedLanguages,
-        force_translate: true  // Make sure we translate even if there's existing content
-      });
-      
-      console.log('Translation response:', response);
-      
-      // Check for partial success
-      let successCount = 0;
-      let failedCount = 0;
-      let skippedCount = 0;
-      let successfulLanguages = [];
-      
-      if (response && response.translations) {
-        // Get the counts and lists of languages
-        successfulLanguages = response.translations.successful || [];
-        const failedLanguages = response.translations.failed || [];
-        const skippedLanguages = response.translations.skipped || [];
-        
-        successCount = successfulLanguages.length;
-        failedCount = failedLanguages.length;
-        skippedCount = skippedLanguages.length;
-        
-        console.log('Translation results breakdown:', {
-          successful: successfulLanguages,
-          failed: failedLanguages,
-          skipped: skippedLanguages
-        });
-      }
-      
-      // Refresh post data to get updated translations
-      const updatedPostData = await getPost(id, formData.language_code);
-      
-      // Update translations in state
-      if (updatedPostData.translations) {
-        setTranslations(updatedPostData.translations);
-        console.log('Updated translations from direct response:', updatedPostData.translations);
-      } else if (updatedPostData.post && updatedPostData.post.translations) {
-        setTranslations(updatedPostData.post.translations);
-        console.log('Updated translations from post object:', updatedPostData.post.translations);
-      }
-      
-      // Ensure we update the current translation if needed
-      const updatedCurrentTranslation = (updatedPostData.translations || (updatedPostData.post && updatedPostData.post.translations) || [])
-        .find(t => t.language_code === formData.language_code);
-      
-      if (updatedCurrentTranslation) {
-        console.log('Found updated translation for current language:', updatedCurrentTranslation);
-        // Process content to ensure proper display
-        let processedContent = updatedCurrentTranslation.content || '';
-        // If content appears to be HTML-encoded, decode it
-        if (typeof processedContent === 'string' && processedContent.includes('&lt;')) {
-          const tempElement = document.createElement('div');
-          tempElement.innerHTML = processedContent;
-          processedContent = tempElement.textContent;
-          console.log('HTML-decoded current content after translation:', processedContent);
-        }
-        
-        // Update form with the new translation data
-        setFormData({
-          ...formData,
-          title: updatedCurrentTranslation.title || formData.title,
-          content: processedContent || formData.content,
-          meta_title: updatedCurrentTranslation.meta_title || formData.meta_title,
-          meta_description: updatedCurrentTranslation.meta_description || formData.meta_description
-        });
-      }
-      
-      // Show appropriate success message based on results
-      if (failedCount > 0) {
-        setSuccess(`Partially completed: Translated ${successCount} languages, failed ${failedCount}, skipped ${skippedCount}.`);
-      } else {
-        setSuccess(`Successfully translated to ${successCount} languages${skippedCount ? `, skipped ${skippedCount}` : ''}.`);
-      }
-      
-      // Clear message after a few seconds
-      setTimeout(() => {
-        setSuccess(null);
-      }, 10000); // Longer duration for user to read detailed message
-    } catch (err) {
-      console.error('Error translating post:', err);
-      
-      // Provide more informative error based on likely causes
-      if (selectedLanguages.length > 10) {
-        setError(`Translation failed: Too many languages selected at once. Try translating 5-10 languages at a time. (${err.message || 'Request timeout'})`);
-      } else {
-        setError(`Translation failed: ${err.message || 'Unknown error'}. Please try again with fewer languages.`);
-      }
-    } finally {
-      setIsTranslating(false);
-      setIsTranslateModalOpen(false);
     }
   };
   
@@ -905,23 +798,6 @@ const PostEditor = () => {
         // Update existing post
         await updatePost(id, postData);
         setSuccess('Post updated successfully!');
-        
-        // Auto-translate if this is an English post that was just updated
-        if (formData.language_code === 'en') {
-          try {
-            console.log('Triggering auto-translation after English post update');
-            // Trigger auto-translation for this post
-            const translationResult = await autoTranslatePost(id);
-            console.log('Auto-translation result:', translationResult);
-            
-            // Update success message to include translation info
-            const successful = translationResult.translations?.successful?.length || 0;
-            setSuccess(`Post updated successfully! Auto-translated to ${successful} languages.`);
-          } catch (translationError) {
-            console.error('Error auto-translating post:', translationError);
-            // Don't override the main success message with a translation error
-          }
-        }
       } else {
         // Create new post
         const response = await createPost(postData);
@@ -930,23 +806,6 @@ const PostEditor = () => {
         // Redirect to edit page if we just created a new post
         const newPostId = response.id || (response.post && response.post.id);
         if (newPostId) {
-          // Auto-translate if this is an English post
-          if (formData.language_code === 'en') {
-            try {
-              console.log('Triggering auto-translation for new English post');
-              // Trigger auto-translation for this post
-              const translationResult = await autoTranslatePost(newPostId);
-              console.log('Auto-translation result:', translationResult);
-              
-              // Update success message to include translation info
-              const successful = translationResult.translations?.successful?.length || 0;
-              setSuccess(`Post created successfully! Auto-translated to ${successful} languages.`);
-            } catch (translationError) {
-              console.error('Error auto-translating new post:', translationError);
-              // Don't override the main success message with a translation error
-            }
-          }
-          
           navigate(`/cms/posts/${newPostId}/edit`);
         }
       }
@@ -983,90 +842,184 @@ const PostEditor = () => {
     }
   };
   
-  const handleAutoTranslate = async (targetLanguages = [], forceTranslate = false) => {
+  // Handle translation cancellation
+  const handleCancelTranslation = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+      setIsTranslating(false);
+      setError('Translation cancelled by user.');
+      setSuccess(null); // Clear any success message
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  // The only translation handler
+  const handleAutoTranslate = async (targetLanguages = []) => {
     if (!id) {
       setError('You must save the post before it can be auto-translated. Please save first.');
+      setSuccess(null);
       return;
     }
     
-    setIsLoading(true);
+    // Ensure targetLanguages is always an array
+    const languagesToProcess = Array.isArray(targetLanguages) ? targetLanguages : [];
+
+    if (languagesToProcess.length === 0) {
+      setError('No languages were selected for translation.');
+      setSuccess(null);
+      setIsTranslating(false); // Ensure loading state is reset
+      return;
+    }
+
+    setIsTranslating(true);
     setError(null);
-    
+    setSuccess(null);
+
+    let cumulativeSuccessCount = 0;
+    let cumulativeFailedCount = 0;
+    let cumulativeSkippedCount = 0;
+    const controller = new AbortController();
+    setAbortController(controller);
+
     try {
-      // Check if we have English content available
-      const hasEnglishTranslation = 
-        formData.language_code === 'en' || 
-        translations.some(t => t.language_code === 'en');
+      setSuccess(`Starting translation for ${languagesToProcess.length} language(s)...`);
       
-      if (!hasEnglishTranslation) {
-        setError('English content is required for auto-translation. Please add English content first.');
-        setIsLoading(false);
-        return;
+      const BATCH_SIZE = 5;
+      const batches = [];
+      for (let i = 0; i < languagesToProcess.length; i += BATCH_SIZE) {
+        batches.push(languagesToProcess.slice(i, i + BATCH_SIZE));
       }
-      
-      console.log('Starting auto-translation process for post:', id);
-      console.log('Target languages:', targetLanguages.length ? targetLanguages : 'all languages');
-      console.log('Force translate:', forceTranslate);
-      
-      // Prepare options for auto-translate endpoint
-      const options = {
-        force_translate: forceTranslate,
-      };
-      
-      // If specific languages were selected in the modal, use them
-      if (targetLanguages && targetLanguages.length > 0) {
-        options.target_languages = targetLanguages;
-      }
-      
-      // Call the auto-translate endpoint with options
-      const response = await autoTranslatePost(id, options);
-      console.log('Translation response:', response);
-      
-      // Refresh the post data to get updated translations
-      const postData = await getPost(id);
-      if (postData.translations) {
-        setTranslations(postData.translations);
-      }
-      
-      // Display success message with statistics
-      const successCount = response.translations?.successful?.length || 0;
-      const skippedCount = response.translations?.skipped?.length || 0;
-      const failedCount = response.translations?.failed?.length || 0;
-      
-      // Prepare a more detailed success message
-      let message = `Auto-translation completed: ${successCount} translated`;
-      if (skippedCount > 0) {
-        message += `, ${skippedCount} skipped`;
-      }
-      if (failedCount > 0) {
-        message += `, ${failedCount} failed`;
-      }
-      
-      // If nothing was translated, provide a more helpful message
-      if (successCount === 0 && skippedCount > 0 && failedCount === 0) {
-        message = `No new translations created. ${skippedCount} languages were already translated and have not been modified.`;
-        if (forceTranslate) {
-          message += ' You can force re-translation with the "Force Re-translate" option.';
+
+      console.log(`Processing translations in ${batches.length} batch(es) for ${languagesToProcess.length} language(s).`);
+
+      for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        if (controller.signal.aborted) {
+          throw new Error('Translation cancelled by user.');
         }
-      } else if (successCount === 0 && failedCount > 0) {
-        message = `Translation failed for ${failedCount} languages. Please try again or check the server logs for details.`;
+        
+        // Clear previous batch error before showing new batch success
+        setError(null);
+        setSuccess(`Processing batch ${i + 1} of ${batches.length} (Languages: ${batch.join(', ')})...`);
+        
+        try {
+          const token = getAuthToken(); // Corrected function call
+          if (!token) throw new Error('Authentication token not found. Please log in again.');
+          
+          const response = await fetch(`/api/cms/posts/${id}/auto-translate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ target_languages: batch }),
+            signal: controller.signal
+          });
+
+          if (controller.signal.aborted) throw new Error('Translation cancelled by user.');
+
+          const resultText = await response.text(); // Get raw response text for better debugging
+          let result;
+          try {
+            result = JSON.parse(resultText);
+          } catch (e) {
+            console.error('Failed to parse JSON response:', resultText);
+            throw new Error(`Server returned non-JSON response (status ${response.status}). Check console for details.`);
+          }
+
+          if (!response.ok) {
+            console.error(`Batch ${i+1} API error:`, response.status, result);
+            throw new Error(result.error || result.message || `Batch ${i+1} failed with status: ${response.status}`);
+          }
+
+          console.log(`Batch ${i + 1} response:`, result);
+
+          if (result.translations) {
+            cumulativeSuccessCount += (result.translations.successful || []).length;
+            cumulativeFailedCount += (result.translations.failed || []).length;
+            cumulativeSkippedCount += (result.translations.skipped || []).length;
+          } else {
+            // If translations key is missing, assume failure for the batch for safety
+            console.warn('Translations key missing in batch response:', result);
+            cumulativeFailedCount += batch.length; 
+          }
+          // Update success message after each batch, clear any lingering error
+          setError(null);
+          setSuccess(`Batch ${i + 1} processed. Overall: ${cumulativeSuccessCount} successful, ${cumulativeFailedCount} failed, ${cumulativeSkippedCount} skipped.`);
+        
+        } catch (batchError) {
+          if (batchError.name === 'AbortError') throw batchError; // Re-throw to outer catch
+          
+          console.error(`Error processing batch ${i + 1}:`, batchError);
+          cumulativeFailedCount += batch.length; // Assume all in batch failed if the batch itself errors
+          // Set error message, clear success message
+          setSuccess(null);
+          setError(`Error in batch ${i + 1}: ${batchError.message}. Trying next batch if any.`);
+          // No automatic retry for batch, allow loop to continue if there are more batches
+        }
+        
+        if (i < batches.length - 1 && !controller.signal.aborted) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Small delay between batches
+        }
+      }
+
+      // After all batches attempted, refresh post data regardless of outcome to get latest state
+      try {
+        const postData = await getPost(id); 
+        if (postData && postData.translations) {
+          setTranslations(postData.translations);
+        }
+      } catch (fetchPostError) {
+        console.error('Failed to refresh post data after translation attempt:', fetchPostError);
+        // Don't let this obscure the translation result, but log it.
+      }
+
+      // Final status message logic
+      if (cumulativeFailedCount > 0 && cumulativeSuccessCount === 0) {
+        setSuccess(null);
+        setError(`Translation failed for all ${cumulativeFailedCount} attempted language(s). ${cumulativeSkippedCount > 0 ? `${cumulativeSkippedCount} language(s) were skipped.` : ''}`);
+      } else if (cumulativeFailedCount > 0) {
+        setError(null); // Clear previous batch error
+        setSuccess(`Translation partially completed: ${cumulativeSuccessCount} successful, ${cumulativeFailedCount} failed. ${cumulativeSkippedCount > 0 ? `${cumulativeSkippedCount} skipped.` : ''}`);
+      } else if (cumulativeSuccessCount > 0) {
+        setError(null); // Clear previous batch error
+        setSuccess(`Translation successful! ${cumulativeSuccessCount} language(s) translated. ${cumulativeSkippedCount > 0 ? `${cumulativeSkippedCount} skipped.` : ''}`);
+      } else if (cumulativeSkippedCount > 0 && cumulativeSuccessCount === 0 && cumulativeFailedCount === 0) {
+        setError(null); // Clear previous batch error
+        setSuccess(`No new translations created. ${cumulativeSkippedCount} language(s) were already up-to-date or skipped.`);
+      } else if (languagesToProcess.length > 0 && cumulativeSuccessCount === 0 && cumulativeFailedCount === 0 && cumulativeSkippedCount === 0) {
+        // This case means languages were processed, but API reported no success, fail, or skip for any
+        setSuccess(null);
+        setError(`Translation attempt finished for ${languagesToProcess.length} language(s), but no specific results (success/fail/skip) were reported by the server. Please check the content.`);
+      } else if (languagesToProcess.length === 0) {
+        // This case should have been caught at the beginning, but as a safeguard:
+        setError(null); 
+        setSuccess('No languages were selected for translation.');
+      } else {
+        // This should ideally not be reached if languagesToProcess.length > 0 at the start
+        // But as a fallback if all counts are zero for some reason:
+        setError(null);
+        setSuccess('Translation process finished. No specific results returned.');
       }
       
-      setSuccess(message);
-      
-      // Clear success message after 8 seconds
-      setTimeout(() => {
-        setSuccess(null);
-      }, 8000);
-      
-      // Close the translation modal if it was open
-      setIsTranslateModalOpen(false);
+      // Auto-clear success messages after a delay, but not error messages
+      if (success && !error) { // Only if there is a success message and no current error
+         setTimeout(() => setSuccess(null), 10000);
+      }
+
     } catch (err) {
-      console.error('Error auto-translating post:', err);
-      setError(`Failed to auto-translate: ${err.message || 'Unknown error'}`);
+      setSuccess(null); // Clear any partial success message
+      if (err.name === 'AbortError' || err.message.includes('Translation cancelled')) {
+        setError('Translation cancelled by user.');
+      } else {
+        setError(`Translation process failed: ${err.message || 'Unknown error'}`);
+      }
+      console.error('Overall error in auto-translating post:', err);
     } finally {
-      setIsLoading(false);
+      setAbortController(null);
       setIsTranslating(false);
+      setIsTranslateModalOpen(false); // UX Improvement: Close modal on completion
     }
   };
   
@@ -1113,15 +1066,18 @@ const PostEditor = () => {
           {id && formData.language_code === 'en' && (
             <button
               type="button"
-              className={`flex items-center px-4 py-2 rounded border border-teal-500 text-teal-600 hover:bg-teal-50 ${
-                isTranslating ? 'opacity-50 cursor-not-allowed' : ''
+              className={`flex items-center px-4 py-2 rounded border ${
+                isTranslating 
+                  ? 'border-gray-400 text-gray-500 bg-gray-200 cursor-not-allowed' 
+                  : 'border-teal-500 text-teal-600 hover:bg-teal-50'
               }`}
               onClick={() => setIsTranslateModalOpen(true)}
-              disabled={isTranslating || isSaving}
+              disabled={isTranslating || isSaving || !formData.language_code || formData.language_code !== 'en'}
+              title={formData.language_code !== 'en' ? "Translations are based on English content. Please switch to English to translate." : "Translate content"}
             >
               {isTranslating ? (
                 <>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-teal-600 rounded-full"></div>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-gray-500 rounded-full"></div>
                   Translating...
                 </>
               ) : (
@@ -1160,16 +1116,16 @@ const PostEditor = () => {
       
       {/* Error and Success Messages */}
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-md flex items-center">
-          <AlertCircle className="h-5 w-5 mr-2" />
-          {error}
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
         </div>
       )}
       
       {success && (
-        <div className="bg-green-50 text-green-700 p-4 rounded-md flex items-center">
-          <CheckCircle2 className="h-5 w-5 mr-2" />
-          {success}
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Success: </strong>
+          <span className="block sm:inline">{success}</span>
         </div>
       )}
       
@@ -1861,12 +1817,10 @@ const PostEditor = () => {
       <TranslationModal
         isOpen={isTranslateModalOpen}
         onClose={() => setIsTranslateModalOpen(false)}
-        languages={languages}
-        onTranslate={(targetLanguages) => {
-          setIsTranslating(true);
-          handleAutoTranslate(targetLanguages, false);
-        }}
-        isLoading={isTranslating || isLoading}
+        languages={languages.filter(lang => lang.is_active)} // Pass only active languages
+        onTranslate={handleAutoTranslate} // Directly pass the handler
+        onCancel={handleCancelTranslation}
+        isLoading={isTranslating} // Use the specific isTranslating state
       />
     </div>
   );

@@ -1,0 +1,70 @@
+[2025-05-09 19:47:05,829] INFO in __init__: ================================================================================
+[2025-05-09 19:47:05,829] INFO in __init__: Application starting
+[2025-05-09 19:47:05,830] INFO in __init__: Environment: production
+[2025-05-09 19:47:05,830] INFO in __init__: Debug mode: True
+[2025-05-09 19:47:05,830] INFO in __init__: ================================================================================
+[2025-05-09 19:47:05,833] INFO in __init__: Using database URI: mysql+pymysql://root:*******@8.130.113.102/mat_db
+[2025-05-09 19:47:06,866] INFO in __init__: Successfully created database tables
+ERROR: Stripe API key is NOT configured!
+DEBUG: Mock payment routes registered
+DEBUG: Payment diagnostic routes registered
+Starting backend on port 5001
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.3.214:5001
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+[2025-05-09 19:47:08,681] INFO in __init__: ================================================================================
+[2025-05-09 19:47:08,681] INFO in __init__: Application starting
+[2025-05-09 19:47:08,682] INFO in __init__: Environment: production
+[2025-05-09 19:47:08,682] INFO in __init__: Debug mode: True
+[2025-05-09 19:47:08,682] INFO in __init__: ================================================================================
+[2025-05-09 19:47:08,683] INFO in __init__: Using database URI: mysql+pymysql://root:*******@8.130.113.102/mat_db
+[2025-05-09 19:47:09,981] INFO in __init__: Successfully created database tables
+ * Debugger is active!
+ * Debugger PIN: 140-578-261
+127.0.0.1 - - [09/May/2025 19:47:12] "GET /api/auth/user?t=1746791232376 HTTP/1.1" 200 -
+[2025-05-09 19:47:12,902] INFO in routes: Found 22 languages in database
+[2025-05-09 19:47:12,904] INFO in routes: Returning 22 languages from database
+127.0.0.1 - - [09/May/2025 19:47:12] "GET /api/cms/languages?nocache=1746791232761 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:47:12] "GET /api/auth/user?t=1746791232383 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:47:13] "GET /api/settings/logo HTTP/1.1" 200 -
+[2025-05-09 19:47:13,082] INFO in routes: Found 22 languages in database
+[2025-05-09 19:47:13,083] INFO in routes: Returning 22 languages from database
+[2025-05-09 19:47:13,090] INFO in routes: Returning 22 website languages from database
+127.0.0.1 - - [09/May/2025 19:47:13] "GET /api/settings/logo HTTP/1.1" 200 -
+[2025-05-09 19:47:13,143] INFO in routes: Returning 22 website languages from database
+127.0.0.1 - - [09/May/2025 19:47:13] "GET /api/cms/languages?nocache=1746791232762 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:47:13] "GET /api/cms/website-languages?nocache=1746791232763 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:47:13] "GET /api/cms/website-languages?nocache=1746791232761 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:47:13] "GET /api/cms/posts/12/media HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:47:13] "GET /api/cms/posts/12/media HTTP/1.1" 200 -
+[2025-05-09 19:47:13,660] ERROR in __init__: Error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+127.0.0.1 - - [09/May/2025 19:47:13] "[33mGET /api/uploads/cms/product-photography-tips.jpg HTTP/1.1[0m" 404 -
+[2025-05-09 19:47:13,757] ERROR in __init__: Error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+127.0.0.1 - - [09/May/2025 19:47:13] "[33mGET /api/uploads/cms/product-photography-tips.jpg HTTP/1.1[0m" 404 -
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/auth/user?t=1746791333500 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/auth/user?t=1746791333498 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/settings/logo HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/settings/logo HTTP/1.1" 200 -
+[2025-05-09 19:48:53,801] INFO in routes: Returning 22 website languages from database
+[2025-05-09 19:48:53,805] INFO in routes: Found 22 languages in database
+[2025-05-09 19:48:53,806] INFO in routes: Found 22 languages in database
+[2025-05-09 19:48:53,806] INFO in routes: Returning 22 languages from database
+[2025-05-09 19:48:53,806] INFO in routes: Returning 22 languages from database
+[2025-05-09 19:48:53,816] INFO in routes: Returning 22 website languages from database
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/cms/website-languages?nocache=1746791333704 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/cms/languages?nocache=1746791333705 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/cms/website-languages?nocache=1746791333705 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:53] "GET /api/cms/languages?nocache=1746791333703 HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:54] "GET /api/cms/posts/12/media HTTP/1.1" 200 -
+127.0.0.1 - - [09/May/2025 19:48:54] "GET /api/cms/posts/12/media HTTP/1.1" 200 -
+[2025-05-09 19:48:54,270] ERROR in __init__: Error: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+127.0.0.1 - - [09/May/2025 19:48:54] "[33mGET /api/uploads/cms/product-photography-tips.jpg HTTP/1.1[0m" 404 -
+/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

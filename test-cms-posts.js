@@ -1,8 +1,11 @@
 import fetch from 'node-fetch';
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 
 async function login() {
   try {
-    const response = await fetch('http://localhost:5000/api/auth/login', {
+    const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +27,7 @@ async function login() {
 
 async function fetchBlogPosts(token) {
   try {
-    const response = await fetch('http://localhost:5000/api/cms/posts', {
+    const response = await fetch(`${BACKEND_URL}/api/cms/posts`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +45,7 @@ async function fetchBlogPosts(token) {
 
 async function fetchPublicBlogPosts() {
   try {
-    const response = await fetch('http://localhost:5000/api/cms/blog', {
+    const response = await fetch(`${BACKEND_URL}/api/cms/blog`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -73,7 +76,7 @@ async function fetchPublicBlogPosts() {
 
 async function fetchBlogPostDetail(slug) {
   try {
-    const response = await fetch(`http://localhost:5000/api/cms/blog/${slug}`, {
+    const response = await fetch(`${BACKEND_URL}/api/cms/blog/${slug}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

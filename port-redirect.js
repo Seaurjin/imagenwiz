@@ -4,10 +4,10 @@
 // Import HTTP library using ESM (works with type: "module" in package.json)
 import http from 'http';
 import { fork } from 'child_process';
-
-// Configuration
-const PORT = 3000;
-const TARGET_PORT = 5000;
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const PORT = process.env.PORT || 3000;
+const TARGET_PORT = process.env.TARGET_PORT || 5000;
 const TARGET_HOST = 'localhost';
 
 /**

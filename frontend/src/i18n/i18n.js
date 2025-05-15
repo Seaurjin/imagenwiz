@@ -34,30 +34,36 @@ import authEN from './locales/en/auth.json';
 import pricingEN from './locales/en/pricing.json';
 import blogEN from './locales/en/blog.json';
 import cmsEN from './locales/en/cms.json';
+import homeEN from './locales/en/home.json';
 
 // Import French resources
 import commonFR from './locales/fr/common.json';
 import blogFR from './locales/fr/blog.json';
 import pricingFR from './locales/fr/pricing.json';
+import homeFR from './locales/fr/home.json';
 
 // Import Spanish resources
 import commonES from './locales/es/common.json';
 import blogES from './locales/es/blog.json';
 import pricingES from './locales/es/pricing.json';
+import homeES from './locales/es/home.json';
 
 // Import Japanese resources
 import commonJA from './locales/ja/common.json';
 import pricingJA from './locales/ja/pricing.json';
 import blogJA from './locales/ja/blog.json';
+import homeJA from './locales/ja/home.json';
 
 // Import Arabic resources
 import commonAR from './locales/ar/common.json';
 import blogAR from './locales/ar/blog.json';
 import pricingAR from './locales/ar/pricing.json';
+import homeAR from './locales/ar/home.json';
 
 // Import German resources
 import commonDE from './locales/de/common.json';
 import pricingDE from './locales/de/pricing.json';
+import homeDE from './locales/de/home.json';
 
 // Import Russian resources
 import commonRU from './locales/ru/common.json';
@@ -133,42 +139,48 @@ const resources = {
     auth: authEN,
     pricing: pricingEN,
     blog: blogEN,
-    cms: cmsEN
+    cms: cmsEN,
+    home: homeEN
   },
   fr: {
     common: commonFR,
     auth: authEN,
     pricing: pricingFR,
     blog: blogFR,
-    cms: cmsEN
+    cms: cmsEN,
+    home: homeFR
   },
   es: {
     common: commonES,
     auth: authEN,
     pricing: pricingES,
     blog: blogES,
-    cms: cmsEN
+    cms: cmsEN,
+    home: homeES
   },
   ja: {
     common: commonJA,
     auth: authEN,
     pricing: pricingJA,
     blog: blogJA,
-    cms: cmsEN
+    cms: cmsEN,
+    home: homeJA
   },
   ar: {
     common: commonAR,
     auth: authEN,
     pricing: pricingAR,
     blog: blogAR,
-    cms: cmsEN
+    cms: cmsEN,
+    home: homeAR
   },
   de: {
     common: commonDE,
     auth: authEN,
     pricing: pricingDE,
     blog: blogEN,
-    cms: cmsEN
+    cms: cmsEN,
+    home: homeDE
   },
   ru: {
     common: commonRU,
@@ -313,7 +325,7 @@ i18n
     defaultNS: 'common',
     
     // Namespace configuration
-    ns: ['common', 'auth', 'pricing', 'blog', 'cms', 'dashboard', 'editor'],
+    ns: ['common', 'auth', 'pricing', 'blog', 'cms', 'dashboard', 'editor', 'home'],
     
     // Debugging in development mode
     debug: process.env.NODE_ENV === 'development',
@@ -337,47 +349,61 @@ i18n
     },
   });
 
-// Helper function to check if a language code is RTL
+// Helper function to determine if a language is RTL
 export const isRTL = (languageCode) => {
-  // RTL languages: Arabic, Hebrew, Persian (Farsi), Urdu
+  // Only Arabic is RTL in our supported languages
   const rtlLanguages = ['ar', 'he', 'fa', 'ur'];
   return rtlLanguages.includes(languageCode);
 };
 
-// Utility function to change language
+// Helper function to change language with proper RTL handling
 export const changeLanguage = async (lng) => {
-  // First set the localStorage value - critical for page reloads
-  localStorage.setItem('i18nextLng', lng);
+  if (!lng) return false;
   
-  // Update the document properties
-  document.documentElement.lang = lng;
-  document.documentElement.dir = isRTL(lng) ? 'rtl' : 'ltr';
-  
-  // Add RTL class to body for global styling
-  if (isRTL(lng)) {
-    document.body.classList.add('rtl');
-  } else {
-    document.body.classList.remove('rtl');
-  }
-  
-  console.log(`Setting language to ${lng}, direction: ${isRTL(lng) ? 'rtl' : 'ltr'}`);
-  
-  // Change the language in i18next - this should trigger React components to update
   try {
+    // Store the selected language in localStorage for persistence
+    localStorage.setItem('i18nextLng', lng);
+    
+    // Force refresh all i18next instances
     await i18n.changeLanguage(lng);
-    console.log(`Language changed to: ${lng}`);
     
-    // Force update any existing dynamic content by dispatching a custom event
-    const event = new CustomEvent('languageChanged', { detail: { language: lng } });
-    document.dispatchEvent(event);
+    // Update document attributes
+    document.documentElement.lang = lng;
+    const rtl = isRTL(lng);
+    document.documentElement.dir = rtl ? 'rtl' : 'ltr';
     
-    // Add a global reload trigger after short delay to ensure UI elements update properly
-    setTimeout(() => {
-      const forceRerenderEvent = new CustomEvent('forceRerender', { detail: { language: lng } });
-      document.dispatchEvent(forceRerenderEvent);
-    }, 100);
+    // Update body classes for styling
+    if (rtl) {
+      document.body.classList.add('rtl-layout');
+      document.body.classList.remove('ltr-layout');
+    } else {
+      document.body.classList.add('ltr-layout');
+      document.body.classList.remove('rtl-layout');
+    }
+    
+    // Create a custom event for other components to listen to
+    const languageEvent = new CustomEvent('languageChanged', { 
+      detail: { language: lng, isRTL: rtl } 
+    });
+    document.dispatchEvent(languageEvent);
+    
+    console.log(`Language successfully changed to: ${lng}`);
+    
+    // For empty translations, reload to ensure all namespaces are properly loaded
+    // This helps when a language doesn't have all translation files
+    if (Object.keys(i18n.getDataByLanguage(lng) || {}).length < 3) {
+      console.log(`Limited translations available for ${lng}, reloading page`);
+      window.location.reload();
+      return true;
+    }
+    
+    return true;
   } catch (error) {
     console.error('Error changing language:', error);
+    
+    // As a fallback, force a reload to make sure language changes properly
+    window.location.reload();
+    return false;
   }
 };
 

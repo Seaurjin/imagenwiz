@@ -1,0 +1,102 @@
+{
+  "hero": {
+    "title": "Transformez vos images avec la suppression d'arrière-plan par IA",
+    "subtitle": "Arrière-plans d'images de qualité professionnelle supprimés en quelques secondes. Notre technologie IA de précision offre des résultats impeccables pour les professionnels du e-commerce, du marketing et du design.",
+    "startCreating": "Commencer à créer",
+    "getStarted": "Démarrer gratuitement",
+    "viewPlans": "Voir les offres"
+  },
+  "trustedBy": {
+    "title": "APPROUVÉ PAR DES ENTREPRISES DU MONDE ENTIER"
+  },
+  "howItWorks": {
+    "title": "Comment ça marche",
+    "subtitle": "Trois étapes simples pour une suppression parfaite de l'arrière-plan",
+    "step1": {
+      "title": "Téléchargez votre image",
+      "description": "Sélectionnez et téléchargez n'importe quelle image depuis votre appareil. Nous prenons en charge tous les formats populaires, notamment JPG, PNG et WebP."
+    },
+    "step2": {
+      "title": "Traitement par IA",
+      "description": "Nos algorithmes d'IA avancés détectent et suppriment automatiquement les arrière-plans avec précision et finesse."
+    },
+    "step3": {
+      "title": "Téléchargez le résultat",
+      "description": "Téléchargez votre image modifiée avec un arrière-plan transparent, prête à être utilisée dans vos projets."
+    }
+  },
+  "features": {
+    "title": "Fonctionnalités puissantes",
+    "subtitle": "Tout ce dont vous avez besoin pour une édition d'image professionnelle",
+    "feature1": {
+      "title": "Ultra rapide",
+      "description": "Traitez des images en quelques secondes avec notre technologie IA optimisée. Plus d'attente pour l'édition manuelle."
+    },
+    "feature2": {
+      "title": "Résultats parfaits",
+      "description": "Notre IA détecte avec précision les bords, les cheveux et les détails fins avec une précision exceptionnelle."
+    },
+    "feature3": {
+      "title": "Support haute résolution",
+      "description": "Traitez des images haute résolution tout en maintenant la qualité pour des applications professionnelles."
+    },
+    "feature4": {
+      "title": "Traitement par lots",
+      "description": "Téléchargez et traitez plusieurs images simultanément pour gagner du temps sur des projets importants."
+    },
+    "feature5": {
+      "title": "Contrôles avancés",
+      "description": "Affinez vos résultats avec des outils d'édition intuitifs pour une sortie parfaite à chaque fois."
+    },
+    "feature6": {
+      "title": "Historique et stockage",
+      "description": "Accédez à vos images traitées dans votre compte sécurisé pour référence future et réutilisation."
+    }
+  },
+  "useCases": {
+    "title": "Parfait pour",
+    "subtitle": "Les professionnels qui exigent des résultats de qualité",
+    "ecommerce": {
+      "title": "E-commerce",
+      "description": "Photos de produits qui convertissent"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "description": "Contenu visuel époustouflant"
+    },
+    "designers": {
+      "title": "Designers",
+      "description": "Processus créatif fluide"
+    },
+    "developers": {
+      "title": "Développeurs",
+      "description": "Intégration API pour applications"
+    }
+  },
+  "testimonials": {
+    "title": "Ce que disent nos utilisateurs",
+    "subtitle": "Approuvé par des milliers de professionnels dans le monde",
+    "person1": {
+      "name": "Sarah Johnson",
+      "position": "Responsable E-commerce",
+      "quote": "iMagenWiz a transformé notre flux de travail de photographie de produits. Ce qui prenait des heures ne prend maintenant que quelques secondes, avec de meilleurs résultats !"
+    },
+    "person2": {
+      "name": "Michael Chen",
+      "position": "Designer Graphique",
+      "quote": "La précision est incroyable, surtout avec les cheveux et les objets transparents. De loin le meilleur outil de suppression d'arrière-plan par IA que j'ai utilisé."
+    },
+    "person3": {
+      "name": "Emma Rodriguez",
+      "position": "Directrice Marketing",
+      "quote": "Nous traitons des centaines d'images chaque semaine pour nos campagnes, et iMagenWiz offre une qualité constante à chaque fois. Un véritable changement pour notre équipe."
+    }
+  },
+  "cta": {
+    "title": "Prêt à transformer vos images ?",
+    "subtitle": "Rejoignez des milliers de professionnels qui font confiance à iMagenWiz pour leurs besoins de traitement d'image.",
+    "startCreating": "Commencer à créer maintenant",
+    "createAccount": "Créer un compte gratuit",
+    "viewPricing": "Voir les tarifs"
+  }
+} 

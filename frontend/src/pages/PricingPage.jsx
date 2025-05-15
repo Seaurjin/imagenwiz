@@ -95,9 +95,13 @@ const PricingPage = () => {
       console.log('Using baseUrl for Stripe callbacks:', baseUrl);
       
       // Use payment-verify page with session_id parameter for Stripe redirects
-      // Include port 3000 explicitly for Replit environment
-      const successUrl = `${baseUrl}:3000/payment-verify?session_id={CHECKOUT_SESSION_ID}&t=${Date.now()}`;
-      const cancelUrl = `${baseUrl}:3000/pricing?t=${Date.now()}`;
+      // Get the frontend port from environment or use default from window location
+      const frontendPort = import.meta.env.VITE_PORT || url.port || '3000';
+      // Only add port if it exists and we're in development environment
+      const portString = (url.hostname === 'localhost' || url.hostname.includes('127.0.0.1') || url.hostname.includes('0.0.0.0')) ? `:${frontendPort}` : '';
+      
+      const successUrl = `${baseUrl}${portString}/payment-verify?session_id={CHECKOUT_SESSION_ID}&t=${Date.now()}`;
+      const cancelUrl = `${baseUrl}${portString}/pricing?t=${Date.now()}`;
       
       console.log(`Creating checkout session for package ${packageId}`, {
         packageId,

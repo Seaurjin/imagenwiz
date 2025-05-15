@@ -1,0 +1,4 @@
+MySQL connection pool created successfully
+Blog Proxy Server running at http://0.0.0.0:3002/
+Database connection: ACTIVE
+Other API requests proxied to http://localhost:5000

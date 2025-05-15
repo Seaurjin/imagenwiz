@@ -1,0 +1,12 @@
+[2025-04-25 04:10:55,499] INFO in __init__: Database migration for recharge_history columns completed successfully
+[2025-04-25T16:01:07.627Z] 🐍 Starting Flask backend...
+[2025-04-25T16:01:07.627Z] ✅ Found backend directory: /home/runner/workspace/backend
+[2025-04-25T16:01:07.627Z] Checking for Flask entrypoint: /home/runner/workspace/backend/run.py
+[2025-04-25T16:01:07.627Z] ✅ Found Flask entrypoint: /home/runner/workspace/backend/run.py
+[2025-04-25T16:01:47.876Z] 🐍 Starting Flask backend...
+[2025-04-25T16:01:47.876Z] ✅ Found backend directory: /home/runner/workspace/backend
+[2025-04-25T16:01:47.876Z] Checking for Flask entrypoint: /home/runner/workspace/backend/run.py
+[2025-04-25T16:01:47.876Z] ✅ Found Flask entrypoint: /home/runner/workspace/backend/run.py
+[2025-04-25T16:01:57.350Z] 🐍 [Flask Error] [2025-04-25 16:01:57,349] WARNING in __init__: Database migrations SKIPPED due to SKIP_MIGRATIONS environment variable
+[2025-04-25T16:01:57.351Z] 🐍 [Flask Error] [2025-04-25 16:01:57,350] WARNING in __init__: This is recommended only for development environments
+[2025-04-25 16:01:57,350] WARNING in __init__: Some features may not work correctly without proper database schema

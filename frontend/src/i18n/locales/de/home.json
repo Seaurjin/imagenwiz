@@ -1,0 +1,102 @@
+{
+  "hero": {
+    "title": "Transformieren Sie Ihre Bilder mit KI-gestützter Hintergrundentfernung",
+    "subtitle": "Professionelle Bilderhintergründe in Sekunden entfernt. Unsere präzise KI-Technologie liefert makellose Ergebnisse für E-Commerce, Marketing und Design-Profis.",
+    "startCreating": "Starten Sie mit dem Erstellen",
+    "getStarted": "Kostenlos beginnen",
+    "viewPlans": "Pläne anzeigen"
+  },
+  "trustedBy": {
+    "title": "VERTRAUT VON UNTERNEHMEN WELTWEIT"
+  },
+  "howItWorks": {
+    "title": "So funktioniert es",
+    "subtitle": "Drei einfache Schritte zur perfekten Hintergrundentfernung",
+    "step1": {
+      "title": "Bild hochladen",
+      "description": "Wählen und laden Sie beliebige Bilder von Ihrem Gerät hoch. Wir unterstützen alle gängigen Formate, einschließlich JPG, PNG und WebP."
+    },
+    "step2": {
+      "title": "KI-Verarbeitung",
+      "description": "Unsere fortschrittlichen KI-Algorithmen erkennen und entfernen automatisch Hintergründe mit Präzision und feinen Details."
+    },
+    "step3": {
+      "title": "Ergebnis herunterladen",
+      "description": "Laden Sie Ihr bearbeitetes Bild mit transparentem Hintergrund herunter, bereit zur Verwendung in Ihren Projekten."
+    }
+  },
+  "features": {
+    "title": "Leistungsstarke Funktionen",
+    "subtitle": "Alles was Sie für professionelle Bildbearbeitung brauchen",
+    "feature1": {
+      "title": "Superschnell",
+      "description": "Verarbeiten Sie Bilder in Sekunden mit unserer optimierten KI-Technologie. Keine Wartezeiten mehr für manuelle Bearbeitungen."
+    },
+    "feature2": {
+      "title": "Perfekte Ergebnisse",
+      "description": "Unsere KI erkennt präzise Kanten, Haare und feine Details mit außergewöhnlicher Genauigkeit."
+    },
+    "feature3": {
+      "title": "Hochauflösende Unterstützung",
+      "description": "Verarbeiten Sie hochauflösende Bilder bei gleichzeitiger Qualitätserhaltung für professionelle Anwendungen."
+    },
+    "feature4": {
+      "title": "Batch-Verarbeitung",
+      "description": "Laden Sie mehrere Bilder gleichzeitig hoch und verarbeiten Sie sie, um Zeit bei großen Projekten zu sparen."
+    },
+    "feature5": {
+      "title": "Erweiterte Steuerungen",
+      "description": "Passen Sie Ihre Ergebnisse mit intuitiven Bearbeitungswerkzeugen für ein perfektes Ergebnis jedes Mal an."
+    },
+    "feature6": {
+      "title": "Verlauf und Speicherung",
+      "description": "Greifen Sie auf Ihre verarbeiteten Bilder in Ihrem sicheren Konto für zukünftige Referenz und Wiederverwendung zu."
+    }
+  },
+  "useCases": {
+    "title": "Perfekt für",
+    "subtitle": "Branchenexperten, die Qualitätsergebnisse verlangen",
+    "ecommerce": {
+      "title": "E-Commerce",
+      "description": "Produktfotos, die konvertieren"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "description": "Beeindruckende visuelle Inhalte"
+    },
+    "designers": {
+      "title": "Designer",
+      "description": "Nahtloser kreativer Prozess"
+    },
+    "developers": {
+      "title": "Entwickler",
+      "description": "API-Integration für Anwendungen"
+    }
+  },
+  "testimonials": {
+    "title": "Was unsere Benutzer sagen",
+    "subtitle": "Vertraut von Tausenden von Profis weltweit",
+    "person1": {
+      "name": "Sarah Johnson",
+      "position": "E-Commerce Manager",
+      "quote": "iMagenWiz hat unseren Produktfotografie-Workflow transformiert. Was früher Stunden dauerte, nimmt jetzt Sekunden in Anspruch, mit besseren Ergebnissen!"
+    },
+    "person2": {
+      "name": "Michael Chen",
+      "position": "Grafikdesigner",
+      "quote": "Die Präzision ist unglaublich, besonders bei Haaren und transparenten Objekten. Bei weitem das beste KI-Hintergrundentfernungstool, das ich je verwendet habe."
+    },
+    "person3": {
+      "name": "Emma Rodriguez",
+      "position": "Marketing Direktorin",
+      "quote": "Wir verarbeiten wöchentlich Hunderte von Bildern für unsere Kampagnen, und iMagenWiz liefert jedes Mal konsistente Qualität. Ein Wendepunkt für unser Team."
+    }
+  },
+  "cta": {
+    "title": "Bereit, Ihre Bilder zu transformieren?",
+    "subtitle": "Schließen Sie sich Tausenden von Profis an, die iMagenWiz für ihre Bildverarbeitungsbedürfnisse vertrauen.",
+    "startCreating": "Jetzt mit dem Erstellen beginnen",
+    "createAccount": "Kostenloses Konto erstellen",
+    "viewPricing": "Preispläne anzeigen"
+  }
+} 

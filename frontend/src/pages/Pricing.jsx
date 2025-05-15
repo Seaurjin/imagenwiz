@@ -5,47 +5,47 @@ import axios from 'axios';
 
 const pricingPlans = [
   {
-    id: 'basic',
-    name: 'Basic',
-    credits: 10,
-    priceMonthly: 4.99,
-    priceYearly: 49.99,
+    id: 'free',
+    name: 'Free',
+    credits: 3,
+    priceMonthly: 0,
+    priceYearly: 0,
     features: [
-      '10 Image Process Credits',
-      'PNG Download with Transparency',
-      '7-day History Retention',
-      'Standard Processing Priority',
+      '3 free credits per month',
+      'Standard quality processing',
     ],
     mostPopular: false,
   },
   {
-    id: 'pro',
-    name: 'Pro',
+    id: 'lite',
+    name: 'Lite',
     credits: 50,
-    priceMonthly: 19.99,
-    priceYearly: 199.99,
+    priceMonthly: 9.9,
+    priceYearly: 106.8,
     features: [
-      '50 Image Process Credits',
-      'PNG Download with Transparency',
-      '30-day History Retention',
-      'High Processing Priority',
-      'Batch Processing (5 images)',
+      '50 credits per month',
+      'High quality processing',
+      'Web-based editor',
+      'Support for all common formats',
+      'Batch processing up to 10 images',
+      'Priority processing',
     ],
     mostPopular: true,
   },
   {
-    id: 'business',
-    name: 'Business',
-    credits: 200,
-    priceMonthly: 69.99,
-    priceYearly: 699.99,
+    id: 'pro',
+    name: 'Pro',
+    credits: 250,
+    priceMonthly: 24.9,
+    priceYearly: 262.8,
     features: [
-      '200 Image Process Credits',
-      'PNG Download with Transparency',
-      '90-day History Retention',
-      'Highest Processing Priority',
-      'Batch Processing (20 images)',
-      'API Access',
+      '250 credits per month',
+      'Premium quality processing',
+      'Advanced editing tools',
+      'Support for all formats, including TIFF',
+      'Batch processing up to 50 images',
+      'API access',
+      'Highest priority processing',
     ],
     mostPopular: false,
   },
@@ -77,8 +77,23 @@ const Pricing = () => {
     setError('');
 
     try {
-      const selectedPlan = pricingPlans.find((plan) => plan.id === planId);
-      const price = yearlyBilling ? selectedPlan.priceYearly : selectedPlan.priceMonthly;
+      const selectedPlanData = pricingPlans.find((plan) => plan.id === planId);
+      if (!selectedPlanData) {
+        throw new Error('Selected plan not found in frontend configuration.');
+      }
+
+      // Construct the package_id based on the planId and billing cycle
+      // This needs to match the IDs expected by the backend (e.g., 'pro_monthly', 'pro_yearly')
+      const backendPackageId = yearlyBilling ? `${planId}_yearly` : `${planId}_monthly`;
+      
+      // For the 'free' plan, or if planId already contains _yearly or _monthly, use it directly
+      // This handles cases where planId might already be specific e.g. from a different UI component
+      let finalPackageId = planId;
+      if (planId !== 'free' && !planId.includes('_yearly') && !planId.includes('_monthly')) {
+        finalPackageId = backendPackageId;
+      }
+
+      const price = yearlyBilling ? selectedPlanData.priceYearly : selectedPlanData.priceMonthly;
       
       // Generate a base URL for success and cancel redirects
       // For Replit hosted apps, construct URLs carefully to ensure redirection works
@@ -103,19 +118,23 @@ const Pricing = () => {
       const successUrl = `${baseUrl}:3000/payment-verify?session_id={CHECKOUT_SESSION_ID}&t=${Date.now()}`;
       const cancelUrl = `${baseUrl}:3000/pricing?t=${Date.now()}`;
       
-      console.log(`Creating checkout session for package ${planId}`, {
-        planId,
+      console.log(`Creating checkout session for package ${finalPackageId}`, {
+        packageId: finalPackageId, // Use the constructed ID
         price,
-        credits: selectedPlan.credits,
+        credits: selectedPlanData.credits,
         successUrl,
-        cancelUrl
+        cancelUrl,
+        is_yearly: yearlyBilling // Send is_yearly to help backend select the correct package
       });
       
-      // FIXED: Use the correct API endpoint with /api prefix
       const response = await axios.post('/api/payment/create-checkout-session', {
-        package_id: planId,
+        package_id: finalPackageId, // Use the constructed ID
         success_url: successUrl,
-        cancel_url: cancelUrl
+        cancel_url: cancelUrl,
+        is_yearly: yearlyBilling, // Send is_yearly to the backend
+        // Optionally send price and credits if backend needs to verify or use them
+        // price: price,
+        // credits: selectedPlanData.credits
       }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

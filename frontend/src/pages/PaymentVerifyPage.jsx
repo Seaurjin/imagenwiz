@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { CheckCircle, Loader2, XCircle, ArrowRight, Calendar, CreditCard, Gift, ShieldCheck } from 'lucide-react';
+import ReactGA from 'react-ga4';
 
 const PaymentVerifyPage = () => {
   const { user, refreshUser, login, isAuthenticated } = useAuth();
@@ -83,7 +84,7 @@ const PaymentVerifyPage = () => {
         
         const response = await axios.get(`/api/payment/verify?session_id=${sessionId}&t=${Date.now()}`, {
           headers,
-          timeout: 8000 // 8 second timeout
+          timeout: 20000 // Increased timeout to 20 seconds
         });
         
         console.log('Payment verification response:', response.data);
@@ -91,12 +92,34 @@ const PaymentVerifyPage = () => {
         if (response.data.status === 'success') {
           // Payment verified successfully
           setPaymentVerified(true);
-          setPaymentDetails({
+          const details = {
             packageName: response.data.package_name || 'Credit Package',
             amountPaid: response.data.amount_paid || 0,
             creditsAdded: response.data.credits_added || 0,
             isYearly: response.data.is_yearly || false,
-            newBalance: response.data.new_balance || 0
+            newBalance: response.data.new_balance || 0,
+            currency: response.data.currency || 'USD' // Assume USD if not provided
+          };
+          setPaymentDetails(details);
+
+          // Send Purchase event to Google Analytics
+          ReactGA.event({
+            category: 'ecommerce',
+            action: 'purchase',
+            label: `Purchase - ${details.packageName}`,
+            value: details.amountPaid,
+            nonInteraction: true, // Typically true for purchase events
+            // GA4 E-commerce parameters
+            transaction_id: sessionId,
+            currency: details.currency,
+            items: [
+              {
+                item_id: response.data.package_id || 'unknown_package', // Rely on backend to provide package_id
+                item_name: details.packageName,
+                price: details.amountPaid,
+                quantity: 1
+              }
+            ]
           });
           
           // Refresh user data to get updated credits

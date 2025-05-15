@@ -13,12 +13,17 @@ if (isESM) {
   http = require('http');
 }
 
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const PORT = process.env.PORT || 3000;
+const TARGET_PORT = process.env.TARGET_PORT || 5000;
+
 // Create server
 const server = http.createServer((req, res) => {
   // Set up proxy options
   const options = {
     hostname: 'localhost',
-    port: 5000,
+    port: TARGET_PORT,
     path: req.url,
     method: req.method,
     headers: req.headers
@@ -44,9 +49,9 @@ const server = http.createServer((req, res) => {
 });
 
 // Start server
-server.listen(3000, '0.0.0.0', () => {
-  console.log('Proxy server running on port 3000');
-  console.log('Forwarding requests to port 5000');
+server.listen(PORT, '0.0.0.0', () => {
+  console.log('Proxy server running on port ' + PORT);
+  console.log('Forwarding requests to port ' + TARGET_PORT);
 });
 
 // Export for potential module usage

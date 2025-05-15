@@ -17,29 +17,29 @@
   
   <!-- Logo Square with Gradient Border and Checkerboard Pattern -->
   <g transform="translate(0, 0)">
-    <rect x="0" y="0" width="60" height="60" fill="#333333" stroke="url(#squareGradient)" stroke-width="3"/>
+    <rect x="2" y="2" width="50" height="50" fill="#333333" stroke="url(#squareGradient)" stroke-width="2"/>
     
     <!-- Checkerboard Pattern - Gradient Squares -->
     <g fill="url(#checkerGradient)">
-      <rect x="42" y="12" width="6" height="6"/>
-      <rect x="36" y="12" width="6" height="6"/>
-      <rect x="30" y="18" width="6" height="6"/>
-      <rect x="24" y="18" width="6" height="6"/>
-      <rect x="18" y="24" width="6" height="6"/>
-      <rect x="12" y="24" width="6" height="6"/>
-      <rect x="6" y="30" width="6" height="6"/>
-      <rect x="42" y="18" width="6" height="6"/>
-      <rect x="36" y="24" width="6" height="6"/>
-      <rect x="30" y="30" width="6" height="6"/>
-      <rect x="24" y="36" width="6" height="6"/>
-      <rect x="18" y="42" width="6" height="6"/>
-      <rect x="12" y="48" width="6" height="6"/>
+      <rect x="35" y="10" width="5" height="5"/>
+      <rect x="30" y="10" width="5" height="5"/>
+      <rect x="25" y="15" width="5" height="5"/>
+      <rect x="20" y="15" width="5" height="5"/>
+      <rect x="15" y="20" width="5" height="5"/>
+      <rect x="10" y="20" width="5" height="5"/>
+      <rect x="5" y="25" width="5" height="5"/>
+      <rect x="35" y="15" width="5" height="5"/>
+      <rect x="30" y="20" width="5" height="5"/>
+      <rect x="25" y="25" width="5" height="5"/>
+      <rect x="20" y="30" width="5" height="5"/>
+      <rect x="15" y="35" width="5" height="5"/>
+      <rect x="10" y="40" width="5" height="5"/>
     </g>
   </g>
   
   <!-- Text "iMagenWiz" with Gradient -->
-  <g transform="translate(70, 10)">
-    <text x="0" y="30" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="url(#textGradient)">
+  <g transform="translate(62, 5)">
+    <text x="0" y="30" font-family="Arial, sans-serif" font-size="30" font-weight="600" fill="url(#textGradient)">
       iMagenWiz
     </text>
   </g>

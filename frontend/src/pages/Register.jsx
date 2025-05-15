@@ -1,6 +1,10 @@
-import { useState } from 'react';
+// import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+
+const GOOGLE_CLIENT_ID = '575966904692-majhctdekd8p1fhnjgq3tp8q4dplsact.apps.googleusercontent.com';
+const REDIRECT_URI = `http://localhost:3000/register`;
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -8,11 +12,33 @@ const Register = () => {
     password: '',
     confirmPassword: '',
   });
+  const [googleToken, setGoogleToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const hash = window.location.hash.substring(1); // 去掉 #
+    const params = new URLSearchParams(hash);
+    const tokenG = params.get('access_token');
+
+    if (tokenG) {
+      setGoogleToken(tokenG);
+      sessionStorage.removeItem('hasRedirected');
+    } else {
+        const hasRedirected = sessionStorage.getItem('hasRedirected');
+        if (!hasRedirected) {
+        sessionStorage.setItem('hasRedirected', 'true');
+      // 拼接 Google 登录 URL 并跳转
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${GOOGLE_CLIENT_ID}` +
+        `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+        `&response_type=token` +
+        `&scope=openid%20email%20profile`;
+      window.location.href = googleAuthUrl;
+    }}
+  }, []);
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -37,7 +63,8 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register(formData.username, formData.password);
+      console.log("Sending googleToken:", googleToken);
+      await register(formData.username, formData.password, googleToken);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');

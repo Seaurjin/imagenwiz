@@ -1,0 +1,32 @@
+
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+
+Environment:  development
+Database URL exists:  true
+Starting Express server with frontend static files
+Current directory: /Users/Dave/Downloads/iMagenWiz - Replit - by Cursor
+__dirname: /Users/Dave/Downloads/iMagenWiz - Replit - by Cursor/server
+Checking for frontend build directories:
+- Checking: /Users/Dave/Downloads/iMagenWiz - Replit - by Cursor/frontend/dist
+✅ Found valid frontend path with index.html: /Users/Dave/Downloads/iMagenWiz - Replit - by Cursor/frontend/dist
+Using frontend path: /Users/Dave/Downloads/iMagenWiz - Replit - by Cursor/frontend/dist
+Files in /Users/Dave/Downloads/iMagenWiz - Replit - by Cursor/frontend/dist: [
+  "assets",
+  "favicon.ico",
+  "favicon.svg",
+  "fixLanguageSelector.js",
+  "images",
+  "index.html",
+  "test-login.html",
+  "test-order-confirmation.html"
+]
+🌐 Setting up static file serving from: /Users/Dave/Downloads/iMagenWiz - Replit - by Cursor/frontend/dist
+Starting server without migrations...
+Server running at http://0.0.0.0:3001
+Access your app at: localhost
+🚀 Application startup complete - ready to accept connections
+⏱️ Server startup completed in 0.45 seconds
+🔄 Proxy server running at http://0.0.0.0:3000 → redirecting to port 5000
+📥 POST /api/auth/login - 2025-05-01T15:00:53.759Z [tg7g5a]
+📤 POST /auth/login - 500 - 48ms [tg7g5a]

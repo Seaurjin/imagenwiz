@@ -7,42 +7,28 @@ import { X, Check, Languages, CheckCircle, Info, AlertTriangle, Globe } from 'lu
  * @param {Object} props
  * @param {boolean} props.isOpen - Whether the modal is open
  * @param {Function} props.onClose - Function to call when closing modal
- * @param {Array} props.languages - Array of all available languages
+ * @param {Array} props.languages - Array of all available languages (assumed to be active and non-English)
  * @param {Function} props.onTranslate - Function to call with selected languages when translating
  * @param {boolean} props.isLoading - Whether translation is in progress
+ * @param {Function} props.onCancel - Function to call when canceling translation
  */
-const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }) => {
+const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading, onCancel }) => {
   const [selectedLanguages, setSelectedLanguages] = useState([]);
-  const [activeTab, setActiveTab] = useState('website'); // 'website' or 'all'
+  // const [activeTab, setActiveTab] = useState('website'); // REMOVED
   
   // Reset selection when modal opens
   useEffect(() => {
     if (isOpen) {
-      // Default to no languages selected
       setSelectedLanguages([]);
-      setActiveTab('website'); // Default to website languages
+      // setActiveTab('website'); // REMOVED
     }
   }, [isOpen]);
   
-  // Define website languages (the 22 languages supported on the website)
-  const websiteLanguageCodes = useMemo(() => [
-    'en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh-TW', 
-    'ar', 'nl', 'sv', 'tr', 'pl', 'hu', 'el', 'no', 'vi', 'th', 'id', 'ms'
-  ], []);
-  
-  // Filter languages based on active tab
-  const filteredLanguages = useMemo(() => {
-    // First filter out English (as it's the source language)
-    const nonEnglishLanguages = languages.filter(lang => lang.code !== 'en');
-    
-    if (activeTab === 'website') {
-      // Filter to just website languages
-      return nonEnglishLanguages.filter(lang => websiteLanguageCodes.includes(lang.code));
-    }
-    
-    // Otherwise return all languages
-    return nonEnglishLanguages;
-  }, [activeTab, languages, websiteLanguageCodes]);
+  // Filter out English from the provided languages list as it's the source language
+  // The parent component should ideally pass already filtered (active, non-English) languages.
+  const displayLanguages = useMemo(() => {
+    return languages.filter(lang => lang.code !== 'en');
+  }, [languages]);
   
   // Handle selection of a language
   const toggleLanguage = (langCode) => {
@@ -57,14 +43,24 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
   
   // Handle select all visible languages
   const selectAll = () => {
-    const visibleLangCodes = filteredLanguages.map(lang => lang.code);
-    setSelectedLanguages(visibleLangCodes);
+    const allLangCodes = displayLanguages.map(lang => lang.code);
+    setSelectedLanguages(allLangCodes);
   };
   
   // Handle unselect all languages
   const unselectAll = () => {
     setSelectedLanguages([]);
   };
+  
+  // Get recommended batch size based on selection
+  const getRecommendedBatches = () => {
+    const totalLangs = selectedLanguages.length;
+    if (totalLangs <= 5) return 1;
+    return Math.ceil(totalLangs / 5);
+  };
+  
+  // Check if too many languages are selected
+  const tooManyLanguages = selectedLanguages.length > 15;
   
   // Handle submit translation
   const handleTranslate = () => {
@@ -73,15 +69,31 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
       return;
     }
     
+    // If too many languages are selected, show a confirmation
+    if (tooManyLanguages) {
+      const confirmMessage = `You have selected ${selectedLanguages.length} languages. This could take a long time and might timeout. The system will process languages in batches, but it's recommended to select fewer languages for reliability. Continue anyway?`;
+      if (!window.confirm(confirmMessage)) {
+        return;
+      }
+    }
+    
     onTranslate(selectedLanguages);
   };
   
-  if (!isOpen) return null;
+  // Handle cancel
+  const handleCancel = () => {
+    if (isLoading) {
+      // If translation is in progress, ask for confirmation before canceling
+      if (window.confirm('Translation is in progress. Are you sure you want to cancel?')) {
+        onCancel?.();
+      } else {
+        return;
+      }
+    }
+    onClose();
+  };
   
-  // Count total available languages
-  const websiteLanguagesCount = languages.filter(lang => 
-    websiteLanguageCodes.includes(lang.code) && lang.code !== 'en'
-  ).length;
+  if (!isOpen) return null;
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -93,9 +105,8 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
             Translate Content
           </h2>
           <button 
-            onClick={onClose}
+            onClick={handleCancel}
             className="text-gray-500 hover:text-gray-700"
-            disabled={isLoading}
           >
             <X className="h-5 w-5" />
           </button>
@@ -108,10 +119,13 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
           </p>
           
           {/* Warning about translation limits */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
-            <p className="text-sm text-yellow-800">
-              <strong>💡 Translation Tip:</strong> For best results, translate to 5-10 languages at a time. 
-              Selecting all languages at once may take longer or time out.
+          <div className={`border rounded-md p-3 mb-4 ${tooManyLanguages ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
+            <p className={`text-sm ${tooManyLanguages ? 'text-red-800' : 'text-yellow-800'}`}>
+              <strong>{tooManyLanguages ? '⚠️ Warning:' : '💡 Translation Tip:'}</strong> {
+                tooManyLanguages ?
+                `You've selected ${selectedLanguages.length} languages. This could cause performance issues or timeouts. For best results, translate 5-10 languages at a time.` :
+                `For best results, translate 5-10 languages at a time. The system will process translations in ${getRecommendedBatches()} batch(es).`
+              }
             </p>
           </div>
           
@@ -123,7 +137,7 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
               disabled={isLoading}
             >
               <CheckCircle className="h-4 w-4 mr-1" />
-              Select All
+              Select All ({displayLanguages.length})
             </button>
             <button 
               className="text-sm text-gray-600 hover:text-gray-800"
@@ -134,40 +148,20 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
             </button>
           </div>
           
-          {/* Language group tabs */}
-          <div className="flex mb-4 border-b">
-            <button
-              className={`py-2 px-4 font-medium ${activeTab === 'website' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'}`}
-              onClick={() => setActiveTab('website')}
-            >
-              <div className="flex items-center">
-                <Globe className="h-4 w-4 mr-1" />
-                Website Languages ({websiteLanguagesCount})
-              </div>
-            </button>
-            <button
-              className={`py-2 px-4 font-medium ${activeTab === 'all' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'}`}
-              onClick={() => setActiveTab('all')}
-            >
-              <div className="flex items-center">
-                <Languages className="h-4 w-4 mr-1" />
-                All Languages ({languages.length - 1})
-              </div>
-            </button>
-          </div>
+          {/* REMOVED Language group tabs */}
           
           {/* Selected language count */}
           <div className="mb-3 text-sm text-gray-600">
             {selectedLanguages.length > 0 ? (
-              <p>{selectedLanguages.length} languages selected for translation</p>
+              <p>{selectedLanguages.length} of {displayLanguages.length} languages selected for translation</p>
             ) : (
-              <p>No languages selected yet</p>
+              <p>No languages selected yet. Choose from {displayLanguages.length} available languages.</p>
             )}
           </div>
           
           {/* Language Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {filteredLanguages.map(lang => (
+            {displayLanguages.map(lang => (
               <div 
                 key={lang.code}
                 className={`border rounded-lg p-3 cursor-pointer transition-colors flex items-center justify-between ${
@@ -178,11 +172,8 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
                 onClick={() => toggleLanguage(lang.code)}
               >
                 <div className="flex items-center">
-                  <span className="mr-2 text-lg">{lang.flag}</span>
+                  <span className="mr-2 text-lg">{lang.flag || '🌐'}</span>
                   <span>{lang.name}</span>
-                  {websiteLanguageCodes.includes(lang.code) && activeTab === 'all' && (
-                    <span className="ml-2 px-1.5 py-0.5 bg-teal-100 text-teal-700 text-xs rounded-full">Web</span>
-                  )}
                 </div>
                 {selectedLanguages.includes(lang.code) && (
                   <Check className="h-5 w-5 text-teal-600" />
@@ -191,9 +182,9 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
             ))}
           </div>
           
-          {filteredLanguages.length === 0 && (
+          {displayLanguages.length === 0 && (
             <div className="p-4 text-center text-gray-500">
-              No languages available for translation. Please add languages in the language settings.
+              No other languages available for translation. Please add and activate more languages in the CMS settings.
             </div>
           )}
         </div>
@@ -202,16 +193,17 @@ const TranslationModal = ({ isOpen, onClose, languages, onTranslate, isLoading }
         <div className="p-4 border-t border-gray-200 flex justify-end">
           <button 
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md mr-2 hover:bg-gray-300 transition-colors"
-            onClick={onClose}
-            disabled={isLoading}
+            onClick={handleCancel}
           >
-            Cancel
+            {isLoading ? 'Cancel Translation' : 'Cancel'}
           </button>
           <button 
             className={`px-4 py-2 rounded-md text-white flex items-center ${
               isLoading 
                 ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-teal-600 hover:bg-teal-700'
+                : tooManyLanguages
+                  ? 'bg-yellow-600 hover:bg-yellow-700'
+                  : 'bg-teal-600 hover:bg-teal-700'
             }`}
             onClick={handleTranslate}
             disabled={isLoading || selectedLanguages.length === 0}

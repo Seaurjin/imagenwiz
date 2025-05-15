@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 
 // Import from mock module
 import { PRICE_IDS } from '../lib/stripe-mock.js';
@@ -215,7 +216,7 @@ const translationData = {
         "250 crédits par mois",
         "Traitement de qualité premium",
         "Outils d'édition avancés",
-        "Support pour tous les formats, y compris TIFF",
+        "Support pour tous les format, y compris TIFF",
         "Traitement par lots jusqu'à 50 images",
         "Accès API",
         "Traitement de la plus haute priorité"
@@ -1014,8 +1015,9 @@ const translationData = {
 
 const PricingMultilingual = () => {
   const { t, i18n } = useTranslation('pricing');
-  const [yearlyBilling, setYearlyBilling] = useState(false);
+  const [yearlyBilling, setYearlyBilling] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [processingPlanId, setProcessingPlanId] = useState(null);
   const [error, setError] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState(
     localStorage.getItem('i18nextLng') || 'en'
@@ -1172,21 +1174,103 @@ const PricingMultilingual = () => {
   };
   
   // Function to handle purchase
-  const handlePurchase = (planId) => {
+  const handlePurchase = async (planId) => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: '/pricing', plan: planId } });
       return;
     }
     
+    setProcessingPlanId(planId);
     setLoading(true);
     setError('');
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Purchase initiated for plan:', planId);
+    console.log('Actual purchase initiated for plan:', planId);
+
+    try {
+      const selectedPlan = pricingPlansBase.find(p => p.id === planId || p.idYearly === planId);
+      if (!selectedPlan) {
+        throw new Error('Selected plan configuration not found.');
+      }
+
+      // Determine if the selected planId itself indicates yearly or infer from yearlyBilling state for base keys
+      const isYearly = planId.includes('_yearly') || (planId === selectedPlan.key && yearlyBilling);
+      const currentPlanDetails = pricingPlans.find(p => p.id === planId);
+
+      if (!currentPlanDetails) {
+          throw new Error('Could not find current plan details for price/credits.');
+      }
+
+      let baseUrl;
+      const currentUrl = new URL(window.location.href); // Use currentUrl to avoid conflict with 'url' in response.data
+      
+      if (currentUrl.hostname.includes('.replit.dev')) {
+        baseUrl = `https://${currentUrl.hostname}`; // Replit: scheme + hostname, no port
+      } else {
+        baseUrl = window.location.origin; // General case: scheme + hostname + port (e.g., http://localhost:3000)
+      }
+      
+      // baseUrl is now the correct origin, e.g., http://localhost:3000 or https://your-replit-name.replit.dev
+      const successUrl = `${baseUrl}/payment-verify?session_id={CHECKOUT_SESSION_ID}&t=${Date.now()}`;
+      const cancelUrl = `${baseUrl}/pricing?t=${Date.now()}`;
+      
+      console.log(`Creating checkout session for package ${planId}`, {
+        package_id: planId,
+        price: currentPlanDetails.price,
+        credits: currentPlanDetails.credits,
+        is_yearly: isYearly,
+        successUrl,
+        cancelUrl
+      });
+      
+      const response = await axios.post('/api/payment/create-checkout-session', {
+        package_id: planId,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        is_yearly: isYearly, 
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.data.url) {
+        const checkoutUrl = response.data.url;
+        console.log('Redirecting to Stripe checkout URL:', checkoutUrl);
+        localStorage.setItem('stripeCheckoutUrl', checkoutUrl);
+        
+        // Attempt to open in new window, provide link as fallback
+        const newWindow = window.open(checkoutUrl, '_blank');
+        if (newWindow) {
+          setError("Stripe checkout page has been opened in a new tab. If you don't see it, please check your popup blocker.");
+        } else {
+          // Fallback for pop-up blockers: display a clickable link
+          const stripeUrlMessageContainer = document.getElementById('stripe-checkout-message-container');
+          if (stripeUrlMessageContainer) {
+            stripeUrlMessageContainer.innerHTML = `
+              <div style="margin-top: 20px; padding: 15px; border: 1px solid #007bff; border-radius: 5px; background-color: #e7f3ff; text-align: center;">
+                <p style="margin-bottom: 10px;">Your browser may have blocked the pop-up. Please click the button below to proceed to checkout:</p>
+                <a 
+                  href="${checkoutUrl}" 
+                  target="_blank"
+                  style="display: inline-block; background-color: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                  Proceed to Secure Checkout
+                </a>
+              </div>
+            `;
+          } else {
+             setError("Stripe checkout page ready. Please check for a new tab or allow pop-ups. Link: " + checkoutUrl);
+          }
+        }
+      } else {
+        throw new Error('No checkout URL returned from server.');
+      }
+    } catch (err) {
+      console.error('Error creating checkout session:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Failed to process your request. Please try again.');
+    } finally {
       setLoading(false);
-      navigate('/checkout', { state: { plan: planId } });
-    }, 1000);
+      setProcessingPlanId(null);
+    }
   };
   
   // Create pricing plans with translations
@@ -1261,56 +1345,122 @@ const PricingMultilingual = () => {
             <div
               key={plan.id}
               className={`rounded-lg shadow-lg divide-y divide-gray-200 ${
-                plan.mostPopular ? 'border-2 border-amber-500' : 'border border-gray-200'
-              }`}
+                plan.mostPopular ? 'border-2 border-amber-500 scale-105 relative z-10' : 'border border-gray-200 hover:border-gray-300 hover:shadow-xl'
+              } flex flex-col relative transition-all duration-300 bg-white`}
             >
               {plan.mostPopular && (
                 <div className="bg-amber-500 text-white text-center py-2 font-medium uppercase tracking-wide">
                   {getText('popular', 'Most Popular')}
                 </div>
               )}
+              {!plan.mostPopular && (
+                <div className="bg-indigo-100 text-transparent text-center py-2 font-medium uppercase tracking-wide">
+                  &nbsp;
+                </div>
+              )}
 
-              <div className="p-6">
-                <h2 className="text-2xl font-medium text-gray-900">{plan.name}</h2>
-                <p className="mt-2 text-sm text-gray-500">{plan.description}</p>
+              <div className="p-6 mb-4">
+                <h2 className="text-2xl font-bold text-gray-900">{plan.name}</h2>
+                <p className="mt-2 text-sm text-gray-500 min-h-[40px]">{plan.description}</p>
                 
-                <p className="mt-4">
-                  <span className="text-4xl font-extrabold text-gray-900">${plan.price}</span>
-                  <span className="text-base font-medium text-gray-500">
-                    {plan.key === 'free' ? ' forever' : yearlyBilling ? '/year' : '/month'}
-                  </span>
+                <p className="mt-6">
+                  {yearlyBilling && plan.key === 'lite' ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="text-base font-medium text-gray-400 line-through mr-2">${plan.monthlyPrice}/month</span>
+                      </div>
+                      <div className="flex items-end">
+                        <span className="text-4xl font-extrabold text-amber-500">$8.9</span>
+                        <span className="text-base font-medium text-amber-500 ml-1">/month</span>
+                      </div>
+                      <div>
+                        <span className="text-xs font-medium text-indigo-400">charged ${plan.yearlyPrice}/year</span>
+                      </div>
+                    </div>
+                  ) : yearlyBilling && plan.key === 'pro' ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="text-base font-medium text-gray-400 line-through mr-2">${plan.monthlyPrice}/month</span>
+                      </div>
+                      <div className="flex items-end">
+                        <span className="text-4xl font-extrabold text-amber-500">$21.9</span>
+                        <span className="text-base font-medium text-amber-500 ml-1">/month</span>
+                      </div>
+                      <div>
+                        <span className="text-xs font-medium text-indigo-400">charged ${plan.yearlyPrice}/year</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-extrabold text-gray-900">${plan.price}</span>
+                      <span className="text-base font-medium text-gray-500">
+                        {plan.key === 'free' ? ' forever' : yearlyBilling ? '/year' : '/month'}
+                      </span>
+                    </>
+                  )}
                 </p>
                 
                 <p className="mt-1">
-                  <span className="text-sm font-normal text-gray-500">
+                  <span className={`text-sm font-medium ${
+                    (yearlyBilling && plan.key === 'lite') || (yearlyBilling && plan.key === 'pro') 
+                      ? 'text-amber-500 font-semibold' 
+                      : 'text-gray-500'
+                  }`}>
                     {plan.credits} {plan.key === 'free' ? 'free ' : ''}credits
                     {plan.key !== 'free' ? (yearlyBilling ? ' per year' : ' per month') : ''}
                   </span>
                 </p>
-                
-                <button
-                  onClick={() => handlePurchase(plan.id)}
-                  disabled={loading}
-                  className={`mt-6 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                    loading ? 'opacity-75 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {loading ? 'Processing...' : plan.key === 'free' ? 'Get Started' : 'Subscribe'}
-                </button>
               </div>
-              
-              <div className="py-6 px-6 space-y-4">
-                <h3 className="text-sm font-medium text-gray-900">What's included:</h3>
-                <ul className="space-y-3">
+
+              <div className="pt-6 pb-24 px-6 flex-1">
+                <h3 className="text-sm font-semibold text-gray-900 tracking-wide uppercase mb-4">
+                  {getText('whatsIncluded', "What's included:")}
+                </h3>
+                
+                <ul className="space-y-4">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <div className="flex-shrink-0">
-                        <CheckIcon className="h-5 w-5 text-green-500" />
+                        <CheckIcon className={`h-5 w-5 ${
+                          plan.mostPopular 
+                            ? 'text-amber-500' 
+                            : plan.key === 'free'
+                              ? 'text-indigo-500'
+                              : 'text-green-500'
+                        }`} />
                       </div>
-                      <p className="ml-3 text-sm text-gray-700">{feature}</p>
+                      <p className="ml-3 text-sm text-gray-500">{feature}</p>
                     </li>
                   ))}
                 </ul>
+              </div>
+              
+              <div className="absolute bottom-6 left-6 right-6">
+                <button
+                  onClick={() => handlePurchase(plan.id)}
+                  disabled={loading}
+                  className={`w-full ${
+                    plan.mostPopular 
+                      ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-500 shadow-lg shadow-amber-200/50' 
+                      : plan.key === 'free'
+                        ? 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 shadow-lg shadow-indigo-200/50'
+                        : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 shadow-lg shadow-indigo-200/50'
+                  } text-white font-medium py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 ${
+                    loading ? 'opacity-70 cursor-not-allowed' : ''
+                  } transform hover:scale-105`}
+                >
+                  {loading && processingPlanId === plan.id ? (
+                    <span className="inline-flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : (
+                    plan.key === 'free' ? getText('getStarted', 'Get Started') : getText('subscribe', 'Subscribe')
+                  )}
+                </button>
               </div>
             </div>
           ))}

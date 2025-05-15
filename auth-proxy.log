@@ -1,0 +1,7 @@
+Auth API Server running at http://0.0.0.0:3001/
+[2025-05-09T10:42:17.921Z] Auth Request: GET /api/auth/user?t=1746787337720
+[Auth API] Warning: No valid user found for token, defaulting to admin
+[Auth API] User profile requested, returning data for: admin, role: admin, isAdmin: true
+[2025-05-09T10:42:17.964Z] Auth Request: GET /api/auth/user?t=1746787337721
+[Auth API] Warning: No valid user found for token, defaulting to admin
+[Auth API] User profile requested, returning data for: admin, role: admin, isAdmin: true

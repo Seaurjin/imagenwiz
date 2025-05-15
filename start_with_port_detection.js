@@ -3,6 +3,10 @@
 const { spawn } = require('child_process');
 const http = require('http');
 const fs = require('fs');
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const PORT = process.env.PORT || 3000;
+const TARGET_PORT = process.env.TARGET_PORT || 5000;
 
 console.log('🚀 Starting iMagenWiz with port detection...');
 
@@ -18,17 +22,17 @@ const proxyServer = http.createServer((req, res) => {
     <html>
       <head>
         <title>iMagenWiz - Port Proxy</title>
-        <meta http-equiv="refresh" content="0;url=https://${process.env.REPLIT_DOMAINS}:3000">
+        <meta http-equiv="refresh" content="0;url=https://${process.env.REPLIT_DOMAINS}:${PORT}">
       </head>
       <body>
         <h1>Redirecting to the main application...</h1>
-        <p>If you are not redirected automatically, <a href="https://${process.env.REPLIT_DOMAINS}:3000">click here</a>.</p>
+        <p>If you are not redirected automatically, <a href="https://${process.env.REPLIT_DOMAINS}:${PORT}">click here</a>.</p>
       </body>
     </html>
   `);
 });
 
-proxyServer.listen(5000, '0.0.0.0', () => {
+proxyServer.listen(TARGET_PORT, '0.0.0.0', () => {
   console.log('🔄 Proxy server running on port 5000 - Redirecting to main app on port 3000');
 });
 

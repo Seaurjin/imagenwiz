@@ -63,6 +63,11 @@ const CheckoutPage = () => {
           baseUrl: baseUrl
         });
         
+        // Get the frontend port from environment or use default from window location
+        const frontendPort = import.meta.env.VITE_PORT || url.port || '3000';
+        // Only add port if it exists and we're in development environment
+        const portString = (url.hostname === 'localhost' || url.hostname.includes('127.0.0.1') || url.hostname.includes('0.0.0.0')) ? `:${frontendPort}` : '';
+        
         const payload = {
           package_id: location.state.packageDetails.isYearly 
             ? location.state.packageDetails.packageName.includes('Lite') ? 'lite_yearly' : 'pro_yearly'
@@ -74,9 +79,9 @@ const CheckoutPage = () => {
             : (location.state.packageDetails.isYearly ? 262.8 : 24.9),
           // Use the simplest possible URL format for maximum compatibility with Stripe
           // Keep the URL structure as simple as possible - Stripe sometimes has issues with complex URLs
-          // Use payment-verify for React-based verification page WITH port 3000 explicitly
-          success_url: `${baseUrl}:3000/payment-verify?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${baseUrl}:3000/pricing`
+          // Use payment-verify for React-based verification page using environment variable port
+          success_url: `${baseUrl}${portString}/payment-verify?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${baseUrl}${portString}/pricing`
         };
         
         console.log('Checkout payload with success/cancel URLs:', payload);

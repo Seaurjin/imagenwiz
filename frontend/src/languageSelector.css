@@ -1,3 +1,9 @@
+/**
+ * Language selector component styles and overrides
+ * This file provides specific styling for language selectors to ensure
+ * they are properly displayed regardless of their position in the layout
+ */
+
 /* Custom styles to selectively hide the language selector in the footer only */
 
 /* ----- Footer-Specific Language Selector Hiders ----- */
@@ -118,4 +124,66 @@ footer .max-w-7xl > .py-6.flex.flex-col.md\\:flex-row > :last-child:not(.flex.sp
   body:has(footer):not(:has(#language-selector-hidden)) {
     position: relative;
   }
+}
+
+/* Ensure navbar language selectors are always visible */
+nav .relative button[aria-label*="language"],
+.hidden.sm\:ml-6.sm\:flex.sm\:items-center .relative button,
+.sm\:flex.sm\:items-center .space-x-4 .relative button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure their parent containers are visible */
+nav .relative:has(button[aria-label*="language"]),
+.hidden.sm\:ml-6.sm\:flex.sm\:items-center .relative,
+.sm\:flex.sm\:items-center .space-x-4 .relative {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Hide language selector in the footer */
+footer button[aria-label*="language"],
+footer .relative:has(button[aria-label*="language"]) {
+  display: none !important;
+}
+
+/* Ensure the language dropdown menu is visible when opened */
+.relative button[aria-label*="language"] + div:not(.hidden) {
+  display: block !important;
+  z-index: 1000;
+}
+
+/* Enhanced touch targets for mobile */
+@media (max-width: 640px) {
+  button[aria-label*="language"],
+  .MobileLanguageSelector button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Fix RTL language display */
+html[dir="rtl"] button[aria-label*="language"] span,
+html[dir="rtl"] .MobileLanguageSelector button span {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* Ensure button text alignment for RTL languages */
+html[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+/* Language selector specificity overrides */
+.language-selector-button {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.language-dropdown-container {
+  z-index: 1000 !important;
 }

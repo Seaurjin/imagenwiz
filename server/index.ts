@@ -15,8 +15,8 @@ const __dirname = path.dirname(__filename);
 
 // Create Express app
 const app = express();
-// Server port - always use port 5000 as configured in the workflow
-const PORT = 5000;
+// Server port - use environment variable PORT or fall back to 5000
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
 // Middleware
 app.use(cors());

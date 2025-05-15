@@ -27,6 +27,8 @@ export const AuthProvider = ({ children }) => {
   console.log("React environment:", import.meta.env);
   console.log("Current axios baseURL:", axios.defaults.baseURL);
 
+  console.log("[AuthContext] Initial localStorage token:", localStorage.getItem("token") ? localStorage.getItem("token").substring(0,15)+'...' : 'null | undefined');
+
   // Custom setUser function that also updates localStorage
   const updateUser = (userData) => {
     setUser(userData);
@@ -44,12 +46,13 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       localStorage.setItem("token", token);
-      console.log("Set auth token:", token.substring(0, 15) + "...");
+      console.log("[AuthContext] setAuthToken: SUCCESSFULLY SET localStorage 'token' to:", token ? token.substring(0, 15) + '...' : 'null | undefined');
+      console.log("[AuthContext] setAuthToken: localStorage.getItem('token') now returns:", localStorage.getItem("token") ? localStorage.getItem("token").substring(0,15)+'...' : 'null | undefined');
     } else {
       delete axios.defaults.headers.common["Authorization"];
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      console.log("Cleared auth token and user");
+      console.log("[AuthContext] setAuthToken: CLEARED localStorage 'token' and 'user'");
     }
   };
 
@@ -95,7 +98,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       setError(null);
-      console.log("Login attempt for:", username);
+      console.log("[AuthContext] login: Attempting for:", username);
 
       // Direct fetch approach with Express proxy route
       // Add timestamp to prevent caching
@@ -116,23 +119,25 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      console.log("Login response:", data);
+      console.log("[AuthContext] login: API Response data:", data);
 
       if (!data.access_token) {
+        console.error("[AuthContext] login: No access_token in response!");
         throw new Error("Missing access_token in login response");
       }
-
       if (!data.user) {
+        console.error("[AuthContext] login: No user data in response!");
         throw new Error("Missing user data in login response");
       }
 
-      // Set auth state with response data
+      console.log("[AuthContext] login: Preparing to call setToken and setAuthToken with token:", data.access_token ? data.access_token.substring(0,15)+'...' : 'null | undefined');
       setToken(data.access_token);
       updateUser(data.user);
-      setAuthToken(data.access_token);
+      setAuthToken(data.access_token); // This call should store it
+      console.log("[AuthContext] login: FINISHED setting token and user state. localStorage token should now be set.");
       return data;
     } catch (err) {
-      console.error("Login error:", err.message);
+      console.error("[AuthContext] login: Login error:", err.message, err.stack);
       setError(err.message || "Login failed. Check your credentials.");
       throw err;
     }
@@ -263,58 +268,47 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       if (token) {
+        console.log("[AuthContext] useEffect: Token found in state, attempting to load user. Token:", token.substring(0,15)+'...');
+        let clearTokenAndUser = false;
         try {
-          // Set auth token in headers
-          setAuthToken(token);
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-          // Check if token is expired
-          try {
-            const decoded = jwtDecode(token);
-            if (decoded.exp * 1000 < Date.now()) {
-              console.log("Token expired, logging out");
-              setToken(null);
-              updateUser(null);
-              setAuthToken(null);
-              setLoading(false);
-              return;
-            }
-          } catch (jwtError) {
-            console.error("JWT decode error:", jwtError);
-            setToken(null);
-            updateUser(null);
-            setAuthToken(null);
-            setLoading(false);
-            return;
-          }
-
-          // Get user data using fetch instead of axios
-          // Add timestamp to prevent caching
           const userTimestamp = new Date().getTime();
           const userUrl = `/api/auth/user?t=${userTimestamp}`;
-          console.log("Making user fetch request to:", userUrl);
+          console.log("[AuthContext] useEffect: Making user fetch request to:", userUrl);
           const response = await fetch(userUrl, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { 'Authorization': `Bearer ${token}` },
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error ${response.status}`);
+            console.error(`[AuthContext] useEffect: HTTP error ${response.status} fetching user. Status: ${response.statusText}`);
+            if (response.status === 401 || response.status === 403) {
+              console.warn("[AuthContext] useEffect: Token rejected by server when fetching user.");
+              clearTokenAndUser = true; // Token is invalid according to the server
+            }
+            // For other server errors (5xx), don't clear the token, server might be temporarily down.
           }
 
-          const data = await response.json();
-          console.log("User data response:", data);
-
-          // Handle different response formats
-          if (data.user) {
-            updateUser(data.user);
-          } else if (data && data.id) {
-            updateUser(data);
-          } else {
-            throw new Error("Invalid user data format");
+          if (!clearTokenAndUser) {
+            const data = await response.json();
+            console.log("[AuthContext] useEffect: User data response:", data);
+            if (data.user) {
+              updateUser(data.user);
+            } else if (data && data.id) {
+              updateUser(data);
+            } else {
+              console.error("[AuthContext] useEffect: Invalid user data format from /api/auth/user.");
+              // Potentially clear token if user data is essential and format is wrong, 
+              // but for now, let's assume a malformed response isn't a token issue itself.
+            }
           }
         } catch (err) {
-          console.error("Error loading user:", err);
+          console.error("[AuthContext] useEffect: Error during loadUser process (e.g., network issue fetching user):", err);
+          // Don't clear token for general network errors. Only if server explicitly rejects token (401/403)
+        }
+
+        if (clearTokenAndUser) {
+          console.log("[AuthContext] useEffect: Clearing token and user due to server rejection of token.");
           setToken(null);
           updateUser(null);
           setAuthToken(null);

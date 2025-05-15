@@ -147,6 +147,15 @@ const CreditUsageCard: React.FC = () => {
         <div className="mt-2">
           <span className="font-medium">{user?.credits || 0}</span> credits remaining
         </div>
+        
+        <div className="mt-4">
+          <a 
+            href="/pricing" 
+            className="inline-block bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium py-2 px-4 rounded transition-colors"
+          >
+            Add more credits
+          </a>
+        </div>
       </div>
     </div>
   );

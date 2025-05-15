@@ -13,7 +13,8 @@ export const processImage = async (imageFile) => {
     throw new Error('No image file provided');
   }
 
-  const API_URL = 'http://8.130.113.102:5000/api/process-image-api';
+  // Use environment variable with fallback to the original URL
+  const API_URL = import.meta.env.VITE_IMAGE_PROCESSING_API || '/api/process-image-api';
   
   // Create form data
   const formData = new FormData();

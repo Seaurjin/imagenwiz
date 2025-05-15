@@ -3,25 +3,41 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from app.models.models import User
 from app import db
 from . import bp
+import requests
+
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
+
 
 @bp.route('/register', methods=['POST'])
 def register():
     """Register a new user"""
     data = request.get_json()
-    
     # Check if required fields are provided
-    if not data or not data.get('username') or not data.get('password'):
+    if not data or not data.get('username') or not data.get('password') or not data.get("googleToken"):
         return jsonify({"error": "Missing username or password"}), 400
     
+    token = data.get("googleToken")
+    userinfo_response = requests.get(
+            GOOGLE_USERINFO_URL,
+            headers={"Authorization": f"Bearer {token}"}
+        )
+    if userinfo_response.status_code != 200:
+        return jsonify({"error": "Invalid Google token"}), 400
+
+    userinfo = userinfo_response.json()
+    email = userinfo.get("email")
+
     # Check if username already exists
-    existing_user = User.query.filter_by(username=data['username']).first()
+    existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({"error": "Username already exists"}), 400
     
     # Create new user
     new_user = User(
         username=data['username'],
-        credits=0  # New users start with 0 credits
+        credits=3,  # New users start with 0 credits
+        email=email,
+        credit_balance=3
     )
     new_user.set_password(data['password'])
     

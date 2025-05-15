@@ -2,6 +2,9 @@
  * Script to verify user credit balance after payments
  */
 import axios from 'axios';
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Verify user info including credit balance
 async function verifyUserCredits() {
@@ -10,7 +13,7 @@ async function verifyUserCredits() {
   try {
     // Login first to get the auth token
     console.log('Logging in as testuser2...');
-    const loginResponse = await axios.post('http://localhost:3000/api/auth/login', {
+    const loginResponse = await axios.post(`${FRONTEND_URL}/api/auth/login`, {
       username: 'testuser2',
       password: 'password123'
     });

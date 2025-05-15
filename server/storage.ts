@@ -1,169 +1,172 @@
-import { users, type User, type InsertUser, BlogPost, InsertBlogPost, blogPosts, languages, Language, InsertLanguage, blogTranslations, BlogTranslation, InsertBlogTranslation, settings, Setting, InsertSetting } from "../shared/schema";
-import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq } from 'drizzle-orm';
+import { db } from './db';
+import { 
+  users, User, InsertUser, 
+  processingJobs, ProcessingJob, InsertProcessingJob,
+  payments, Payment, InsertPayment,
+  languages, Language, InsertLanguage,
+  settings, Setting, InsertSetting
+} from '@shared/schema';
 
-// Storage interface for all data operations
+// Storage interface
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(insertUser: InsertUser): Promise<User>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUserCredits(userId: number, credits: number): Promise<User | undefined>;
+  updateUserRole(userId: number, role: string): Promise<User | undefined>;
   
-  // Blog operations
-  getBlogPost(id: number): Promise<BlogPost | undefined>;
-  getBlogPostBySlug(slug: string): Promise<BlogPost | undefined>;
-  getBlogPosts(limit?: number, offset?: number): Promise<BlogPost[]>;
-  createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost>;
+  // Processing job operations
+  createProcessingJob(job: InsertProcessingJob): Promise<ProcessingJob>;
+  getProcessingJob(id: number): Promise<ProcessingJob | undefined>;
+  getProcessingJobsByUser(userId: number): Promise<ProcessingJob[]>;
+  updateProcessingJobStatus(id: number, status: string, processedImageUrl?: string): Promise<ProcessingJob | undefined>;
   
-  // Blog translation operations
-  getBlogTranslation(postId: number, langCode: string): Promise<BlogTranslation | undefined>;
-  getBlogTranslations(postId: number): Promise<BlogTranslation[]>;
-  createBlogTranslation(insertBlogTranslation: InsertBlogTranslation): Promise<BlogTranslation>;
+  // Payment operations
+  createPayment(payment: InsertPayment): Promise<Payment>;
+  getPaymentsByUser(userId: number): Promise<Payment[]>;
   
   // Language operations
-  getLanguage(id: number): Promise<Language | undefined>;
-  getLanguageByCode(code: string): Promise<Language | undefined>;
   getLanguages(): Promise<Language[]>;
-  createLanguage(insertLanguage: InsertLanguage): Promise<Language>;
+  getLanguage(code: string): Promise<Language | undefined>;
+  createLanguage(language: InsertLanguage): Promise<Language>;
   
   // Settings operations
-  getSetting(key: string): Promise<Setting | undefined>;
   getSettings(): Promise<Setting[]>;
-  createSetting(insertSetting: InsertSetting): Promise<Setting>;
+  getSetting(key: string): Promise<Setting | undefined>;
+  createSetting(setting: InsertSetting): Promise<Setting>;
   updateSetting(key: string, value: string): Promise<Setting | undefined>;
 }
 
-// DatabaseStorage implementation using Drizzle ORM
+// Database storage implementation
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
-  }
-  
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user || undefined;
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result[0];
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(user).returning();
+    return result[0];
+  }
+
+  async updateUserCredits(userId: number, credits: number): Promise<User | undefined> {
+    const result = await db
+      .update(users)
+      .set({ credits })
+      .where(eq(users.id, userId))
       .returning();
-    return user;
+    return result[0];
   }
-  
-  // Blog operations
-  async getBlogPost(id: number): Promise<BlogPost | undefined> {
-    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
-    return post || undefined;
-  }
-  
-  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
-    return post || undefined;
-  }
-  
-  async getBlogPosts(limit = 10, offset = 0): Promise<BlogPost[]> {
-    return db.select()
-      .from(blogPosts)
-      .orderBy(desc(blogPosts.createdAt))
-      .limit(limit)
-      .offset(offset);
-  }
-  
-  async createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost> {
-    const [post] = await db
-      .insert(blogPosts)
-      .values(insertBlogPost)
+
+  async updateUserRole(userId: number, role: string): Promise<User | undefined> {
+    const result = await db
+      .update(users)
+      .set({ role })
+      .where(eq(users.id, userId))
       .returning();
-    return post;
+    return result[0];
   }
-  
-  // Blog translation operations
-  async getBlogTranslation(postId: number, langCode: string): Promise<BlogTranslation | undefined> {
-    const [translation] = await db.select()
-      .from(blogTranslations)
-      .where(
-        and(
-          eq(blogTranslations.postId, postId),
-          eq(blogTranslations.langCode, langCode)
-        )
-      );
-    return translation || undefined;
+
+  // Processing job operations
+  async createProcessingJob(job: InsertProcessingJob): Promise<ProcessingJob> {
+    const result = await db.insert(processingJobs).values(job).returning();
+    return result[0];
   }
-  
-  async getBlogTranslations(postId: number): Promise<BlogTranslation[]> {
-    return db.select()
-      .from(blogTranslations)
-      .where(eq(blogTranslations.postId, postId));
+
+  async getProcessingJob(id: number): Promise<ProcessingJob | undefined> {
+    const result = await db.select().from(processingJobs).where(eq(processingJobs.id, id));
+    return result[0];
   }
-  
-  async createBlogTranslation(insertBlogTranslation: InsertBlogTranslation): Promise<BlogTranslation> {
-    const [translation] = await db
-      .insert(blogTranslations)
-      .values(insertBlogTranslation)
+
+  async getProcessingJobsByUser(userId: number): Promise<ProcessingJob[]> {
+    return db.select().from(processingJobs).where(eq(processingJobs.userId, userId));
+  }
+
+  async updateProcessingJobStatus(id: number, status: string, processedImageUrl?: string): Promise<ProcessingJob | undefined> {
+    const updateData: any = { 
+      status, 
+      updatedAt: new Date() 
+    };
+    
+    if (processedImageUrl) {
+      updateData.processedImageUrl = processedImageUrl;
+    }
+    
+    const result = await db
+      .update(processingJobs)
+      .set(updateData)
+      .where(eq(processingJobs.id, id))
       .returning();
-    return translation;
+      
+    return result[0];
   }
-  
+
+  // Payment operations
+  async createPayment(payment: InsertPayment): Promise<Payment> {
+    const result = await db.insert(payments).values(payment).returning();
+    return result[0];
+  }
+
+  async getPaymentsByUser(userId: number): Promise<Payment[]> {
+    return db.select().from(payments).where(eq(payments.userId, userId));
+  }
+
   // Language operations
-  async getLanguage(id: number): Promise<Language | undefined> {
-    const [language] = await db.select().from(languages).where(eq(languages.id, id));
-    return language || undefined;
-  }
-  
-  async getLanguageByCode(code: string): Promise<Language | undefined> {
-    const [language] = await db.select().from(languages).where(eq(languages.code, code));
-    return language || undefined;
-  }
-  
   async getLanguages(): Promise<Language[]> {
-    return db.select().from(languages).where(eq(languages.isActive, true));
+    return db.select().from(languages);
   }
-  
-  async createLanguage(insertLanguage: InsertLanguage): Promise<Language> {
-    const [language] = await db
-      .insert(languages)
-      .values(insertLanguage)
-      .returning();
-    return language;
+
+  async getLanguage(code: string): Promise<Language | undefined> {
+    const result = await db.select().from(languages).where(eq(languages.code, code));
+    return result[0];
+  }
+
+  async createLanguage(language: InsertLanguage): Promise<Language> {
+    const result = await db.insert(languages).values(language).returning();
+    return result[0];
   }
   
   // Settings operations
-  async getSetting(key: string): Promise<Setting | undefined> {
-    const [setting] = await db.select().from(settings).where(eq(settings.key, key));
-    return setting || undefined;
-  }
-  
   async getSettings(): Promise<Setting[]> {
     return db.select().from(settings);
   }
   
-  async createSetting(insertSetting: InsertSetting): Promise<Setting> {
-    const [setting] = await db
-      .insert(settings)
-      .values(insertSetting)
-      .returning();
-    return setting;
+  async getSetting(key: string): Promise<Setting | undefined> {
+    const result = await db.select().from(settings).where(eq(settings.key, key));
+    return result[0];
+  }
+  
+  async createSetting(setting: InsertSetting): Promise<Setting> {
+    const result = await db.insert(settings).values(setting).returning();
+    return result[0];
   }
   
   async updateSetting(key: string, value: string): Promise<Setting | undefined> {
-    const [setting] = await db
+    const result = await db
       .update(settings)
-      .set({ value })
+      .set({ 
+        value, 
+        updatedAt: new Date() 
+      })
       .where(eq(settings.key, key))
       .returning();
-    return setting;
+    return result[0];
   }
 }
 
-// Export a singleton instance
+// Create and export the storage instance
 export const storage = new DatabaseStorage();

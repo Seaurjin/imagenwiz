@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from './LanguageSelector';
 import MobileLanguageSelector from './MobileLanguageSelector';
+import ErrorBoundary from './ErrorBoundary';
 
 // Logo component that matches the screenshot
 const Logo = () => (
   <div className="flex items-center">
-    <div className="flex border border-gray-200 p-1 mr-2">
-      <div className="w-4 h-4 bg-teal-500 mr-0.5"></div>
-      <div className="w-4 h-4 bg-teal-300 mr-0.5"></div>
-      <div className="w-4 h-4 bg-teal-100"></div>
-    </div>
-    <span className="text-teal-500 font-semibold text-xl">iMagenWiz</span>
+    <img 
+      src="/images/imagenwiz-logo-navbar.svg" 
+      alt="iMagenWiz" 
+      className="h-8" 
+    />
   </div>
 );
 
@@ -24,7 +24,6 @@ const Navbar = () => {
   const { t, i18n } = useTranslation('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(i18n.language);
-  const languageSelectorRef = useRef(null);
 
   // Listen for language changes from anywhere in the app
   useEffect(() => {
@@ -46,38 +45,6 @@ const Navbar = () => {
       i18n.off('languageChanged', onLanguageChanged);
     };
   }, [i18n]);
-  
-  // Effect to ensure language selector is visible
-  useEffect(() => {
-    // Function to ensure language selector visibility
-    const ensureLanguageSelectorVisible = () => {
-      if (languageSelectorRef.current) {
-        // Set explicit visibility styles
-        languageSelectorRef.current.style.display = 'flex';
-        languageSelectorRef.current.style.visibility = 'visible';
-        languageSelectorRef.current.style.opacity = '1';
-        languageSelectorRef.current.style.pointerEvents = 'auto';
-        console.log('✅ Language selector visibility enforced');
-      }
-    };
-    
-    // Run immediately and after a delay to ensure it catches any style changes
-    ensureLanguageSelectorVisible();
-    const timers = [
-      setTimeout(ensureLanguageSelectorVisible, 500),
-      setTimeout(ensureLanguageSelectorVisible, 1000),
-      setTimeout(ensureLanguageSelectorVisible, 2000)
-    ];
-    
-    // Also run on window resize which can trigger layout changes
-    window.addEventListener('resize', ensureLanguageSelectorVisible);
-    
-    // Cleanup
-    return () => {
-      timers.forEach(timer => clearTimeout(timer));
-      window.removeEventListener('resize', ensureLanguageSelectorVisible);
-    };
-  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -202,10 +169,12 @@ const Navbar = () => {
                   </div>
                 </div>
                 
-                <LanguageSelector variant="outline" />
+                <ErrorBoundary>
+                  <LanguageSelector variant="outline" />
+                </ErrorBoundary>
               </div>
             ) : (
-              <div className="space-x-4">
+              <div className="flex items-center space-x-4">
                 <Link
                   to="/login"
                   className="text-gray-600 hover:text-teal-500 px-3 py-2 rounded-md text-sm font-medium"
@@ -218,7 +187,9 @@ const Navbar = () => {
                 >
                   {t('nav.register')}
                 </Link>
-                <LanguageSelector variant="outline" />
+                <ErrorBoundary>
+                  <LanguageSelector variant="outline" />
+                </ErrorBoundary>
               </div>
             )}
           </div>
@@ -267,125 +238,127 @@ const Navbar = () => {
       </div>
 
       {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="sm:hidden">
-          <div className="flex items-center px-4 pt-2 pb-2 border-b border-gray-200">
-            {logos.navbar && (
-              <img 
-                src={logos.navbar} 
-                alt="Logo" 
-                className="h-8 w-auto mr-2" 
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.style.display = 'none';
-                }}
-              />
-            )}
-            <span className="font-bold text-teal-600 text-xl">iMagenWiz</span>
-          </div>
-          <div className="pt-2 pb-3 space-y-1 nav-links">
-            <Link
-              to="/"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-            >
-              {t('nav.home')}
-            </Link>
-            {isAuthenticated && (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.dashboard')}
-                </Link>
-                <Link
-                  to="/history"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.history', 'History')}
-                </Link>
-              </>
-            )}
-            <Link
-              to="/pricing"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-            >
-              {t('nav.pricing')}
-            </Link>
-            <Link
-              to="/blog"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-            >
-              {t('nav.blog')}
-            </Link>
-            {/* Admin menu items - mobile */}
-            {isAuthenticated && user && user.is_admin === true && (
-              <>
-                <Link
-                  to="/cms"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.editor', 'CMS')}
-                </Link>
-                <Link
-                  to="/admin/settings"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.settings', 'Settings')}
-                </Link>
-                <Link
-                  to="/admin/translations"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  <span className="text-teal-600">✓</span> Blog Translations
-                </Link>
-              </>
-            )}
-          </div>
+      <div className={`${isMenuOpen ? 'block' : 'hidden'} sm:hidden`}>
+        <div className="pt-2 pb-3 space-y-1">
+          <Link
+            to="/"
+            className="border-transparent text-gray-500 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            {t('nav.home')}
+          </Link>
+          {isAuthenticated && (
+            <>
+              <Link
+                to="/dashboard"
+                className="border-transparent text-gray-500 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.dashboard')}
+              </Link>
+              <Link
+                to="/history"
+                className="border-transparent text-gray-500 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.history')}
+              </Link>
+            </>
+          )}
+          <Link
+            to="/pricing"
+            className="border-transparent text-gray-500 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            {t('nav.pricing')}
+          </Link>
+          <Link
+            to="/blog"
+            className="border-transparent text-gray-500 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            {t('nav.blog')}
+          </Link>
+          {/* Admin menu items - mobile */}
+          {isAuthenticated && user && user.is_admin === true && (
+            <>
+              <Link
+                to="/cms"
+                className="border-transparent text-gray-500 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.editor', 'CMS')}
+              </Link>
+              <Link
+                to="/admin/settings"
+                className="border-transparent text-gray-500 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.settings', 'Settings')}
+              </Link>
+            </>
+          )}
+        </div>
+        {isAuthenticated ? (
           <div className="pt-4 pb-3 border-t border-gray-200">
-            {isAuthenticated ? (
-              <div className="space-y-1">
-                <div className="pl-3 pr-4 py-2 text-gray-700">
+            <div className="flex items-center px-4">
+              <div className="ml-3">
+                <div className="text-base font-medium text-gray-800">{user?.username}</div>
+                <div className="text-sm font-medium text-gray-500">
                   {t('common.credits')}: {user?.credits || 0}
                 </div>
-                <Link
-                  to="/profile"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.account')}
-                </Link>
-                <button
-                  onClick={logout}
-                  className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.logout')}
-                </button>
-                <div className="pl-3 pr-4 py-2">
-                  <MobileLanguageSelector />
-                </div>
               </div>
-            ) : (
-              <div className="space-y-1">
-                <Link
-                  to="/login"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.login')}
-                </Link>
-                <Link
-                  to="/register"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-teal-500 hover:text-gray-800"
-                >
-                  {t('nav.register')}
-                </Link>
-                <div className="pl-3 pr-4 py-2">
-                  <MobileLanguageSelector />
-                </div>
+            </div>
+            <div className="mt-3 space-y-1">
+              <Link
+                to="/profile"
+                className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.account')}
+              </Link>
+              <button
+                onClick={() => {
+                  logout();
+                  setIsMenuOpen(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+              >
+                {t('nav.logout')}
+              </button>
+              <div className="px-4 py-2">
+                <ErrorBoundary>
+                  <MobileLanguageSelector onSelect={() => setIsMenuOpen(false)} />
+                </ErrorBoundary>
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="pt-4 pb-3 border-t border-gray-200">
+            <div className="flex flex-col space-y-3 px-4">
+              <Link
+                to="/login"
+                className="text-center w-full bg-white border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md hover:bg-gray-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.login')}
+              </Link>
+              <Link
+                to="/register"
+                className="text-center w-full bg-teal-500 text-white font-medium py-2 px-4 rounded-md hover:bg-teal-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.register')}
+              </Link>
+              <div className="py-2">
+                <ErrorBoundary>
+                  <MobileLanguageSelector onSelect={() => setIsMenuOpen(false)} />
+                </ErrorBoundary>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </nav>
   );
 };

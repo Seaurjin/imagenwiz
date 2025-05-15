@@ -1,81 +1,108 @@
-// This file defines the database schema and types
-import { pgTable, serial, text, varchar, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
-// User model
+// Users table
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  username: varchar('username', { length: 50 }).notNull().unique(),
-  email: varchar('email', { length: 100 }).notNull().unique(),
-  password: varchar('password', { length: 255 }).notNull(),
-  isAdmin: boolean('is_admin').default(false).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  username: text('username').notNull().unique(),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(),
+  fullName: text('full_name'),
+  role: text('role').default('user').notNull(),
+  credits: integer('credits').default(0).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
-// User types
+// User relations
+export const usersRelations = relations(users, ({ many }) => ({
+  processingJobs: many(processingJobs),
+  payments: many(payments)
+}));
+
+// Processing jobs table
+export const processingJobs = pgTable('processing_jobs', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  originalImageUrl: text('original_image_url').notNull(),
+  processedImageUrl: text('processed_image_url'),
+  jobType: text('job_type').notNull(), // 'background_removal', 'enhancement', etc.
+  status: text('status').notNull().default('pending'), // 'pending', 'processing', 'completed', 'failed'
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+});
+
+// Processing jobs relations
+export const processingJobsRelations = relations(processingJobs, ({ one }) => ({
+  user: one(users, {
+    fields: [processingJobs.userId],
+    references: [users.id]
+  })
+}));
+
+// Payments table
+export const payments = pgTable('payments', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  amount: integer('amount').notNull(), // Amount in cents
+  credits: integer('credits').notNull(),
+  status: text('status').notNull(), // 'completed', 'pending', 'failed'
+  stripeSessionId: text('stripe_session_id'),
+  planType: text('plan_type').notNull(), // 'lite', 'pro'
+  isYearly: boolean('is_yearly').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Payments relations
+export const paymentsRelations = relations(payments, ({ one }) => ({
+  user: one(users, {
+    fields: [payments.userId],
+    references: [users.id]
+  })
+}));
+
+// Languages table for multilingual support
+export const languages = pgTable('languages', {
+  id: serial('id').primaryKey(),
+  code: text('code').notNull().unique(), // e.g., 'en', 'es', 'fr'
+  name: text('name').notNull(), // e.g., 'English', 'Spanish', 'French'
+  nativeName: text('native_name').notNull(), // e.g., 'English', 'Español', 'Français'
+  isRtl: boolean('is_rtl').default(false).notNull(),
+  flagCode: text('flag_code'), // For flag icons
+  isActive: boolean('is_active').default(true).notNull()
+});
+
+// Settings table for application settings
+export const settings = pgTable('settings', {
+  id: serial('id').primaryKey(),
+  key: text('key').notNull().unique(),
+  value: text('value'),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+});
+
+// Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertProcessingJobSchema = createInsertSchema(processingJobs).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPaymentSchema = createInsertSchema(payments).omit({ id: true, createdAt: true });
+export const insertLanguageSchema = createInsertSchema(languages).omit({ id: true });
+export const insertSettingSchema = createInsertSchema(settings).omit({ id: true, createdAt: true, updatedAt: true });
+
+// Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
-// Blog post model
-export const blogPosts = pgTable('blog_posts', {
-  id: serial('id').primaryKey(),
-  slug: varchar('slug', { length: 255 }).notNull().unique(),
-  authorId: integer('author_id').notNull().references(() => users.id),
-  published: boolean('published').default(false).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+export type ProcessingJob = typeof processingJobs.$inferSelect;
+export type InsertProcessingJob = z.infer<typeof insertProcessingJobSchema>;
 
-// Blog post types
-export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({ id: true, createdAt: true, updatedAt: true });
-export type BlogPost = typeof blogPosts.$inferSelect;
-export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
 
-// Blog post translations
-export const blogTranslations = pgTable('blog_translations', {
-  id: serial('id').primaryKey(),
-  postId: integer('post_id').notNull().references(() => blogPosts.id),
-  langCode: varchar('lang_code', { length: 10 }).notNull(),
-  title: varchar('title', { length: 255 }).notNull(),
-  content: text('content').notNull(),
-  metaTitle: varchar('meta_title', { length: 255 }),
-  metaDescription: text('meta_description'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-// Blog post translation types
-export const insertBlogTranslationSchema = createInsertSchema(blogTranslations).omit({ id: true, createdAt: true, updatedAt: true });
-export type BlogTranslation = typeof blogTranslations.$inferSelect;
-export type InsertBlogTranslation = z.infer<typeof insertBlogTranslationSchema>;
-
-// Language model
-export const languages = pgTable('languages', {
-  id: serial('id').primaryKey(),
-  code: varchar('code', { length: 10 }).notNull().unique(),
-  name: varchar('name', { length: 50 }).notNull(),
-  nativeName: varchar('native_name', { length: 100 }).notNull(),
-  flag: varchar('flag', { length: 10 }),
-  isRtl: boolean('is_rtl').default(false).notNull(),
-  isActive: boolean('is_active').default(true).notNull(),
-});
-
-// Language types
-export const insertLanguageSchema = createInsertSchema(languages).omit({ id: true });
 export type Language = typeof languages.$inferSelect;
 export type InsertLanguage = z.infer<typeof insertLanguageSchema>;
 
-// Settings model for storing app configuration
-export const settings = pgTable('settings', {
-  id: serial('id').primaryKey(),
-  key: varchar('key', { length: 50 }).notNull().unique(),
-  value: text('value'),
-  type: varchar('type', { length: 20 }).default('string').notNull(),
-});
-
-// Settings types
-export const insertSettingSchema = createInsertSchema(settings).omit({ id: true });
 export type Setting = typeof settings.$inferSelect;
 export type InsertSetting = z.infer<typeof insertSettingSchema>;

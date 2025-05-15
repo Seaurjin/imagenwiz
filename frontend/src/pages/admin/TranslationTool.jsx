@@ -14,7 +14,6 @@ const TranslationTool = () => {
   const [error, setError] = useState(null);
   const [batchSize, setBatchSize] = useState(10);
   const [usePlaceholder, setUsePlaceholder] = useState(true);
-  const [forceTranslate, setForceTranslate] = useState(false);
 
   // Redirect non-admin users
   React.useEffect(() => {
@@ -31,7 +30,6 @@ const TranslationTool = () => {
       const response = await axios.post('/api/cms/posts/auto-translate-all', {
         batch_size: parseInt(batchSize),
         placeholder_mode: usePlaceholder,
-        force_translate: forceTranslate
       });
 
       setResult(response.data);
@@ -82,17 +80,6 @@ const TranslationTool = () => {
               />
               <span>Use Placeholder Mode</span>
               <p className="text-xs text-gray-500 ml-6">Creates placeholder translations instead of using DeepSeek AI</p>
-            </label>
-            
-            <label className="flex items-center">
-              <input 
-                type="checkbox" 
-                checked={forceTranslate}
-                onChange={(e) => setForceTranslate(e.target.checked)}
-                className="mr-2"
-              />
-              <span>Force Translate All</span>
-              <p className="text-xs text-gray-500 ml-6">Overwrite existing translations (even manually edited ones)</p>
             </label>
           </div>
         </div>

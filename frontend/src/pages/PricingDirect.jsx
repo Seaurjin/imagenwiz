@@ -308,7 +308,7 @@ const PricingDirect = () => {
           {pricingPlans.map((plan) => (
             <div
               key={plan.id}
-              className={`rounded-lg shadow-lg divide-y divide-gray-200 ${
+              className={`rounded-lg shadow-lg divide-y divide-gray-200 flex flex-col ${
                 plan.mostPopular ? 'border-2 border-amber-500' : 'border border-gray-200'
               }`}
             >
@@ -317,8 +317,13 @@ const PricingDirect = () => {
                   {getText('popular', 'Most Popular')}
                 </div>
               )}
+              {!plan.mostPopular && (
+                <div className="py-2 invisible">
+                  {/* This empty div maintains consistent height across all cards */}
+                </div>
+              )}
 
-              <div className="p-6">
+              <div className="p-6 flex-1">
                 <h2 className="text-2xl font-medium text-gray-900">
                   {currentLanguage === 'el' && plan.key === 'free' ? 'Δωρεάν' :
                    currentLanguage === 'el' && plan.key === 'lite' ? 'Lite' :
@@ -334,7 +339,7 @@ const PricingDirect = () => {
                    currentLanguage === 'zh-TW' && plan.key === 'pro' ? '專業版' :
                    plan.name}
                 </h2>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-gray-500 h-14">
                   {currentLanguage === 'el' && plan.key === 'free' ? 'Για άτομα που θέλουν να δοκιμάσουν την υπηρεσία μας' :
                    currentLanguage === 'el' && plan.key === 'lite' ? 'Για άτομα και μικρές ομάδες με τακτικές ανάγκες' :
                    currentLanguage === 'el' && plan.key === 'pro' ? 'Για επαγγελματίες και επιχειρήσεις με ανάγκες μεγάλου όγκου' :
@@ -364,25 +369,27 @@ const PricingDirect = () => {
                 </p>
               </div>
 
-              <div className="pt-6 pb-8 px-6">
-                <ul className="space-y-4">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="flex-shrink-0">
-                        <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
-                      </div>
-                      <p className="ml-3 text-sm text-gray-500">{feature}</p>
-                    </li>
-                  ))}
-                  {plan.notIncluded && plan.notIncluded.map((feature, index) => (
-                    <li key={`not-${index}`} className="flex items-start opacity-50">
-                      <div className="flex-shrink-0">
-                        <XIcon className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <p className="ml-3 text-sm text-gray-400">{feature}</p>
-                    </li>
-                  ))}
-                </ul>
+              <div className="pt-6 pb-8 px-6 flex flex-col">
+                <div className="flex-1">
+                  <ul className="space-y-4">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
+                        </div>
+                        <p className="ml-3 text-sm text-gray-500">{feature}</p>
+                      </li>
+                    ))}
+                    {plan.notIncluded && plan.notIncluded.map((feature, index) => (
+                      <li key={`not-${index}`} className="flex items-start opacity-50">
+                        <div className="flex-shrink-0">
+                          <XIcon className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <p className="ml-3 text-sm text-gray-400">{feature}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
                 <div className="mt-8">
                   <button

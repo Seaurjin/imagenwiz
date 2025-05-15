@@ -6,6 +6,7 @@ import Layout from '../../components/Layout';
 import { getTags } from '../../lib/cms-service';
 import BlogList from '../../components/blog/BlogList';
 import LanguageSelector from '../../components/LanguageSelector';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { 
   Tag, 
   ChevronDown, 
@@ -274,7 +275,9 @@ const BlogHomePage = () => {
               
               {/* Language Selector */}
               <div>
-                <LanguageSelector variant="outline" />
+                <ErrorBoundary>
+                  <LanguageSelector variant="outline" />
+                </ErrorBoundary>
               </div>
               
               {/* Clear Filters */}

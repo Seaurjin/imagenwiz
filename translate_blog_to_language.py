@@ -62,6 +62,10 @@ def translate_blog_to_language(target_language_code):
         for post in posts:
             print(f"\nProcessing post: {post.slug}")
             
+            # Check if the original post has a featured image
+            has_featured_image = post.featured_image is not None and post.featured_image.strip() != ''
+            print(f"  Post has featured image: {has_featured_image}")
+            
             # Get English translation
             english_translation = next((t for t in post.translations if t.language_code == 'en'), None)
             if not english_translation:
@@ -120,6 +124,11 @@ def translate_blog_to_language(target_language_code):
                         )
                         db.session.add(new_translation)
                         print(f"  Created new {target_language_code} translation")
+                    
+                    # If the original post doesn't have a featured image, ensure it's not set
+                    if not has_featured_image and post.featured_image:
+                        print(f"  Removing featured image from post {post.slug} since it shouldn't have one")
+                        post.featured_image = None
                     
                     # Commit changes for this post
                     db.session.commit()

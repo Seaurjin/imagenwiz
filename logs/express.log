@@ -1,0 +1,81 @@
+[2025-04-25T16:01:09.642Z] 🚀 Starting Express frontend...
+[2025-04-25T16:01:12.432Z] 🚀 [Express] Using Flask backend URL: http://localhost:5001
+[2025-04-25T16:01:12.433Z] 🚀 [Express] Starting Express server with frontend static files
+Current directory: /home/runner/workspace
+__dirname: /home/runner/workspace/server
+Checking for frontend build directories:
+- Checking: /home/runner/workspace/frontend/dist
+✅ Found valid frontend path with index.html: /home/runner/workspace/frontend/dist
+Using frontend path: /home/runner/workspace/frontend/dist
+[2025-04-25T16:01:12.435Z] 🚀 [Express] Files in /home/runner/workspace/frontend/dist: [
+  'assets',
+  'favicon.ico',
+  'favicon.svg',
+  'images',
+  'index.html',
+  'test-login.html',
+  'test-order-confirmation.html'
+]
+[2025-04-25T16:01:12.436Z] 🚀 [Express] 🔍 Checking if Flask backend is running...
+[2025-04-25T16:01:12.447Z] 🚀 [Express] 🌐 Setting up static file serving from: /home/runner/workspace/frontend/dist
+[2025-04-25T16:01:12.455Z] 🚀 [Express] 🔍 Checking if Flask backend is running...
+[2025-04-25T16:01:12.458Z] 🚀 [Express] 📝 Registering payment handler middleware for fallback responses
+[2025-04-25T16:01:12.464Z] 🚀 [Express Error] node:events:496
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use 0.0.0.0:3000
+    at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+    at listenInCluster (node:net:1965:12)
+    at doListen (node:net:2139:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1944:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 3000
+}
+
+Node.js v20.18.1
+[2025-04-25T16:01:12.504Z] ❌ Express frontend exited with code 1
+[2025-04-25T16:01:49.890Z] 🚀 Starting Express frontend...
+[2025-04-25T16:01:52.490Z] 🚀 [Express] Using Flask backend URL: http://localhost:5001
+[2025-04-25T16:01:52.492Z] 🚀 [Express] Starting Express server with frontend static files
+Current directory: /home/runner/workspace
+__dirname: /home/runner/workspace/server
+Checking for frontend build directories:
+- Checking: /home/runner/workspace/frontend/dist
+✅ Found valid frontend path with index.html: /home/runner/workspace/frontend/dist
+Using frontend path: /home/runner/workspace/frontend/dist
+[2025-04-25T16:01:52.493Z] 🚀 [Express] Files in /home/runner/workspace/frontend/dist: [
+  'assets',
+  'favicon.ico',
+  'favicon.svg',
+  'images',
+  'index.html',
+  'test-login.html',
+  'test-order-confirmation.html'
+]
+[2025-04-25T16:01:52.494Z] 🚀 [Express] 🔍 Checking if Flask backend is running...
+[2025-04-25T16:01:52.505Z] 🚀 [Express] 🌐 Setting up static file serving from: /home/runner/workspace/frontend/dist
+[2025-04-25T16:01:52.510Z] 🚀 [Express] 🔍 Checking if Flask backend is running...
+[2025-04-25T16:01:52.516Z] 🚀 [Express] 📝 Registering payment handler middleware for fallback responses
+[2025-04-25T16:01:52.523Z] 🚀 [Express] Server running at http://0.0.0.0:3000
+[2025-04-25T16:01:52.524Z] 🚀 [Express] Access your app at: e3d010d3-10b7-4398-916c-9569531b7cb9-00-nzrxz81n08w.kirk.replit.dev
+🚀 Application startup complete - ready to accept connections
+⏱️ Server startup completed in 1.37 seconds
+[2025-04-25T16:01:52.537Z] 🚀 [Express] ⚠️ Flask backend not detected or not responding to health checks yet
+⚠️ This is normal during initialization as migrations may be running
+[2025-04-25T16:01:52.538Z] 🚀 [Express] ⚠️ Temporarily starting in Express-only mode with limited functionality
+⚠️ Express will start in fallback mode while waiting for Flask backend
+Express will provide fallbacks for critical API endpoints
+Some advanced features may be limited until Flask is fully initialized
+[2025-04-25T16:01:52.539Z] 🚀 [Express] ⚠️ Flask backend not detected or not responding to health checks yet
+[2025-04-25T16:01:52.539Z] 🚀 [Express] ⚠️ This is normal during initialization as migrations may be running
+⚠️ Temporarily starting in Express-only mode with limited functionality
+⚠️ Express will start in fallback mode while waiting for Flask backend
+Express will provide fallbacks for critical API endpoints
+Some advanced features may be limited until Flask is fully initialized

@@ -1,0 +1,102 @@
+{
+  "hero": {
+    "title": "Transform Your Images with AI-Powered Background Removal",
+    "subtitle": "Professional-quality image backgrounds removed in seconds. Our precision AI technology delivers flawless results for e-commerce, marketing, and design professionals.",
+    "startCreating": "Start Creating",
+    "getStarted": "Get Started Free",
+    "viewPlans": "View Plans"
+  },
+  "trustedBy": {
+    "title": "TRUSTED BY BUSINESSES WORLDWIDE"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Three simple steps to perfect background removal",
+    "step1": {
+      "title": "Upload Your Image",
+      "description": "Select and upload any image from your device. We support all popular formats including JPG, PNG, and WebP."
+    },
+    "step2": {
+      "title": "AI Processing",
+      "description": "Our advanced AI algorithms automatically detect and remove backgrounds with precision and fine detail."
+    },
+    "step3": {
+      "title": "Download Result",
+      "description": "Download your edited image with a transparent background, ready for use in your projects."
+    }
+  },
+  "features": {
+    "title": "Powerful Features",
+    "subtitle": "Everything you need for professional image editing",
+    "feature1": {
+      "title": "Lightning Fast",
+      "description": "Process images in seconds with our optimized AI technology. No more waiting for manual editing."
+    },
+    "feature2": {
+      "title": "Pixel-Perfect Results",
+      "description": "Our AI precisely detects edges, hair, and fine details with exceptional accuracy."
+    },
+    "feature3": {
+      "title": "High-Res Support",
+      "description": "Process high-resolution images while maintaining quality for professional applications."
+    },
+    "feature4": {
+      "title": "Batch Processing",
+      "description": "Upload and process multiple images simultaneously to save time on large projects."
+    },
+    "feature5": {
+      "title": "Advanced Controls",
+      "description": "Fine-tune your results with intuitive editing tools for perfect output every time."
+    },
+    "feature6": {
+      "title": "History & Storage",
+      "description": "Access your processed images in your secure account for future reference and reuse."
+    }
+  },
+  "useCases": {
+    "title": "Perfect For",
+    "subtitle": "Industry professionals who demand quality results",
+    "ecommerce": {
+      "title": "E-commerce",
+      "description": "Product photos that convert"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "description": "Stunning visual content"
+    },
+    "designers": {
+      "title": "Designers",
+      "description": "Seamless creative process"
+    },
+    "developers": {
+      "title": "Developers",
+      "description": "API integration for apps"
+    }
+  },
+  "testimonials": {
+    "title": "What Our Users Say",
+    "subtitle": "Trusted by thousands of professionals worldwide",
+    "person1": {
+      "name": "Sarah Johnson",
+      "position": "E-commerce Manager",
+      "quote": "iMagenWiz has transformed our product photography workflow. What used to take hours now takes seconds, with even better results!"
+    },
+    "person2": {
+      "name": "Michael Chen",
+      "position": "Graphic Designer",
+      "quote": "The precision is incredible, especially with hair and transparent objects. By far the best AI background removal tool I've used."
+    },
+    "person3": {
+      "name": "Emma Rodriguez",
+      "position": "Marketing Director",
+      "quote": "We process hundreds of images weekly for our campaigns, and iMagenWiz delivers consistent quality every time. A game-changer for our team."
+    }
+  },
+  "cta": {
+    "title": "Ready to Transform Your Images?",
+    "subtitle": "Join thousands of professionals who trust iMagenWiz for their image processing needs.",
+    "startCreating": "Start Creating Now",
+    "createAccount": "Create Free Account",
+    "viewPricing": "View Pricing Plans"
+  }
+} 

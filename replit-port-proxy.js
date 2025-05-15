@@ -4,6 +4,10 @@
  */
 
 const http = require('http');
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const PORT = process.env.PORT || 3000;
+const TARGET_PORT = process.env.TARGET_PORT || 5000;
 
 // Colors for console output
 const GREEN = '\x1b[32m';
@@ -27,7 +31,7 @@ const server = http.createServer((req, res) => {
   // Create options for the proxied request
   const options = {
     hostname: 'localhost',
-    port: 5000,
+    port: TARGET_PORT,
     path: req.url,
     method: req.method,
     headers: {...req.headers, host: 'localhost:5000'}
@@ -49,7 +53,7 @@ const server = http.createServer((req, res) => {
     // Only send response if headers not sent yet
     if (!res.headersSent) {
       res.writeHead(502);
-      res.end(`Proxy Error: Could not connect to server on port 5000. Please ensure the server is running.`);
+      res.end(`Proxy Error: Could not connect to server on port ${TARGET_PORT}. Please ensure the server is running.`);
     }
   });
 
@@ -58,15 +62,15 @@ const server = http.createServer((req, res) => {
 });
 
 // Start listening on port 3000
-server.listen(3000, '0.0.0.0', () => {
-  log(`Port Proxy started - redirecting requests from 3000 → 5000`);
-  log(`Application is now available at http://localhost:3000/`);
+server.listen(PORT, '0.0.0.0', () => {
+  log(`Port Proxy started - redirecting requests from ${PORT} → ${TARGET_PORT}`);
+  log(`Application is now available at http://localhost:${PORT}/`);
 });
 
 // Handle server errors
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    log(`Port 3000 is already in use. Cannot start proxy.`, RED);
+    log(`Port ${PORT} is already in use. Cannot start proxy.`, RED);
   } else {
     log(`Server error: ${err.message}`, RED);
   }

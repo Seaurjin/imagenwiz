@@ -1,0 +1,9 @@
+MySQL connection pool created successfully
+Testing database connection...
+Blog API Server running at http://0.0.0.0:3002/
+Database connection: ACTIVE
+Available endpoints:
+  Blog: /api/cms/blog, /api/cms/blog/:slug, /api/cms/tags
+  Health: /api/health
+Database connection successful!
+Test query successful: [ { test: 1 } ]

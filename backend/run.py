@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 from app import create_app
 
@@ -10,8 +10,11 @@ from app import create_app
 app = create_app()
 
 if __name__ == '__main__':
-    # Get port from environment or use default
-    port = int(os.environ.get('PORT', 5000))
+    # Get port from environment variable with fallback
+    port = int(os.environ.get('BACKEND_PORT', 5000))
+    
+    # Log the port being used
+    print(f"Starting backend on port {port}")
     
     # Run the application
     app.run(

@@ -8,6 +8,9 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+const dotenv = require('dotenv');
+dotenv.config({ path: require('path').resolve(__dirname, '.env') });
+const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000;
 
 // Get current file's directory (equivalent to __dirname in CommonJS)
 const __filename = fileURLToPath(import.meta.url);
@@ -41,7 +44,7 @@ function startExpressServer() {
     env: {
       ...process.env,
       SKIP_FLASK_WAIT: 'true',  // Custom env var to signal we're skipping Flask
-      PORT: '3000'
+      PORT: EXPRESS_PORT
     }
   });
   

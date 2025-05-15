@@ -5,8 +5,10 @@ import axios from 'axios';
 const API_URL = '/api/cms'; // Use this consistently for all CMS API routes
 
 // Get authentication token from localStorage
-const getAuthToken = () => {
-  return localStorage.getItem('token');
+export const getAuthToken = () => {
+  const token = localStorage.getItem('token');
+  console.log('[cms-service] getAuthToken() retrieved:', token ? token.substring(0, 15) + '...' : 'null | undefined');
+  return token;
 };
 
 // Helper function to handle API errors
@@ -31,10 +33,19 @@ const handleError = (error) => {
 export const getLanguages = async () => {
   try {
     console.log('Fetching languages from API...');
+    const token = getAuthToken(); // Get the stored token
+    console.log('[cms-service] getLanguages - token for request:', token ? token.substring(0, 15) + '...' : 'null | undefined');
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    console.log('[cms-service] getLanguages - request headers:', headers);
+
     const response = await axios.get(`${API_URL}/languages`, {
       params: {
         nocache: Date.now() // Add cache-busting parameter
-      }
+      },
+      headers: headers // Add the Authorization header if token exists
     });
     console.log('Languages API response:', response.data);
     
@@ -46,7 +57,8 @@ export const getLanguages = async () => {
         params: {
           is_active: true,
           nocache: Date.now() + 1 // Different cache-busting value
-        }
+        },
+        headers: headers // Add the Authorization header if token exists
       });
       console.log('Direct languages API response:', directResponse.data);
       return directResponse.data;
@@ -346,13 +358,32 @@ export const deleteTag = async (id) => {
 // Blog Posts
 export const getPosts = async (filters = {}) => {
   try {
-    console.log('Fetching posts with filters:', filters);
+    const token = getAuthToken(); // Get the stored token
+    console.log('[cms-service] getPosts - token for request:', token ? token.substring(0, 15) + '...' : 'null | undefined');
+    if (!token) {
+      console.error('CMS getPosts: No auth token found. User might be logged out.');
+      throw new Error('Authentication required. Please log in.');
+    }
+
+    const params = {
+      ...filters,
+      view_mode: 'admin', // Ensure we get all posts for CMS admin view
+      nocache: Date.now() // Cache-busting
+    };
     
-    // Ensure we're using the correct URL with full /api prefix
-    const fullApiUrl = `/api/cms/posts`;
+    const headers = { 'Authorization': `Bearer ${token}` };
+    console.log('[cms-service] getPosts - request headers:', headers);
     
-    const response = await axios.get(fullApiUrl, { params: filters });
-    console.log('Posts API response:', response.data);
+    console.log('Fetching CMS posts with params:', params);
+    
+    // Correct API endpoint is /api/cms/blog for our proxy
+    const fullApiUrl = `/api/cms/blog`; 
+    
+    const response = await axios.get(fullApiUrl, { 
+      params: params, 
+      headers: headers // Add the Authorization header
+    });
+    console.log('CMS Posts API response:', response.data);
     
     if (response.data && typeof response.data === 'object') {
       if (Array.isArray(response.data)) {
@@ -439,10 +470,19 @@ export const expandPostTranslations = (posts) => {
 export const getPost = async (id, language = null) => {
   try {
     const params = language ? { language } : {};
-    // Ensure we're using the correct URL with full /api prefix
-    const fullApiUrl = `/api/cms/posts/${id}`;
+    const token = getAuthToken();
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      console.warn('[cms-service] getPost: No token found for ID based fetch. This might be an issue if endpoint is protected.');
+      // Depending on API design, might need to throw error if token is absolutely required
+    }
+    // Corrected endpoint to match blog proxy for ID-based fetching
+    const fullApiUrl = `/api/cms/blog/id/${id}`;
+    console.log(`[cms-service] getPost: Fetching post by ID from ${fullApiUrl} with lang ${language}`);
     
-    const response = await axios.get(fullApiUrl, { params });
+    const response = await axios.get(fullApiUrl, { params, headers });
     
     // Enhanced debug logging
     console.log('API response for getPost:', response.data);
@@ -495,10 +535,18 @@ export const getPost = async (id, language = null) => {
 export const getPostBySlug = async (slug, language = null) => {
   try {
     const params = language ? { language } : {};
-    // Ensure we're using the correct URL with full /api prefix
-    const fullApiUrl = `/api/cms/posts/by-slug/${slug}`;
-    
-    const response = await axios.get(fullApiUrl, { params });
+    const token = getAuthToken(); // Ensure token is fetched
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      console.warn('[cms-service] getPostBySlug: No token found for slug based fetch. This might be an issue if endpoint is protected.');
+    }
+    // Corrected endpoint to match blog proxy
+    const fullApiUrl = `/api/cms/blog/${slug}`;
+    console.log(`[cms-service] getPostBySlug: Fetching post by slug from ${fullApiUrl} with lang ${language}`);
+
+    const response = await axios.get(fullApiUrl, { params, headers }); // Added headers
     return response.data;
   } catch (error) {
     return handleError(error);
@@ -668,7 +716,6 @@ export const autoTranslatePost = async (postId, options = {}) => {
     // Prepare payload with target languages
     const payload = {
       target_languages: targetLanguages,
-      force_translate: options.force_translate || false
     };
     
     // Make the translation request
@@ -729,9 +776,14 @@ export const autoTranslateAllPosts = async (options = {}) => {
       
       console.log('Auto-translating all posts to website languages:', targetLanguages);
       options = {
-        ...options,
-        languages: targetLanguages
+        languages: targetLanguages,
+        batch_size: options.batch_size,
+        placeholder_mode: options.placeholder_mode
       };
+    } else {
+      // If options.languages is provided, ensure force_translate is not in the options sent to backend
+      const { force_translate, ...restOptions } = options;
+      options = restOptions;
     }
     
     const response = await axios.post(fullApiUrl, options, {
@@ -776,7 +828,6 @@ export const translateMissingLanguages = async () => {
         'nl', 'no', 'pl', 'pt', 'ru', 'sv', 'th', 'tr', 'vi', 'zh-TW'
       ],
       batch_size: 2,  // Process 2 posts at a time to avoid timeouts
-      force_translate: true  // Force re-translation even if some already exist
     };
     
     console.log(`Translating to missing languages: ${options.languages.join(', ')}`);
@@ -851,7 +902,12 @@ export const uploadMedia = async (postId, formData) => {
 
 export const getPostMedia = async (postId) => {
   try {
-    const response = await axios.get(`/api/cms/posts/${postId}/media`);
+    const token = getAuthToken();
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const response = await axios.get(`/api/cms/posts/${postId}/media`, { headers });
     // The response format is { media: [...], message: "Media retrieved successfully" }
     // But we want to maintain backward compatibility with existing code
     return response.data && response.data.media ? 

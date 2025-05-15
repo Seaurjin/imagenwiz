@@ -1,63 +1,50 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LANGUAGES, isRTL } from '../i18n/i18n';
+import { SUPPORTED_LANGUAGES, changeLanguage } from '../i18n/i18n';
 
-const LanguageSelector = ({ variant = 'default', size = 'default' }) => {
-  const { i18n, t } = useTranslation('common');
+const LanguageSelector = ({ variant = 'default' }) => {
+  const { i18n } = useTranslation('common');
   const [isOpen, setIsOpen] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
-  const [selectedLang, setSelectedLang] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
   
-  // Enhanced language detection with fallback
+  // Get current language
   const currentLanguageCode = i18n.language || localStorage.getItem('i18nextLng') || 'en';
   const currentLanguage = SUPPORTED_LANGUAGES.find(
-    (lang) => lang.code === currentLanguageCode
+    lang => lang.code === currentLanguageCode
   ) || SUPPORTED_LANGUAGES[0];
   
-  // Get browser language for prioritizing the order
-  const getBrowserLanguage = () => {
-    if (typeof window === 'undefined') return 'en';
-    const browserLang = navigator.language || navigator.userLanguage || 'en';
-    return browserLang.split('-')[0];
-  };
-  
-  // Ordered languages - browser language first, then alphabetically
-  const orderedLanguages = useMemo(() => {
-    const browserLang = getBrowserLanguage();
+  // Filter languages based on search
+  const filteredLanguages = SUPPORTED_LANGUAGES.filter(lang => {
+    if (!searchTerm.trim()) return true;
     
-    return [...SUPPORTED_LANGUAGES].sort((a, b) => {
-      // First, check if either language matches the browser language
-      const aMatchesBrowser = a.code === browserLang || a.code.startsWith(browserLang + '-');
-      const bMatchesBrowser = b.code === browserLang || b.code.startsWith(browserLang + '-');
-      
-      if (aMatchesBrowser && !bMatchesBrowser) return -1;
-      if (!aMatchesBrowser && bMatchesBrowser) return 1;
-      
-      // Then sort alphabetically by native name
-      return a.nativeName.localeCompare(b.nativeName);
-    });
-  }, []);
-  
-  // Filtered languages based on search term
-  const filteredLanguages = useMemo(() => {
-    if (!searchTerm.trim()) return orderedLanguages;
-    
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    return orderedLanguages.filter(
-      lang => 
-        lang.name.toLowerCase().includes(lowerSearchTerm) ||
-        lang.nativeName.toLowerCase().includes(lowerSearchTerm) ||
-        lang.code.toLowerCase().includes(lowerSearchTerm)
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      lang.name.toLowerCase().includes(searchLower) ||
+      lang.nativeName.toLowerCase().includes(searchLower) ||
+      lang.code.toLowerCase().includes(searchLower)
     );
-  }, [orderedLanguages, searchTerm]);
+  });
   
-  // Debug logging
+  // Close dropdown when clicking outside
   useEffect(() => {
-    console.log(`LanguageSelector - Current language: ${currentLanguageCode}`, currentLanguage);
-  }, [currentLanguageCode]);
+    function handleOutsideClick(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm('');
+      }
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isOpen]);
   
   // Focus search input when dropdown opens
   useEffect(() => {
@@ -67,239 +54,130 @@ const LanguageSelector = ({ variant = 'default', size = 'default' }) => {
       }, 100);
     }
   }, [isOpen]);
-  
-  // Close dropdown when clicking outside - handle both mouse and touch events
-  useEffect(() => {
-    function handleOutsideInteraction(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-        setSearchTerm('');
-      }
-    }
-    
-    // For desktop/mouse devices
-    document.addEventListener('mousedown', handleOutsideInteraction);
-    
-    // For touch devices
-    document.addEventListener('touchend', handleOutsideInteraction);
-    
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideInteraction);
-      document.removeEventListener('touchend', handleOutsideInteraction);
-    };
-  }, []);
-  
-  // Ensure the document direction matches the current language on component mount
-  useEffect(() => {
-    // Set document direction based on current language
-    const direction = isRTL(currentLanguageCode) ? 'rtl' : 'ltr';
-    if (document.documentElement.dir !== direction) {
-      document.documentElement.dir = direction;
-      
-      // Also update body class for consistent styling
-      if (isRTL(currentLanguageCode)) {
-        document.body.classList.add('rtl');
-      } else {
-        document.body.classList.remove('rtl');
-      }
-    }
-  }, [currentLanguageCode]);
 
+  // Function to handle language change
   const handleLanguageChange = (language) => {
-    if (language.code === currentLanguageCode) {
+    if (language.code === currentLanguageCode || isChanging) {
       setIsOpen(false);
-      setSearchTerm('');
       return;
     }
     
-    // Visual feedback during language change
     setIsChanging(true);
-    setSelectedLang(language.code);
     
-    // Update localStorage immediately
-    localStorage.setItem('i18nextLng', language.code);
-    
-    // Forced reload approach - this works more reliably than any other method
-    setTimeout(() => {
-      // Force reload with the new language
-      window.location.reload();
-    }, 300);
+    changeLanguage(language.code)
+      .then(() => {
+        // Successful language change
+        setIsOpen(false);
+        setSearchTerm('');
+      })
+      .catch(err => {
+        console.error("Error changing language:", err);
+      })
+      .finally(() => {
+        setIsChanging(false);
+      });
   };
-  
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  // Ensure the component remains interactive in the navbar (but not footer)
-  const isInNavbar = typeof window !== 'undefined' && 
-    (document.querySelector('nav')?.contains(dropdownRef.current) || 
-     document.querySelector('.hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center')?.contains(dropdownRef.current));
-  
-  // Fix pointer events and interactivity for navbar
-  useEffect(() => {
-    if (isInNavbar && dropdownRef.current) {
-      dropdownRef.current.style.pointerEvents = 'auto';
-      const button = dropdownRef.current.querySelector('button');
-      if (button) {
-        button.style.pointerEvents = 'auto';
-        button.style.cursor = 'pointer';
-        button.removeAttribute('disabled');
-      }
-    }
-  }, [isInNavbar]);
   
   return (
-    <div className="relative" ref={dropdownRef} style={{pointerEvents: isInNavbar ? 'auto' : ''}}>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      {/* Language selector button */}
       <button 
-        onClick={() => {
-          console.log("Language selector clicked");
-          if (!isChanging) {
-            setIsOpen(!isOpen);
-          }
-        }}
-        className={`flex items-center gap-2 px-4 py-3 text-sm rounded-md 
+        onClick={() => !isChanging && setIsOpen(!isOpen)}
+        className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md 
                   ${variant === 'outline' 
-                    ? 'border border-gray-300 hover:bg-gray-50 active:bg-gray-100' 
+                    ? 'border border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700' 
                     : 'bg-teal-500 text-white hover:bg-teal-600 active:bg-teal-700'}
                   ${isChanging ? 'opacity-70' : ''}
-                  cursor-pointer`}
-        style={{pointerEvents: isInNavbar ? 'auto' : (isChanging ? 'none' : '')}}
-        aria-label={`Change language (current: ${currentLanguage.name})`}
-        disabled={isChanging && !isInNavbar}
+                  transition-all`}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        disabled={isChanging}
       >
-        <span className="text-lg mr-1" role="img" aria-label={currentLanguage.name}>{currentLanguage.flag}</span>
-        <span className="hidden md:inline">{currentLanguage.nativeName}</span>
+        {/* Globe icon */}
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="h-5 w-5" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+        >
+          <path 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            strokeWidth={2} 
+            d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+          />
+        </svg>
+        
+        {/* Current language code */}
+        <span className="font-medium">{currentLanguage.code.toUpperCase()}</span>
+        
+        {/* Loading indicator or dropdown arrow */}
         {isChanging ? (
-          <svg className="animate-spin h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         ) : (
-          <svg 
-            className="w-4 h-4 ml-1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 20 20" 
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path 
-              fillRule="evenodd" 
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-              clipRule="evenodd" 
-            />
+          <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
         )}
       </button>
       
+      {/* Language dropdown menu */}
       {isOpen && !isChanging && (
-        <>
-          {/* Add a fullscreen overlay to make it easier to close on touch devices */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-25 z-40 md:hidden"
-            onClick={() => {
-              setIsOpen(false);
-              setSearchTerm('');
-            }}
-          ></div>
-          
-          <div 
-            className="fixed md:absolute right-0 mt-2 w-[90vw] md:w-64 bg-white border border-gray-200 rounded-md shadow-xl z-50 overflow-hidden"
-            style={{
-              maxHeight: 'calc(100vh - 120px)', 
-              top: '100%',
-              left: window.innerWidth <= 768 ? '50%' : 'auto',
-              transform: window.innerWidth <= 768 ? 'translateX(-50%)' : 'none'
-            }}
-          >
-            {/* Header with close button for better touch accessibility */}
-            <div 
-              className="flex items-center justify-between bg-gray-100 px-3 py-2 border-b border-gray-200 cursor-pointer md:cursor-default"
-              onClick={() => {
-                // Only respond to clicks on mobile
-                if (window.innerWidth <= 768) {
-                  setIsOpen(false);
-                  setSearchTerm('');
-                }
-              }}
-            >
-              <h3 className="font-medium text-gray-700">{t('common.selectLanguage', 'Select Language')}</h3>
-              <div className="md:hidden p-2 rounded-full">
-                <svg className="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        <div className="absolute right-0 z-50 mt-2 w-60 sm:w-72 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="p-3 border-b border-gray-100">
+            <div className="relative">
+              <input
+                type="text"
+                ref={searchInputRef}
+                className="block w-full rounded-md border-0 py-2 pl-9 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-600 sm:text-sm sm:leading-6"
+                placeholder="Search language..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
             </div>
-            
-            <div className="sticky top-0 bg-gray-100 p-2 z-10 border-b border-gray-200">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  ref={searchInputRef}
-                  className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                  placeholder={t('common.searchLanguages', 'Search languages')}
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                />
-                {searchTerm && (
-                  <div
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                    onClick={() => setSearchTerm('')}
-                    aria-label="Clear search"
-                  >
-                    <svg className="h-5 w-5 text-gray-400 hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div className="max-h-[calc(100vh-210px)] overflow-y-auto">
-              {filteredLanguages.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                  {t('common.noResults', 'No languages found')}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 divide-y divide-gray-100">
-                  {filteredLanguages.map((language) => (
-                    <button 
-                      key={language.code}
-                      type="button"
-                      className={`flex items-center w-full text-left px-4 py-4 text-sm
-                                hover:bg-gray-50 active:bg-gray-100 cursor-pointer
-                                ${language.code === currentLanguageCode ? 'bg-gray-50 font-medium' : ''}
-                                ${selectedLang === language.code ? 'bg-teal-50' : ''}`}
-                      onClick={() => handleLanguageChange(language)}
-                      aria-current={language.code === currentLanguageCode ? 'true' : 'false'}
-                    >
-                      <span className="text-xl mr-3 flex-shrink-0" role="img" aria-label={language.name}>{language.flag}</span>
-                      <div className="flex-grow min-w-0">
-                        <div className="font-medium truncate">{language.nativeName}</div>
-                        <div className="text-gray-500 text-xs truncate">{language.name}</div>
-                      </div>
-                      {language.code === currentLanguageCode && (
-                        <span className="ml-auto text-teal-500 flex-shrink-0">✓</span>
-                      )}
-                      {selectedLang === language.code && language.code !== currentLanguageCode && (
-                        <span className="ml-auto flex-shrink-0">
-                          <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
-        </>
+          
+          <div className="max-h-[60vh] overflow-y-auto py-1">
+            {filteredLanguages.length === 0 ? (
+              <div className="py-2 px-4 text-sm text-gray-500 text-center">
+                No languages found
+              </div>
+            ) : (
+              filteredLanguages.map(language => (
+                <button
+                  key={language.code}
+                  className={`text-left w-full px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-100 ${
+                    language.code === currentLanguageCode ? 'bg-teal-50 text-teal-700' : 'text-gray-700'
+                  }`}
+                  onClick={() => handleLanguageChange(language)}
+                >
+                  <div className="flex items-center">
+                    <span className="mr-2 text-lg">{language.flag}</span>
+                    <div>
+                      <div className="font-medium">{language.nativeName}</div>
+                      <div className="text-xs text-gray-500">{language.name}</div>
+                    </div>
+                  </div>
+                  
+                  {language.code === currentLanguageCode && (
+                    <svg className="h-5 w-5 text-teal-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

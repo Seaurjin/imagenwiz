@@ -4,48 +4,22 @@ import axios from 'axios';
 import App from './App';
 import './index.css';
 import './languageSelector.css';
-import './removeLanguageSelector';
-import './navbarLanguageDebug';
-import './fixLanguageSelectorClick';
+// Import the language validator for runtime checks
+import './utils/languageValidator';
 
-// Add specific script to ensure navbar language selector visibility
-document.addEventListener('DOMContentLoaded', function() {
-  // Force navbar language selector to be visible
-  const forceNavbarLanguageSelectorVisible = () => {
-    const navSelectors = [
-      'nav .sm\\:flex.sm\\:items-center .relative',
-      'nav .relative:has(button[aria-label*="language"])',
-      '.hidden.sm\\:ml-6.sm\\:flex.sm\\:items-center .relative',
-      '.space-x-4 > .relative'
-    ];
-    
-    navSelectors.forEach(selector => {
-      const elements = document.querySelectorAll(selector);
-      elements.forEach(el => {
-        if (el && el.style) {
-          el.style.display = 'flex';
-          el.style.visibility = 'visible';
-          el.style.opacity = '1';
-          console.log('🌐 Enforced navbar language selector visibility:', el);
-        }
-      });
-    });
-  };
-  
-  // Run immediately and after delays to catch all render stages
-  forceNavbarLanguageSelectorVisible();
-  setTimeout(forceNavbarLanguageSelectorVisible, 500);
-  setTimeout(forceNavbarLanguageSelectorVisible, 1000);
-  setTimeout(forceNavbarLanguageSelectorVisible, 2000);
-});
+// Default Stripe key - will be overridden by .env value if available
+const DEFAULT_STRIPE_KEY = "pk_test_51Q38qCAGgrMJnivhKhP3M0pG1Z6omOTWZgJcOxHwLql8i7raQ1IuDhTDk4SOHHjjKmijuyO5gTRkT6JhUw3kHDF600BjMLjeRz";
 
-// Global variables with real Stripe keys
+// Global variables with Stripe keys from environment variables
 window.ENV = window.ENV || {};
-window.ENV.VITE_STRIPE_PUBLISHABLE_KEY = "pk_test_51Q38qCAGgrMJnivhKhP3M0pG1Z6omOTWZgJcOxHwLql8i7raQ1IuDhTDk4SOHHjjKmijuyO5gTRkT6JhUw3kHDF600BjMLjeRz";
+window.ENV.VITE_STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || DEFAULT_STRIPE_KEY;
 window.import = window.import || {};
 window.import.meta = window.import.meta || {};
 window.import.meta.env = window.import.meta.env || {};
-window.import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY = "pk_test_51Q38qCAGgrMJnivhKhP3M0pG1Z6omOTWZgJcOxHwLql8i7raQ1IuDhTDk4SOHHjjKmijuyO5gTRkT6JhUw3kHDF600BjMLjeRz";
+window.import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || DEFAULT_STRIPE_KEY;
+
+// Log which Stripe key is being used (environment or default)
+console.log(`Using Stripe key from: ${import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ? 'Environment Variable' : 'Default Fallback'}`);
 
 // Force axios to use relative URLs to ensure proxy works correctly
 axios.defaults.baseURL = '';

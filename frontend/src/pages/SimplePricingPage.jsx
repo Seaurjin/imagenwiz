@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import ReactGA from 'react-ga4';
 
 // Import from safe module instead of Stripe
 import { PRICE_IDS } from '../lib/safe-stripe-ids';
@@ -89,12 +90,64 @@ const SimplePricingPage = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // Track viewing of pricing plans
+  useEffect(() => {
+    ReactGA.event({
+      category: 'ecommerce',
+      action: 'view_item_list',
+      label: 'Pricing Page Displayed',
+      // GA4 E-commerce parameters for view_item_list
+      items: pricingPlans.map(plan => ({
+        item_id: plan.id,
+        item_name: plan.name,
+        price: yearlyBilling ? plan.yearlyPrice : plan.monthlyPrice,
+        item_category: 'Subscription Plan'
+      }))
+    });
+  }, [yearlyBilling]); // Re-send if billing period changes, as prices change
+
   const handleBillingToggle = () => {
     setYearlyBilling(!yearlyBilling);
   };
 
   const handlePurchase = (planId) => {
-    if (planId === 'free') {
+    const plan = pricingPlans.find(p => p.id === planId);
+    if (!plan) return;
+
+    const itemDetails = {
+      item_id: plan.id,
+      item_name: plan.name,
+      price: yearlyBilling ? plan.yearlyPrice : plan.monthlyPrice,
+      currency: 'USD', // Assuming USD, make dynamic if needed
+      quantity: 1
+    };
+
+    // Track add_to_cart event
+    ReactGA.event({
+      category: 'ecommerce',
+      action: 'add_to_cart',
+      label: `Add to Cart - ${plan.name}`,
+      // GA4 E-commerce parameters
+      currency: 'USD',
+      value: itemDetails.price,
+      items: [itemDetails]
+    });
+
+    // For non-free plans, also track begin_checkout before the alert/redirect
+    if (plan.id !== 'free') {
+      ReactGA.event({
+        category: 'ecommerce',
+        action: 'begin_checkout',
+        label: `Begin Checkout - ${plan.name}`,
+        // GA4 E-commerce parameters
+        currency: 'USD',
+        value: itemDetails.price,
+        items: [itemDetails]
+      });
+    }
+
+    // Existing logic from SimplePricingPage
+    if (plan.id === 'free') {
       if (!isAuthenticated) {
         navigate('/register');
         return;
@@ -109,7 +162,6 @@ const SimplePricingPage = () => {
       return;
     }
 
-    // Show informational message instead of proceeding to checkout
     alert('Checkout functionality is not available in this simplified version.');
   };
 
@@ -167,19 +219,23 @@ const SimplePricingPage = () => {
           </div>
         )}
 
-        <div className="grid gap-6 lg:gap-8 lg:grid-cols-3 lg:max-w-7xl mx-auto">
+        <div className="grid gap-6 lg:gap-8 lg:grid-cols-3 lg:max-w-7xl mx-auto items-stretch">
           {pricingPlans.map((plan) => (
             <div
               key={plan.id}
-              className={`bg-white rounded-lg shadow-lg divide-y divide-gray-200 ${
+              className={`bg-white rounded-lg shadow-lg ${
                 plan.mostPopular ? 'ring-2 ring-amber-500' : ''
-              } transition-all hover:shadow-xl`}
+              } transition-all hover:shadow-xl flex flex-col h-full relative`}
             >
-              {plan.mostPopular && (
+              {plan.mostPopular ? (
                 <div className="bg-amber-500 rounded-t-lg py-1.5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-white text-center">
                     {t('popular')}
                   </p>
+                </div>
+              ) : (
+                <div className="h-7 rounded-t-lg">
+                  {/* This div now has an explicit height matching the calculated height of the popular banner */}
                 </div>
               )}
 
@@ -187,7 +243,7 @@ const SimplePricingPage = () => {
                 <h2 className="text-xl leading-6 font-bold text-gray-900">
                   {plan.name}
                 </h2>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-gray-500 h-12">
                   {plan.description}
                 </p>
                 <p className="mt-4">
@@ -205,12 +261,13 @@ const SimplePricingPage = () => {
                 </p>
               </div>
 
-              <div className="pt-6 pb-8 px-6">
+              <div className="border-t border-gray-200 pt-6 px-6 pb-24">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('whatsIncluded', "What's included:")}</h4>
                 <ul className="space-y-4">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <div className="flex-shrink-0">
-                        <CheckIcon className={`h-5 w-5 ${plan.mostPopular ? 'text-amber-500' : 'text-teal-500'}`} />
+                        <CheckIcon className="h-5 w-5 text-green-500" />
                       </div>
                       <p className="ml-3 text-sm text-gray-500">{feature}</p>
                     </li>
@@ -224,22 +281,23 @@ const SimplePricingPage = () => {
                     </li>
                   ))}
                 </ul>
+              </div>
 
-                <div className="mt-8">
-                  <button
-                    onClick={() => handlePurchase(plan.id)}
-                    disabled={loading}
-                    className={`w-full ${
-                      plan.mostPopular 
-                        ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-500' 
-                        : 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500'
-                    } text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
-                      loading ? 'opacity-70 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {loading ? 'Processing...' : plan.id === 'free' ? t('signUp') : t('subscribe')}
-                  </button>
-                </div>
+              {/* Absolute positioned button container at the bottom of the card */}
+              <div className="absolute bottom-0 left-0 right-0 px-6 pb-8">
+                <button
+                  onClick={() => handlePurchase(plan.id)}
+                  disabled={loading}
+                  className={`w-full ${
+                    plan.mostPopular 
+                      ? 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-500' 
+                      : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'
+                  } text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                    loading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {loading ? 'Processing...' : plan.id === 'free' ? t('getStarted') : t('subscribe')}
+                </button>
               </div>
             </div>
           ))}

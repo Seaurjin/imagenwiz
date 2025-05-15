@@ -1,38 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
-  <!-- Logo Square with Gradient Border and Background -->
-  <defs>
-    <linearGradient id="squareGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#00E676;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#00BCD4;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="checkerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#00E676;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#00BCD4;stop-opacity:1" />
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Teal Square -->
+  <rect 
+    x="10" 
+    y="12" 
+    width="32" 
+    height="32" 
+    rx="6" 
+    ry="6" 
+    fill="none" 
+    stroke="#0D9488" 
+    stroke-width="3"
+  />
   
-  <!-- Background -->
-  <rect x="0" y="0" width="100" height="100" fill="#333333"/>
-  
-  <!-- Logo Square with Gradient Border -->
-  <rect x="10" y="10" width="80" height="80" fill="#333333" stroke="url(#squareGradient)" stroke-width="4"/>
-  
-  <!-- Checkerboard Pattern - Gradient Squares -->
-  <g fill="url(#checkerGradient)">
-    <rect x="70" y="20" width="8" height="8"/>
-    <rect x="62" y="20" width="8" height="8"/>
-    <rect x="54" y="28" width="8" height="8"/>
-    <rect x="46" y="28" width="8" height="8"/>
-    <rect x="38" y="36" width="8" height="8"/>
-    <rect x="30" y="36" width="8" height="8"/>
-    <rect x="22" y="44" width="8" height="8"/>
-    <rect x="14" y="44" width="8" height="8"/>
-    <rect x="70" y="28" width="8" height="8"/>
-    <rect x="62" y="36" width="8" height="8"/>
-    <rect x="54" y="44" width="8" height="8"/>
-    <rect x="46" y="52" width="8" height="8"/>
-    <rect x="38" y="60" width="8" height="8"/>
-    <rect x="30" y="68" width="8" height="8"/>
-    <rect x="22" y="76" width="8" height="8"/>
-  </g>
+  <!-- Purple Square -->
+  <rect 
+    x="22" 
+    y="20" 
+    width="32" 
+    height="32" 
+    rx="6" 
+    ry="6" 
+    fill="none" 
+    stroke="#A855F7" 
+    stroke-width="3"
+  />
 </svg>
