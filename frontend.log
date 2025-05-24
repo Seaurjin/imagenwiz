@@ -2,69 +2,9 @@
 > imagenwiz-frontend@0.1.0 dev
 > vite --port 3000 --strictPort
 
-
-  VITE v4.5.10  ready in 585 ms
-
-  ➜  Local:   http://localhost:3000/
-  ➜  Network: use --host to expose
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747298150093 -> /api/auth/user?t=1747298150093
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747298150094 -> /api/auth/user?t=1747298150094
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-4:35:50 PM [vite] http proxy error at /api/auth/user?t=1747298150093:
-AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1117:18)
-    at afterConnectMultiple (node:net:1684:7)
-4:35:50 PM [vite] http proxy error at /api/auth/user?t=1747298150094:
-AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1117:18)
-    at afterConnectMultiple (node:net:1684:7)
-4:35:50 PM [vite] http proxy error at /api/settings/logo:
-AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1117:18)
-    at afterConnectMultiple (node:net:1684:7)
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-4:35:50 PM [vite] http proxy error at /api/settings/logo:
-AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1117:18)
-    at afterConnectMultiple (node:net:1684:7)
-[Vite Proxy] Auth request: GET /api/auth/user?forceRefresh=1747298150169 -> /api/auth/user?forceRefresh=1747298150169
-[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
-4:35:50 PM [vite] http proxy error at /api/auth/user?forceRefresh=1747298150169:
-AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1117:18)
-    at afterConnectMultiple (node:net:1684:7)
-4:35:50 PM [vite] http proxy error at /api/payment/history:
-AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1117:18)
-    at afterConnectMultiple (node:net:1684:7)
-[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
-4:35:50 PM [vite] http proxy error at /api/payment/history:
-AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1117:18)
-    at afterConnectMultiple (node:net:1684:7)
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747298158039 -> /api/auth/user?t=1747298158039
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747298158040 -> /api/auth/user?t=1747298158040
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-[Vite Proxy] Auth request: GET /api/auth/user?forceRefresh=1747298178457 -> /api/auth/user?forceRefresh=1747298178457
-[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
-[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
-[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
-[Vite Proxy] Generic API request: POST /api/matting/process -> /api/matting/process
-[Vite Proxy] Generic API request: POST /api/matting/process -> /api/matting/process
-[Vite Proxy] Generic API request: POST /api/matting/process -> /api/matting/process
-[Vite Proxy] Generic API request: POST /api/matting/process -> /api/matting/process
-[Vite Proxy] Generic API request: POST /api/matting/process -> /api/matting/process
-[Vite Proxy] Generic API request: POST /api/matting/process -> /api/matting/process
-[Vite Proxy] Generic API request: POST /api/matting/process -> /api/matting/process
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747301426906 -> /api/auth/user?t=1747301426906
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747301426907 -> /api/auth/user?t=1747301426907
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747301433007 -> /api/auth/user?t=1747301433007
-[Vite Proxy] Auth request: GET /api/auth/user?t=1747301433008 -> /api/auth/user?t=1747301433008
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-[Vite Proxy] Generic API request: GET /api/settings/logo -> /api/settings/logo
-[Vite Proxy] Auth request: GET /api/auth/user?forceRefresh=1747301435750 -> /api/auth/user?forceRefresh=1747301435750
-[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
-[Vite Proxy] Generic API request: GET /api/payment/history -> /api/payment/history
+[31merror when starting dev server:
+Error: Port 3000 is already in use
+    at Server.onError (file:///D:/cursor/new-wiz/imagenwiz/frontend/node_modules/vite/dist/node/chunks/dep-add429cd.js:54820:28)
+    at Server.emit (node:events:518:28)
+    at emitErrorNT (node:net:1973:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)[39m

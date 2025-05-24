@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ImageUploader from '../components/ImageUploader';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,19 +7,7 @@ import CreditUsageCard from '../components/CreditUsageCard';
 const DashboardPage = () => {
   const { user, refreshUser } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
-  
-  useEffect(() => {
-    // Refresh user data when component mounts
-    const loadUserData = async () => {
-      try {
-        await refreshUser();
-      } catch (error) {
-        console.error("Error refreshing user data:", error);
-      }
-    };
-    
-    loadUserData();
-  }, [refreshUser]);
+  const [error, setError] = useState(null);
   
   const handleRefreshCredits = async () => {
     if (refreshing) return;
@@ -29,12 +17,23 @@ const DashboardPage = () => {
       await refreshUser();
       setTimeout(() => {
         setRefreshing(false);
-      }, 1000); // Add a slight delay for better UX
+      }, 1000);
     } catch (error) {
       console.error("Error refreshing credits:", error);
       setRefreshing(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

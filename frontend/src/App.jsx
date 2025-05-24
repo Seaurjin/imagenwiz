@@ -69,6 +69,7 @@ import About from './pages/info/About';
 import Press from './pages/info/Press';
 import AutomaticDesigns from './pages/info/AutomaticDesigns';
 import VideoBackgroundRemoval from './pages/info/VideoBackgroundRemoval';
+import GoogleCallback from './pages/GoogleCallback';
 
 // Admin Tools
 
@@ -352,6 +353,9 @@ const AppContent = () => {
               <Route path="/press" element={<Press />} />
               <Route path="/automatic-designs" element={<AutomaticDesigns />} />
               <Route path="/video-background-removal" element={<VideoBackgroundRemoval />} />
+              
+              {/* Google callback route */}
+              <Route path="/api/auth/google/callback" element={<GoogleCallback />} />
               
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />

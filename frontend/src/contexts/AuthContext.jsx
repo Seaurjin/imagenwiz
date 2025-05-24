@@ -7,12 +7,8 @@ export const AuthContext = createContext();
 
 // Provider component
 export const AuthProvider = ({ children }) => {
-  // Try to load user from localStorage
-  const storedUser = localStorage.getItem('user');
-  const initialUser = storedUser ? JSON.parse(storedUser) : null;
-  
-  const [user, setUser] = useState(initialUser);
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -29,309 +25,187 @@ export const AuthProvider = ({ children }) => {
 
   console.log("[AuthContext] Initial localStorage token:", localStorage.getItem("token") ? localStorage.getItem("token").substring(0,15)+'...' : 'null | undefined');
 
-  // Custom setUser function that also updates localStorage
+  // Function to get token from localStorage
+  const getToken = () => {
+    const token = localStorage.getItem('token');
+    console.log('[AuthContext] Retrieved token from localStorage:', token ? `${token.substring(0, 15)}...` : 'null');
+    return token;
+  };
+
+  // Function to get cookie value
+  const getCookie = (name) => {
+    console.log('[AuthContext] Attempting to get cookie:', name);
+    const value = `; ${document.cookie}`;
+    console.log('[AuthContext] Full document.cookie:', value);
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      const token = parts.pop().split(';').shift();
+      console.log('[AuthContext] Retrieved access_token from cookies:', token ? `${token.substring(0, 15)}...` : 'null');
+      return token;
+    }
+    console.log('[AuthContext] No access_token found in cookies');
+    return null;
+  };
+
+  // Function to set cookie
+  const setCookie = (name, value, days = 1) => {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+    console.log('[AuthContext] Set access_token cookie:', value ? `${value.substring(0, 15)}...` : 'null');
+  };
+
+  // Function to remove cookie
+  const removeCookie = (name) => {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+    console.log('[AuthContext] Removed access_token cookie');
+  };
+
+  // Update user data
   const updateUser = (userData) => {
     setUser(userData);
-    if (userData) {
-      localStorage.setItem('user', JSON.stringify(userData));
-      console.log("Updated user in localStorage:", userData.username);
-    } else {
-      localStorage.removeItem('user');
-      console.log("Removed user from localStorage");
-    }
   };
 
-  // Set token in axios headers and localStorage
-  const setAuthToken = (token) => {
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      localStorage.setItem("token", token);
-      console.log("[AuthContext] setAuthToken: SUCCESSFULLY SET localStorage 'token' to:", token ? token.substring(0, 15) + '...' : 'null | undefined');
-      console.log("[AuthContext] setAuthToken: localStorage.getItem('token') now returns:", localStorage.getItem("token") ? localStorage.getItem("token").substring(0,15)+'...' : 'null | undefined');
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      console.log("[AuthContext] setAuthToken: CLEARED localStorage 'token' and 'user'");
-    }
-  };
-
-  // Register user
-  const register = async (username, password) => {
+  // Refresh user data
+  const refreshUser = async () => {
     try {
-      setError(null);
-      console.log("Attempting registration for:", username);
-      
-      // Use correct URL with API prefix for Express proxy
-      const registerUrl = "/api/auth/register";
-      console.log("Making registration request to:", registerUrl);
-      
-      const res = await fetch(registerUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || `HTTP error ${res.status}`);
-      }
-      
-      const data = await res.json();
-      console.log("Registration response:", data);
+      // Prioritize token from state, fallback to cookie
+      const currentToken = token || getCookie('access_token');
 
-      setToken(data.access_token);
-      updateUser(data.user);
-      setAuthToken(data.access_token);
-      return data;
+      if (!currentToken) {
+        console.error('[AuthContext] No authentication token found for refreshUser');
+        throw new Error('No authentication token found');
+      }
+
+      console.log('[AuthContext] Fetching user data with token:', `${currentToken.substring(0, 15)}...`);
+      const response = await axios.get('/api/auth/user', {
+        headers: {
+          'Authorization': `Bearer ${currentToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.data) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      console.log('[AuthContext] Successfully fetched user data:', response.data);
+      updateUser(response.data);
+      return response.data;
     } catch (err) {
-      console.error("Registration error:", err);
-      const errorMessage = err.message || "Registration failed";
-      setError(errorMessage);
+      console.error('[AuthContext] Error refreshing user:', err);
       throw err;
     }
   };
 
-  // Login user with better error handling and debugging
+  // Handle Google authentication callback
+  const handleGoogleCallback = async (token) => {
+    try {
+      console.log('[AuthContext] Handling Google callback with token:', token ? `${token.substring(0, 15)}...` : 'null');
+      setError(null);
+      setToken(token);
+      setCookie('access_token', token);
+      
+      // Fetch user data
+      const response = await fetch('/api/auth/user', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      const data = await response.json();
+      console.log('[AuthContext] Successfully fetched user data after Google callback:', data);
+      updateUser(data);
+      return data;
+    } catch (err) {
+      console.error('[AuthContext] Google auth callback error:', err);
+      setError(err.message || 'Google authentication failed');
+      throw err;
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    removeCookie('access_token');
+  };
+
+  // Login function
   const login = async (username, password) => {
     try {
+      console.log('[AuthContext] Attempting to log in user:', username);
       setError(null);
-      console.log("[AuthContext] login: Attempting for:", username);
+      setLoading(true);
 
-      // Direct fetch approach with Express proxy route
-      // Add timestamp to prevent caching
-      const timestamp = new Date().getTime();
-      const loginUrl = `/api/auth/login?t=${timestamp}`;
-      console.log("Making fetch request to:", loginUrl);
-      const response = await fetch(loginUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
+      const response = await axios.post('/api/auth/login', {
+        username,
+        password,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error ${response.status}`);
+      if (!response.data || !response.data.access_token) {
+        throw new Error('Login failed: Invalid response from server.');
       }
 
-      const data = await response.json();
-      console.log("[AuthContext] login: API Response data:", data);
+      const token = response.data.access_token;
+      console.log('[AuthContext] Login successful, received token:', `${token.substring(0, 15)}...`);
+      setToken(token);
+      setCookie('access_token', token);
+      
+      // Attempt to fetch user data immediately after login
+      await refreshUser();
 
-      if (!data.access_token) {
-        console.error("[AuthContext] login: No access_token in response!");
-        throw new Error("Missing access_token in login response");
-      }
-      if (!data.user) {
-        console.error("[AuthContext] login: No user data in response!");
-        throw new Error("Missing user data in login response");
-      }
-
-      console.log("[AuthContext] login: Preparing to call setToken and setAuthToken with token:", data.access_token ? data.access_token.substring(0,15)+'...' : 'null | undefined');
-      setToken(data.access_token);
-      updateUser(data.user);
-      setAuthToken(data.access_token); // This call should store it
-      console.log("[AuthContext] login: FINISHED setting token and user state. localStorage token should now be set.");
-      return data;
+      setLoading(false);
+      return response.data;
     } catch (err) {
-      console.error("[AuthContext] login: Login error:", err.message, err.stack);
-      setError(err.message || "Login failed. Check your credentials.");
+      console.error('[AuthContext] Login error:', err);
+      setLoading(false);
+      // Propagate error to handleSubmit for display
       throw err;
     }
   };
 
-  // Logout user
-  const logout = () => {
-    setToken(null);
-    updateUser(null);
-    setAuthToken(null);
-  };
-  
-  // Refresh user data from backend with rate limiting
-  const refreshUser = async () => {
-    if (!token) return;
-    
-    try {
-      // Rate limiting check - only refresh if it's been more than 60 seconds since last refresh
-      const currentTime = Date.now();
-      const timeSinceLastRefresh = currentTime - lastUserRefreshTime.current;
-      
-      // If the last refresh was less than 60 seconds ago, use cached data
-      if (timeSinceLastRefresh < userRefreshLimit) {
-        console.log(`Rate limited: User data refreshed recently (${Math.round(timeSinceLastRefresh / 1000)}s ago). Using cached data.`);
-        // Return the current user data from state
-        return user;
-      }
-      
-      // Update the last refresh time
-      lastUserRefreshTime.current = currentTime;
-      
-      // Force clear any possible browser cache with unique timestamp and cache control headers
-      const userTimestamp = currentTime;
-      const userUrl = `/api/auth/user?forceRefresh=${userTimestamp}`;
-      console.log("Refreshing user data from:", userUrl);
-      const response = await fetch(userUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Refreshed user data:", data);
-
-      // Handle different response formats
-      if (data.user) {
-        updateUser(data.user);
-      } else if (data && data.id) {
-        updateUser(data);
-      } else {
-        throw new Error("Invalid user data format");
-      }
-      
-      return data;
-    } catch (err) {
-      console.error("Error refreshing user:", err);
-      return null;
-    }
-  };
-  
-  // Force a complete refresh with rate limiting
-  const forceRefreshUserData = async () => {
-    try {
-      // Rate limiting check for force refresh
-      // We'll allow force refresh to bypass rate limiting for manual user actions
-      // But still track the last refresh time
-      const currentTime = Date.now();
-      const timeSinceLastRefresh = currentTime - lastUserRefreshTime.current;
-      
-      // Log whether we're rate-limiting this request
-      if (timeSinceLastRefresh < userRefreshLimit) {
-        console.log(`Force refresh requested, bypassing rate limit (${Math.round(timeSinceLastRefresh / 1000)}s since last refresh)`);
-      }
-      
-      // Update the last refresh time regardless
-      lastUserRefreshTime.current = currentTime;
-      
-      // First clear user data
-      updateUser(null);
-      
-      // Then fetch fresh data from server with cache-busting
-      if (token) {
-        const timestamp = currentTime;
-        const userUrl = `/api/auth/user?forceRefresh=${timestamp}`;
-        console.log("Force refreshing user data from:", userUrl);
-        
-        const response = await fetch(userUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log("Force refreshed user data:", data);
-
-        // Update user data with latest from server
-        if (data.user) {
-          updateUser(data.user);
-        } else if (data && data.id) {
-          updateUser(data);
-        } else {
-          throw new Error("Invalid user data format");
-        }
-        
-        return data;
-      }
-    } catch (err) {
-      console.error("Error force refreshing user:", err);
-      return null;
-    }
-  };
-
-  // Check if user is authenticated on load
+  // Check for existing token on mount
   useEffect(() => {
-    const loadUser = async () => {
-      if (token) {
-        console.log("[AuthContext] useEffect: Token found in state, attempting to load user. Token:", token.substring(0,15)+'...');
-        let clearTokenAndUser = false;
-        try {
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-          const userTimestamp = new Date().getTime();
-          const userUrl = `/api/auth/user?t=${userTimestamp}`;
-          console.log("[AuthContext] useEffect: Making user fetch request to:", userUrl);
-          const response = await fetch(userUrl, {
-            headers: { 'Authorization': `Bearer ${token}` },
-          });
-
-          if (!response.ok) {
-            console.error(`[AuthContext] useEffect: HTTP error ${response.status} fetching user. Status: ${response.statusText}`);
-            if (response.status === 401 || response.status === 403) {
-              console.warn("[AuthContext] useEffect: Token rejected by server when fetching user.");
-              clearTokenAndUser = true; // Token is invalid according to the server
-            }
-            // For other server errors (5xx), don't clear the token, server might be temporarily down.
-          }
-
-          if (!clearTokenAndUser) {
-            const data = await response.json();
-            console.log("[AuthContext] useEffect: User data response:", data);
-            if (data.user) {
-              updateUser(data.user);
-            } else if (data && data.id) {
-              updateUser(data);
-            } else {
-              console.error("[AuthContext] useEffect: Invalid user data format from /api/auth/user.");
-              // Potentially clear token if user data is essential and format is wrong, 
-              // but for now, let's assume a malformed response isn't a token issue itself.
-            }
-          }
-        } catch (err) {
-          console.error("[AuthContext] useEffect: Error during loadUser process (e.g., network issue fetching user):", err);
-          // Don't clear token for general network errors. Only if server explicitly rejects token (401/403)
+    const checkAuth = async () => {
+      if (user) { return; }
+      console.log('[AuthContext] Running initial auth check on mount');
+      try {
+        console.log('[AuthContext] Calling getCookie for access_token in checkAuth');
+        const token = getCookie('access_token');
+        if (token) {
+          console.log('[AuthContext] Found existing token:', `${token.substring(0, 15)}...`);
+          setToken(token);
+          await refreshUser();
+        } else {
+          console.log('[AuthContext] No existing token found');
         }
-
-        if (clearTokenAndUser) {
-          console.log("[AuthContext] useEffect: Clearing token and user due to server rejection of token.");
-          setToken(null);
-          updateUser(null);
-          setAuthToken(null);
-        }
+      } catch (err) {
+        console.error('[AuthContext] Auth check error:', err);
+        removeCookie('access_token');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    loadUser();
-  }, [token]);
+    checkAuth();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        token,
         user,
+        token,
         loading,
         error,
-        register,
-        login,
-        logout,
         refreshUser,
-        forceRefreshUserData,
+        handleGoogleCallback,
+        logout,
+        login,
         isAuthenticated: !!user,
       }}
     >

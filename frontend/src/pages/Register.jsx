@@ -1,10 +1,10 @@
 // import { useState } from 'react';
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const GOOGLE_CLIENT_ID = '575966904692-majhctdekd8p1fhnjgq3tp8q4dplsact.apps.googleusercontent.com';
-const REDIRECT_URI = `http://localhost:3000/register`;
+// const GOOGLE_CLIENT_ID = '575966904692-majhctdekd8p1fhnjgq3tp8q4dplsact.apps.googleusercontent.com';
+// const REDIRECT_URI = `http://localhost:3000/register`;
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,33 +12,20 @@ const Register = () => {
     password: '',
     confirmPassword: '',
   });
-  const [googleToken, setGoogleToken] = useState(null);
+  // const [googleToken, setGoogleToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    const hash = window.location.hash.substring(1); // 去掉 #
-    const params = new URLSearchParams(hash);
-    const tokenG = params.get('access_token');
+    // Check for error message from Google auth redirect
+    if (location.state?.error) {
+      setError(location.state.error);
+    }
+  }, [location]);
 
-    if (tokenG) {
-      setGoogleToken(tokenG);
-      sessionStorage.removeItem('hasRedirected');
-    } else {
-        const hasRedirected = sessionStorage.getItem('hasRedirected');
-        if (!hasRedirected) {
-        sessionStorage.setItem('hasRedirected', 'true');
-      // 拼接 Google 登录 URL 并跳转
-      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-        `client_id=${GOOGLE_CLIENT_ID}` +
-        `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-        `&response_type=token` +
-        `&scope=openid%20email%20profile`;
-      window.location.href = googleAuthUrl;
-    }}
-  }, []);
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -71,6 +58,10 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleRegister = () => {
+    window.location.href = '/api/auth/google';
   };
 
   return (
@@ -163,6 +154,22 @@ const Register = () => {
             </button>
           </div>
         </form>
+
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleGoogleRegister}
+            className="group relative w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 488 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M488 261.8c0-17.8-1.6-35-4.6-51.8H249v98h135.6c-5.9 31.4-23.7 57.6-50.5 75.3v62h81.7c47.8-44.1 74.2-109.2 74.2-183.5z" fill="#4285F4"/>
+              <path d="M249 508c67 0 123.1-22.1 164.1-60l-81.7-62c-22.7 15.2-51.8 24.3-82.4 24.3-63 0-116.4-42.5-135.5-99.6H28v62.7C69.4 451.6 153.7 508 249 508z" fill="#34A853"/>
+              <path d="M113.5 310.7C105.6 288.9 101 265.1 101 240s4.6-48.9 12.5-70.7V106h-85C12.3 150.4 0 193.9 0 240s12.3 89.6 29.5 134h84z" fill="#FBBC05"/>
+              <path d="M249 97c36.4 0 69 12.5 94.6 33.2l70.9-70.9C379.4 23.3 323.3 0 249 0 153.7 0 69.4 56.4 28 134l85 63.3C132.6 139.5 186 97 249 97z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+        </div>
 
         <div className="mt-6">
           <p className="text-xs text-gray-500 text-center">

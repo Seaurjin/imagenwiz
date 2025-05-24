@@ -93,7 +93,16 @@ def create_app():
         print(f"CREATE_APP WARNING: .env not found at {DOTENV_PATH}.")
 
     # IMPORTANT: Configure JWT_SECRET_KEY *before* initializing JWTManager with app
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
+    jwt_secret_key = os.environ.get('JWT_SECRET_KEY')
+    if not jwt_secret_key:
+        raise RuntimeError("JWT_SECRET_KEY must be set in environment variables")
+    app.config['JWT_SECRET_KEY'] = jwt_secret_key
+    
+    # Configure JWT to accept tokens from both cookies and headers
+    app.config['JWT_TOKEN_LOCATION'] = ['cookies', 'headers']
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # Disable CSRF for API endpoints
+    app.config['JWT_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['JWT_COOKIE_SAMESITE'] = 'Lax'  # Set to 'None' if using cross-site cookies
     
     # Direct print to stdout/stderr for Gunicorn to catch, after attempting to set from os.environ
     if app.config['JWT_SECRET_KEY']:

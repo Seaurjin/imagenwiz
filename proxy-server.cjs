@@ -2,7 +2,7 @@ const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
 const app = express();
-const PORT = 3001; // This is the port our proxy will run on
+const PORT = 3000; // Frontend port
 
 // Enable CORS for all requests with more open options
 app.use(cors({
@@ -13,19 +13,21 @@ app.use(cors({
 
 // Proxy middleware for API requests
 app.use('/api', createProxyMiddleware({
-  target: 'http://localhost:5001', // Target the Gunicorn backend port
+  target: 'http://localhost:5000', // Backend port
   changeOrigin: true,
-  pathRewrite: {
-    '^': '/api'  // Prepend /api to the path that http-proxy-middleware is about to send to the target
-  },
+  // Remove the pathRewrite to prevent double /api prefix
   onError: (err, req, res) => {
     console.error('Proxy error:', err);
     res.status(500).send('Proxy error occurred');
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    // Log the request for debugging
+    console.log(`[Proxy] ${req.method} ${req.url} -> ${proxyReq.path}`);
   }
 }));
 
 // Start the server
 app.listen(PORT, () => {
   console.log(`Proxy server running on port ${PORT}`);
-  console.log(`Forwarding API requests from /api on port ${PORT} to ${'http://localhost:5001'} (with path rewrite)`);
+  console.log(`Forwarding API requests from /api on port ${PORT} to http://localhost:5000`);
 }); 

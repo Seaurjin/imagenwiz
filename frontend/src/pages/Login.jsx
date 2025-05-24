@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
@@ -11,6 +11,14 @@ const Login = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check for error message from Google auth redirect
+    if (location.state?.error) {
+      setError(location.state.error);
+    }
+  }, [location]);
 
   const handleChange = (e) => {
     setFormData({
@@ -25,13 +33,20 @@ const Login = () => {
     setLoading(true);
 
     try {
+      console.log('Attempting login with:', formData);
       await login(formData.username, formData.password);
+      console.log('Login successful, redirecting to dashboard');
       navigate('/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = '/api/auth/google';
   };
 
   return (
@@ -62,7 +77,13 @@ const Login = () => {
           </div>
         )}
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form 
+          className="mt-8 space-y-6" 
+          onSubmit={(e) => {
+            console.log('Form submitted');
+            handleSubmit(e);
+          }}
+        >
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">
@@ -107,6 +128,22 @@ const Login = () => {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="group relative w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 488 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M488 261.8c0-17.8-1.6-35-4.6-51.8H249v98h135.6c-5.9 31.4-23.7 57.6-50.5 75.3v62h81.7c47.8-44.1 74.2-109.2 74.2-183.5z" fill="#4285F4"/>
+                <path d="M249 508c67 0 123.1-22.1 164.1-60l-81.7-62c-22.7 15.2-51.8 24.3-82.4 24.3-63 0-116.4-42.5-135.5-99.6H28v62.7C69.4 451.6 153.7 508 249 508z" fill="#34A853"/>
+                <path d="M113.5 310.7C105.6 288.9 101 265.1 101 240s4.6-48.9 12.5-70.7V106h-85C12.3 150.4 0 193.9 0 240s12.3 89.6 29.5 134h84z" fill="#FBBC05"/>
+                <path d="M249 97c36.4 0 69 12.5 94.6 33.2l70.9-70.9C379.4 23.3 323.3 0 249 0 153.7 0 69.4 56.4 28 134l85 63.3C132.6 139.5 186 97 249 97z" fill="#EA4335"/>
+              </svg>
+              Continue with Google
+            </button>
+          </div>
+
         </form>
       </div>
     </div>
